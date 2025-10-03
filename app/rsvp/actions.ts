@@ -1,12 +1,13 @@
 "use server";
 
 import { opts } from "@/app/api/auth/[...nextauth]/route";
-import { createRecord, getRecords } from "@/lib/airtable/index";
+import { createRecord, getRecordCount, getRecords } from "@/lib/airtable/index";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { headers } from 'next/headers';
 import { z as zod } from "zod";
 import metrics from "@/metrics";
+import { sendRSVPEmail } from "@/lib/loops";
 
 // The form schema for extra validation
 const schema = z.object({
@@ -170,6 +171,11 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
         console.log('Adding IP address:', ip);
         newEntry["IP Address"] = ip;
 
+        const count = await getRecordCount("RSVP") + 1;
+        const link = `moonshot.hack.club/${count}`
+        console.log("Sending RSVP email to:", newEntry["Email"]);
+        console.log("RSVP link:", link);
+        await sendRSVPEmail(newEntry["Email"] as string, newEntry["First Name"] as string, link);
         try {
             console.log('Creating Airtable record...');
             // Create airtable record

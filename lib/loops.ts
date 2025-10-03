@@ -2,10 +2,12 @@ const LOOPS_API_KEY = process.env.LOOPS_API_KEY;
 const LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID;
 const LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID;
 const LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID;
+const LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID;
 
 if (!LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID");
 if (!LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID");
 if (!LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID");
+if (!LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID");
 
 async function sendEmailWithLoops(
     transactionEmailId: string,
@@ -55,4 +57,10 @@ export async function sendPersonalizedEmail(targetEmail: string, name: string, r
     await sendEmailWithLoops(
         LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID!,
         targetEmail, { name, content, reviewer, slackId });
+}
+
+export async function sendRSVPEmail(targetEmail: string, name: string, link: string) {
+    await sendEmailWithLoops(
+        LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID!,
+        targetEmail, { name, link });
 }
