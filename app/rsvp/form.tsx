@@ -106,6 +106,31 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
          setToastMessage("Please enter a valid email address.");
          return;
     }
+
+    // Client-side age validation (must be 13-18 inclusive)
+    try {
+      const birthDate = new Date(formData["Birthday"]);
+      if (isNaN(birthDate.getTime())) {
+        setToastType('error');
+        setToastMessage("Please enter a valid birth date.");
+        return;
+      }
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 13 || age > 18) {
+        setToastType('error');
+        setToastMessage("You must be between 13 and 18 years old to RSVP.");
+        return;
+      }
+    } catch (err) {
+      setToastType('error');
+      setToastMessage("Please enter a valid birth date.");
+      return;
+    }
     
     console.log('Starting form submission:', formData);
     setIsSubmitting(true);
