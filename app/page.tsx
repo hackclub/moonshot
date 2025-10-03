@@ -6,6 +6,9 @@ import LoadingModal from "@/components/common/LoadingModal";
 import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
 import { PrefillData } from "@/types/prefill";
+import Image from "next/image";
+import Floating from "@/components/common/Floating";
+import Star from "@/components/common/Star";
 
 const loadingMessages = [
   "Fueling the rocket...",
@@ -59,6 +62,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPercent, setScrollPercent] = useState(0);
   const isLocalEnv = process.env.NODE_ENV === 'development';
+  const stars = Array(50).fill(null);
+  const percentage = 50
 
   const handleLoadComplete = () => {
     setIsLoading(false);
@@ -96,12 +101,12 @@ export default function Home() {
 
   return (
     <div>
-      <main className="min-h-screen bg-[#130B2C] text-sand pt-32 sm:pt-28 md:pt-32 lg:pt-24">
+      <main className="min-h-screen bg-[#130B2C] text-sand">
         {bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
               style={{
-                position: "fixed",
+                position: "absolute",
                 top: "20px",
                 left: "0",
                 border: "0",
@@ -133,22 +138,59 @@ export default function Home() {
             LOCAL
           </div>
         )}
+        <div className="relative">
+          <Image
+            src="/background.png"
+            alt="Background"
+            className="h-screen w-screen"
+            width={1268}
+            height={951}
+          ></Image>
+          <p className="font-quintessential absolute bottom-[6%] left-[5%] max-w-sm text-center text-2xl text-black md:bottom-[10%] md:left-[23%] md:max-w-xl">
+            Moonshot is lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
+            ipsum lorem ipsum lorem ipsum lorem ipsum
+          </p>
+          <a
+            href="#rsvp"
+            className="font-quintessential absolute top-[40%] left-[50%] z-30 flex animate-bounce flex-col items-center rounded-full bg-red-500 px-5 py-3 text-3xl text-white shadow-lg"
+          >
+            RSVP now!
+          </a>
+        </div>
+
+        <div className="font-quintessential relative flex h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black">
+          {stars.map((star, i) => (
+            <Star key={i} />
+          ))}
+          <Floating seed={Math.random()}>
+            <Image
+              src="/character.png"
+              width={500}
+              height={500}
+              alt="Character"
+              className="h-60 w-60"
+            />
+          </Floating>
+          <Floating seed={Math.random()}>
+            <Image
+              src="/orph.png"
+              width={500}
+              height={500}
+              alt="Astro Orpheus"
+              className="h-60 w-60"
+            />
+          </Floating>
+
         <SearchParamsHandler>
           {(prefillData) => (
-            <div className="w-full flex justify-center px-2 py-6">
-              <div className="w-full max-w-4xl">
-                <div className="mt-1 sm:mt-4">
+            <>
                   <SignupProgress />
-                </div>
-                <div className="mt-1 sm:mt-4 bg-[#2A155A] text-sand border border-[#3E257E] p-2 sm:p-4 rounded-md w-full min-h-[400px] sm:min-h-[500px] flex flex-col justify-between text-center overflow-hidden">
-                  <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2">
-                    <Form hasSession={false} prefillData={prefillData || {}} />
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <Form hasSession={false} prefillData={prefillData || {}} />
+            </>
           )}
         </SearchParamsHandler>
+        </div>
+
       </main>
     </div>
   );

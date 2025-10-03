@@ -32,12 +32,14 @@ export default function SignupProgress() {
   const progress = Math.min((count / 5000) * 100, 100);
 
   return (
-    <div className="bg-sand/60 border border-sand p-2 rounded-md backdrop-blur-md text-dark-brown mb-2">
-      <h2 className="text-lg font-bold mb-1">🎉 Submit your projects to Moonshot!</h2>
-      <ProgressBar earnedProgress={progress} showLabels={false} compact className="mb-1" />
-      <p className="text-xs sm:text-sm">
-        RSVPs so far: <span className="font-semibold">{count.toLocaleString()}</span>
-      </p>
-    </div>
+    <div className="relative z-20 h-6 w-80 rounded-t-lg border-2 border-b-0 border-[#333333] bg-[#333333] md:w-96">
+    <p className="font-quintessential relative bottom-8 w-full text-center text-lg">
+      {progress}% to liftoff
+    </p>
+    <div
+      style={{ width: `${progress}%` }}
+      className="absolute top-0 left-0 h-full rounded-t-lg bg-red-500"
+    ></div>
+  </div>
   );
 } 
