@@ -9,7 +9,7 @@ import {calculateBearing} from '@/lib/map-drawing';
 import MapPath from '@/components/map/MapPath';
 import Marker from '@/components/map/Marker';
 import Flight from '@/components/map/Flight';
-import ShipwreckedPOI from '@/components/map/ShipwreckedPOI';
+import MoonshotPOI from '@/components/map/MoonshotPOI';
 import {latLng} from 'leaflet';
 
 export default function Map({theme, flights: flightsProp, center, setCenter}: {
@@ -65,7 +65,7 @@ export default function Map({theme, flights: flightsProp, center, setCenter}: {
         url={mapTheme.tileLayer.url}
         className="brightness-90"
       />
-      <ShipwreckedPOI theme={mapTheme}/>
+      <MoonshotPOI theme={mapTheme}/>
       {calculatedFlights ? calculatedFlights.map((calculatedFlight, index) => {
         if (!calculatedFlight) return null;
         if (!calculatedFlight.serverData || !calculatedFlight.status) return null; // Skip flights without server data or status
