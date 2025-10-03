@@ -82,14 +82,6 @@ export default function Home() {
 
   const imageUrls = [
     "/logo.svg",
-    "/logo-outline.svg",
-    "/calendar-icon.png",
-    "/location-icon.png",
-    "/sand-logo.png",
-    "/bottle.png",
-    "/back-arrow.png",
-    "/shore.webp",
-    ...Array.from({ length: 10 }, (_, i) => `/waves/${i + 1}.svg`),
   ];
 
   if (isLoading) {

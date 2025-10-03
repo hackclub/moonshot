@@ -8,6 +8,7 @@ interface ProgressBarProps {
   totalProgress?: number; // Total progress including purchased (0-100)
   className?: string;
   showLabels?: boolean;
+  compact?: boolean; // Use a slimmer bar height for compact banners
 }
 
 export default function ProgressBar({ 
@@ -15,7 +16,8 @@ export default function ProgressBar({
   purchasedProgress = 0, 
   totalProgress,
   className = "",
-  showLabels = true 
+  showLabels = true,
+  compact = false
 }: ProgressBarProps) {
   // Calculate total progress if not provided
   const calculatedTotal = totalProgress ?? Math.min(earnedProgress + purchasedProgress, 100);
@@ -24,6 +26,8 @@ export default function ProgressBar({
   const earned = Math.max(0, Math.min(100, earnedProgress));
   const purchased = Math.max(0, Math.min(100, purchasedProgress));
   const total = Math.max(0, Math.min(100, calculatedTotal));
+
+  const barHeightClass = compact ? "h-2" : "h-4";
 
   return (
     <div className={`w-full ${className}`}>
@@ -34,7 +38,7 @@ export default function ProgressBar({
         </div>
       )}
       
-      <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden">
+      <div className={`relative w-full ${barHeightClass} bg-gray-200 rounded-full overflow-hidden`}>
         {/* Earned progress (blue) */}
         <div 
           className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-300 ease-out"
