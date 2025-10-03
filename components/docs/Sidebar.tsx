@@ -16,7 +16,7 @@ export default function Sidebar({
               src="/logo.svg"
               width={0}
               height={0}
-              alt="Shipwrecked Logo"
+              alt="Moonshot Logo"
               className="md:w-110 w-80 h-auto"
             />
           </a>

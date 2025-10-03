@@ -90,15 +90,6 @@ export default function FAQ() {
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold mb-3 text-gray-700">What does it mean for a project to be "viral"?</h2>
-            <p className="text-gray-600 mb-2">
-              Check out <a href="https://shipwrecked.hackclub.com/info/go-viral" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                shipwrecked.hackclub.com/info/go-viral
-              </a> for what it means to go viral.
-            </p>
-          </div>
-
-          <div>
             <h2 className="text-xl font-semibold mb-3 text-gray-700">What does "shipped" mean?</h2>
             <p className="text-gray-600 mb-2">
               A project is considered "shipped" when it's fully deployed and accessible to users. This means:

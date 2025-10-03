@@ -27,10 +27,10 @@ export default function IDPopup() {
           <img src="/icon-error.svg" alt="Identity" className="w-16 h-16" />
         </div>
         <p className="text-gray-700 mb-4 text-center text-lg font-medium">
-          Verify your identity to attend Shipwrecked!
+          Verify your identity to attend Moonshot!
         </p>
         <div className="mb-6 text-gray-500 text-sm text-center">
-          <span className="font-semibold text-blue-600">Why verify?</span> It helps us keep Shipwrecked safe, fair, and fun for everyone.
+          <span className="font-semibold text-blue-600">Why verify?</span> It helps us keep Moonshot safe, fair, and fun for everyone.
         </div>
         <button
           onClick={async () => {

@@ -443,7 +443,7 @@ export default function AdminDashboard() {
     <div className="pb-12">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Administrator Dashboard</h1>
-        <p className="text-gray-600">Welcome to the Shipwrecked admin area. Manage users, projects, and reviews.</p>
+        <p className="text-gray-600">Welcome to the Moonshot admin area. Manage users, projects, and reviews.</p>
       </div>
       
       <div className="mb-10">

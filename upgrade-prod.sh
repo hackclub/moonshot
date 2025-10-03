@@ -14,7 +14,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo
-echo "Have you fully tested these changes on https://shipwrecked-staging.hackclub.com?"
+echo "Have you fully tested these changes on https://moonshot-staging.hackclub.com?"
 echo "If not, please test there first before proceeding to production."
 echo
 read -p "Have you tested on staging? [y/N] " -n 1 -r
@@ -26,13 +26,13 @@ fi
 
 # Check upstream remote configuration
 upstream_url=$(git remote get-url upstream 2>/dev/null || echo "")
-if [ "$upstream_url" != "git@github.com:hackclub/shipwrecked.git" ] && [ "$upstream_url" != "https://github.com/hackclub/shipwrecked.git" ]; then
+if [ "$upstream_url" != "git@github.com:hackclub/moonshot.git" ] && [ "$upstream_url" != "https://github.com/hackclub/moonshot.git" ]; then
     echo "Error: Upstream remote is not configured correctly."
-    echo "Expected: git@github.com:hackclub/shipwrecked.git"
+    echo "Expected: git@github.com:hackclub/moonshot.git"
     echo "Found: $upstream_url"
     echo
     echo "Please configure the upstream remote with:"
-    echo "git remote add upstream git@github.com:hackclub/shipwrecked.git"
+    echo "git remote add upstream git@github.com:hackclub/moonshot.git"
     exit 1
 fi
 

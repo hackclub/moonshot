@@ -334,7 +334,7 @@ async function createAirtableField(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        description: `Field created by Shipwrecked sync script on ${new Date().toISOString()}`,
+        description: `Field created by Moonshot sync script on ${new Date().toISOString()}`,
         name: field.name,
         type: field.type,
         options

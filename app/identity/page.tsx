@@ -44,7 +44,7 @@ function IdentityCallbackContent() {
           }
           
           setStatus(data2.verification_status === 'verified' ? 'success' :  'error');
-          setMessage(data2.verification_status === 'verified' ? 'Identity verified! You may now return to Shipwrecked.' : 'Identity verification failed. Please try again.');
+          setMessage(data2.verification_status === 'verified' ? 'Identity verified! You may now return to Moonshot.' : 'Identity verification failed. Please try again.');
         } else {
           setStatus('error');
           setMessage('Failed to verify identity.');
@@ -88,7 +88,7 @@ function IdentityCallbackContent() {
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           onClick={() => router.push('/bay')}
         >
-          Return to Shipwrecked
+          Return to Moonshot
         </button>
       </div>
     </div>

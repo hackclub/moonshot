@@ -36,7 +36,7 @@ export interface MapTheme {
 
 const mapThemes: MapTheme[] = [
   {
-    name: 'Shipwrecked',
+    name: 'Moonshot',
     tileLayer: {
       url: 'https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',
       attribution:

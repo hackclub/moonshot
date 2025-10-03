@@ -599,7 +599,7 @@ export async function DELETE(request: Request) {
         if (!isFromAdminPanel) {
             return Response.json({
                 success: false,
-                error: 'Sorry, you cannot unlink your hackatime project from Shipwrecked.'
+                error: 'Sorry, you cannot unlink your hackatime project from Moonshot.'
             }, { status: 403 });
         }
         

@@ -90,7 +90,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // shipwrecked project fields
+  // moonshot project fields
   projects Project[]
   reviews  Review[] // Relation to reviews created by this user
 

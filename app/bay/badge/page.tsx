@@ -7,8 +7,7 @@ import styles from "./badge.module.css";
 
 // Variables for easy swapping
 const BADGE_IMAGE_URL =
-  "https://hc-cdn.hel1.your-objectstorage.com/s/v3/739361f1d440b17fc9e2f74e49fc185d86cbec14_badge.png";
-const TARGET_LINK = "https://shipwrecked.hackclub.com/?t=ghrm";
+  "https://replace-me.doesnotexist.imsorry.com.png";
 
 export default function BadgeGenerator() {
   const { status } = useSession();
@@ -35,7 +34,7 @@ export default function BadgeGenerator() {
   const badgeCode = `<div align="center">
   <a href="${TARGET_LINK}" target="_blank">
     <img src="${BADGE_IMAGE_URL}" 
-         alt="This project is part of Shipwrecked, the world's first hackathon on an island!" 
+         alt="This project is part of Moonshot, a 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios!" 
          style="width: 35%;">
   </a>
 </div>`;
@@ -55,7 +54,7 @@ export default function BadgeGenerator() {
       <div className={styles.content}>
         <div className={styles.progressSection}>
           <h2 className={styles.title}>
-            Shipwrecked Badge
+            Moonshot Badge
           </h2>
           <div className={styles.badgeSection}>
             <p className={styles.description}>

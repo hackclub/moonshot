@@ -160,7 +160,7 @@ export default function ProjectReviewRequest({
       case 'ShippedApproval':
         return "Explain why this project should be approved as 'shipped'. Include any relevant details about deployment and functionality.";
       case 'ViralApproval':
-        return "Explain why this project should be considered 'viral'. Include links to social media that prove you have met one of the requirements on shipwrecked.hackclub.com/info/go-viral (if doing hacker news, link archive.org snapshot)";
+        return "Explain why this project should be considered 'viral'. Include links to social media that prove you have met one of the requirements on moonshot.hackclub.com/info/go-viral (if doing hacker news, link archive.org snapshot)";
       case 'HoursApproval':
         return "Provide details about the updates you've made to this project since it was approved as shipped. (ex. I implemented feature X, Y, & Z.) Please keep it short & use bullets for readability.";
       case 'Other':
@@ -268,7 +268,7 @@ export default function ProjectReviewRequest({
                 disabled={isSubmitting}
               />
               <label htmlFor="experienceableBuild" className="text-sm text-gray-700">
-              🌐 Experienceable build — Live site, working APK/App Store link for iOS (if it's not on the App Store, please check out <a href="http://shipwrecked.hackclub.com/AltStore.md" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">this guide</a>), or if any other runnable builds exist (videos alone are not acceptable unless explicitly approved).
+              🌐 Experienceable build — Live site, working APK/App Store link for iOS (if it's not on the App Store, please check out <a href="http://moonshot.hackclub.com/AltStore.md" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">this guide</a>), or if any other runnable builds exist (videos alone are not acceptable unless explicitly approved).
               </label>
             </div>
             

@@ -7,7 +7,7 @@ services:
       service: app
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/shipwrecked
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379
     ports:
       - "9991:9991"
@@ -21,7 +21,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=shipwrecked
+      - POSTGRES_DB=postgres
     ports:
       - "5432:5432"
     volumes:

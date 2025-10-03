@@ -148,11 +148,11 @@ const duplicateTagger = async () => {
       }
     });
 
-    console.log(`Found ${projects.length} projects in Shipwrecked database`);
+    console.log(`Found ${projects.length} projects in Moonshot database`);
 
     // Check each project for duplicates (quietly)
     let duplicateCount = 0;
-    let shipwreckedMatchCount = 0;
+    let moonshotMatchCount = 0;
     let noUrlCount = 0;
     const duplicates: Array<{
       projectID: string;
@@ -178,8 +178,8 @@ const duplicateTagger = async () => {
         const yswsProgram = airtableCodeUrlMap.get(projectCodeUrl);
         const programName = typeof yswsProgram === 'string' ? yswsProgram : (Array.isArray(yswsProgram) ? yswsProgram.join(', ') : String(yswsProgram));
         
-        // Only flag as duplicate if it's from a different program than Shipwrecked
-        if (yswsProgram && programName !== "Shipwrecked" && !programName.includes("Shipwrecked")) {
+        // Only flag as duplicate if it's from a different program than Moonshot
+        if (yswsProgram && programName !== "Moonshot" && !programName.includes("Moonshot")) {
           duplicates.push({
             projectID: project.projectID,
             projectName: project.name,
@@ -190,7 +190,7 @@ const duplicateTagger = async () => {
           });
           duplicateCount++;
         } else {
-          shipwreckedMatchCount++;
+          moonshotMatchCount++;
         }
       }
     }
@@ -198,8 +198,8 @@ const duplicateTagger = async () => {
     console.log("\n=== DUPLICATE CONFLICTS SUMMARY ===");
     console.log(`Total projects processed: ${projects.length}`);
     console.log(`Projects with no GitHub URL: ${noUrlCount}`);
-    console.log(`Duplicates found (non-Shipwrecked): ${duplicateCount}`);
-    console.log(`Shipwrecked matches (not flagged): ${shipwreckedMatchCount}`);
+    console.log(`Duplicates found (non-Moonshot): ${duplicateCount}`);
+    console.log(`Moonshot matches (not flagged): ${moonshotMatchCount}`);
     
     if (duplicates.length > 0) {
       console.log(`\n🚨 DUPLICATE PROJECTS DETECTED:`);

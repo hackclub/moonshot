@@ -52,7 +52,7 @@ export async function GET(
     // Get all project names
     const projectNames = hackatimeProjects.map(project => project.name);
     
-    // Get all projects already linked to any Shipwrecked project for this user
+    // Get all projects already linked to any Moonshot project for this user
     const linkedProjects = await prisma.hackatimeProjectLink.findMany({
       where: {
         project: {

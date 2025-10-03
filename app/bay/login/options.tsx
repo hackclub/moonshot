@@ -23,7 +23,7 @@ export default function LoginOptions() {
     <>
       <div className="flex justify-center flex-col items-center my-4 rounded-lg bg-gray-100/60 p-2">
         <h2 className="text-2xl font-bold mb-4 text-dark-blue">Welcome, hacker!</h2>
-        <p className="text-base text-black mb-2 max-w-xs text-center break-words">Use the same email / slack account on your Hackatime account to sign in! You do not need to have a shipwrecked account to begin.</p>
+        <p className="text-base text-black mb-2 max-w-xs text-center break-words">Use the same email / slack account on your Hackatime account to sign in! You do not need to have a Moonshot account to begin.</p>
         <button className="my-2 cursor-pointer" onClick={loginWithSlack}>
           <img
             src="https://platform.slack-edge.com/img/sign_in_with_slack.png"

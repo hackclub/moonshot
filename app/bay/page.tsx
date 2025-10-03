@@ -1144,9 +1144,9 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
         okText="Got it!"
       >
         <div className="p-4">
-          <h3 className="text-lg font-semibold mb-3">Your Journey to Shipwrecked</h3>
+          <h3 className="text-lg font-semibold mb-3">Your Journey</h3>
           <p className="mb-4">
-            The progress bar shows your completion percentage towards the 60-hour goal required to qualify for Shipwrecked.
+            The progress bar shows your completion percentage towards the 60-hour goal required to qualify for Moonshot.
           </p>
           
           <div className="bg-gray-50 p-4 rounded-lg mb-4">
@@ -1181,19 +1181,16 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           </div>
           
           <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h4 className="font-medium mb-2">Requirements for Shipwrecked:</h4>
+            <h4 className="font-medium mb-2">Requirements for Moonshot:</h4>
             <ol className="list-decimal pl-5 space-y-2">
               <li>
-                Complete at least 60 hours of development time (roughly 15 hours per project) and ship 4 fully deployed projects
-              </li>
-              <li>
-                Make at least one of your projects go viral according to our <a href="/info/go-viral" className="text-blue-600 hover:underline">defined criteria</a>
+                Complete at least 75 hours of development time.
               </li>
             </ol>
           </div>
           
           <p>
-            Your current progress: <span className="font-bold">{Math.round(progressMetrics.totalPercentageWithPurchased)}%</span> toward the 60-hour requirement
+            Your current progress: <span className="font-bold">{Math.round(progressMetrics.totalPercentageWithPurchased)}%</span> toward the 75-hour requirement
           </p>
         </div>
       </Modal>
@@ -2129,7 +2126,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
     props.setIsOpen(false);
     
          // Show message that deletion is restricted
-     toast.error("Sorry, you cannot unlink your hackatime project from Shipwrecked.");
+     toast.error("Sorry, you cannot unlink your hackatime project from Moonshot.");
   };
   
   return (
@@ -2474,7 +2471,7 @@ function HackatimeMultiSelect({
   return (
     <div className="w-full mb-8">
       <label className="text-lg font-semibold text-left">
-        <Tooltip content="Shipwrecked works by allowing you to link projects that are currently being tracked by Hackatime. Select the Hackatime projects you want to showcase here.">
+        <Tooltip content="Moonshot works by allowing you to link projects that are currently being tracked by Hackatime. Select the Hackatime projects you want to showcase here.">
           Your Hackatime Projects
         </Tooltip>
         <p className="text-red-500 inline">*</p>

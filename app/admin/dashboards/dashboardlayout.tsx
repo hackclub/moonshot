@@ -11,7 +11,7 @@ export default function DashboardsLayout({
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 <a href="/" className="text-xl font-bold text-gray-900">
-                  Shipwrecked
+                  Moonshot
                 </a>
               </div>
             </div>

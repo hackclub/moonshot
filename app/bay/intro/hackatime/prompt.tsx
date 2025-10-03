@@ -36,7 +36,7 @@ export default function Prompt({ slackId }: { slackId: string }) {
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
           Create a Hackatime Account
         </h1>
-        Hackatime is an important part of the Shipwrecked experience. Its the
+        Hackatime is an important part of the Moonshot experience. Its the
         platform you&apos;ll use to log and track your coding hours throughout
         the event, helping you stay focused and giving the organizers insight
         into your progress. <br /> <br />

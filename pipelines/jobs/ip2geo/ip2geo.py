@@ -24,7 +24,7 @@ load_dotenv()
 # Load Environment
 # -----
 
-parser = argparse.ArgumentParser(description='Iterates over Shipwrecked RSVP table and converts ip -> country, saving off that country to airtable')
+parser = argparse.ArgumentParser(description='Iterates over Moonshot RSVP table and converts ip -> country, saving off that country to airtable')
 parser.add_argument('--airtable-api-key', required=True, help='Airtable API Key')
 parser.add_argument('--airtable-base-id', required=True, help='Airtable Base ID')
 parser.add_argument('--ipinfo-api-token', required=True, help='IPInfo API Token')

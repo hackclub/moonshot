@@ -88,7 +88,7 @@ export default function HackatimeSetup() {
                             </p>
                             <p className="text-lg text-white mb-6">
                                 We've detected that your Hackatime account hasn't been set up yet. 
-                                You'll need to create an account on Hackatime first to use Shipwrecked.
+                                You'll need to create an account on Hackatime first to use Moonshot.
                             </p>
                             <div className="mt-6">
                                 <a

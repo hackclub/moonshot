@@ -201,7 +201,7 @@ ${project.reviews.map((review) => `- User: ${review.reviewer.name}, Comment: ${r
       console.error(error);
     }
   }
-  const records = (await table.select().all()).filter((record) => record.fields.ID?.toString().includes("Shipwrecked"))
+  const records = (await table.select().all()).filter((record) => record.fields.ID?.toString().includes("Moonshot"))
   for (const record of records) {
     const project = await prisma.project.findFirst({
       where: {

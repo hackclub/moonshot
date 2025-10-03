@@ -33,7 +33,7 @@ export default function Prompt({ email }: { email: string }) {
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
           Create a Slack Account
         </h1>
-        The Hack Club Slack is an essential part of the Shipwrecked experience.
+        The Hack Club Slack is an essential part of the Moonshot experience.
         It&apos;s the main space where you&apos;ll stay connected with
         everything happening during the event. From important announcements and
         updates to casual conversations. <br /> <br />

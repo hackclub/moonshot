@@ -46,7 +46,7 @@ docker-compose -f docker-compose-local-debug.yaml down
 check_ports
 
 # Remove the postgres volume
-docker volume rm shipwrecked_postgres_data || { echo "Failed to remove postgres volume"; exit 1; }
+docker volume rm moonshot_postgres_data || { echo "Failed to remove postgres volume"; exit 1; }
 
 echo "Database volume removed. Starting fresh environment..."
 

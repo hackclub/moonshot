@@ -45,7 +45,7 @@ export default function ShareButton() {
         </div>
       ),
       onClick: () => {
-        const text = 'Join me at Shipwrecked, literally a high-school hackathon on an island! 🏝️ #hackathon #hackclub #code #programming #coding #shipwrecked';
+        const text = 'Join me at Moonshot, a 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios! #hackathon #hackclub #code #programming #coding #moonshot';
         const shareUrl = addReferralTypeToUrl(currentUrl, 'sx');
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`, '_blank');
         setIsOpen(false);
@@ -62,7 +62,7 @@ export default function ShareButton() {
       ),
       onClick: () => {
         const shareUrl = addReferralTypeToUrl(currentUrl, 'si');
-        navigator.clipboard.writeText("I just RSVPed for Shipwrecked, a once-in-a-lifetime hackathon on an island! 🏝️ " + shareUrl);
+        navigator.clipboard.writeText("I just RSVPed for Moonshot, a 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios! " + shareUrl);
         setIsOpen(false);
         setShowCopiedModal(true);
       }
@@ -83,7 +83,7 @@ export default function ShareButton() {
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Share Shipwrecked"
+        title="Share Moonshot"
         okText="Close"
       >
         <div className="flex flex-col gap-4">

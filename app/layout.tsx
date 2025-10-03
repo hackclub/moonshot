@@ -17,27 +17,27 @@ const baloo = Baloo_Da_2({
 });
 
 export const metadata: Metadata = {
-  title: "Shipwrecked",
+  title: "Moonshot",
   description:
-    "Shipwrecked is a 130 person, Flagship Hackathon run by Hack Club happening this summer, August 8-11th on Cathleen Stone Island in the Boston harbor.",
+    "A 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios.",
   openGraph: {
-    title: "Shipwrecked",
+    title: "Moonshot",
     description:
-      "Shipwrecked is a 130 person, Flagship Hackathon run by Hack Club happening this summer, August 8-11th on Cathleen Stone Island in the Boston harbor.",
-    siteName: "Shipwrecked",
+      "A 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios.",
+    siteName: "Moonshot",
     images: [
       {
-        url: 'https://shipwrecked.hackclub.com/launchImgSmaller.webp', 
-        alt: 'Shipwrecked Hackathon dates and location', 
+        url: 'https://moonshot.hackclub.com/launchImgSmaller.webp', 
+        alt: 'Moonshot Hackathon dates and location', 
       },
     ],
   },
   twitter: {
     card: "summary_large_image", // Use summary_large_image for image previews
-    title: "Shipwrecked",
+    title: "Moonshot",
     description:
-      "Shipwrecked is a 130 person, Flagship Hackathon run by Hack Club happening this summer, August 8-11th on Cathleen Stone Island in the Boston harbor.",
-    images: ['https://shipwrecked.hackclub.com/launchImgSmaller.webp'], // Path to your image
+      "A 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios.",
+    images: ['https://moonshot.hackclub.com/launchImgSmaller.webp'], // Path to your image
   },
 };
 
@@ -53,7 +53,7 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.variable} ${baloo.variable}`}>
         {children}
-        <script defer data-domain="shipwrecked.hackclub.com" src="https://plausible.io/js/script.js"></script>
+        <script defer data-domain="moonshot.hackclub.com" src="https://plausible.io/js/script.js"></script>
       </body>
     </html>
   );

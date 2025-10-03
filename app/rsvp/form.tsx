@@ -153,11 +153,11 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
       )}
       <div className="text-dark-brown w-full max-w-4xl mb-1">
         <h1 className="text-2xl md:text-6xl font-bold mb-1 md:mb-4">
-          RSVP for Shipwrecked!
+          RSVP for Moonshot!
         </h1>
 
         <p className="text-center text-sm md:text-base mb-3 md:mb-6 text-dark-brown/80">
-          Shipwrecked is for teenagers ages 18 and under.
+          Moonshot is for teenagers ages 13-18.
         </p>
 
         <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
