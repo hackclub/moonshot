@@ -96,7 +96,7 @@ export default function Home() {
 
   return (
     <div>
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-[#130B2C] text-sand pt-32 sm:pt-28 md:pt-32 lg:pt-24">
         {bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
@@ -140,7 +140,7 @@ export default function Home() {
                 <div className="mt-1 sm:mt-4">
                   <SignupProgress />
                 </div>
-                <div className="mt-1 sm:mt-4 bg-sky-blue/30 border border-sky-blue p-2 sm:p-4 rounded-md w-full min-h-[400px] sm:min-h-[500px] backdrop-blur-sm flex flex-col justify-between text-center overflow-hidden">
+                <div className="mt-1 sm:mt-4 bg-[#2A155A] text-sand border border-[#3E257E] p-2 sm:p-4 rounded-md w-full min-h-[400px] sm:min-h-[500px] flex flex-col justify-between text-center overflow-hidden">
                   <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2">
                     <Form hasSession={false} prefillData={prefillData || {}} />
                   </div>

@@ -151,12 +151,12 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
           onClose={() => setToastMessage(null)}
         />
       )}
-      <div className="text-dark-brown w-full max-w-4xl mb-1">
+      <div className="text-sand w-full max-w-4xl mb-1">
         <h1 className="text-2xl md:text-6xl font-bold mb-1 md:mb-4">
           RSVP for Moonshot!
         </h1>
 
-        <p className="text-center text-sm md:text-base mb-3 md:mb-6 text-dark-brown/80">
+        <p className="text-center text-sm md:text-base mb-3 md:mb-6 text-sand/80">
           Moonshot is for teenagers ages 13-18.
         </p>
 
