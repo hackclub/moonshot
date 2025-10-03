@@ -7,7 +7,7 @@ function Star() {
           left: `${randomX}%`,
           top: `${randomY}%`,
         }}
-        className={"absolute z-20 h-2 w-2 rounded-full bg-white blur-xs"}
+        className={"absolute z-0 h-px w-px md:h-[2px] md:w-[2px] rounded-full bg-white opacity-90"}
       />
     );
   }

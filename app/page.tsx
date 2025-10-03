@@ -138,27 +138,27 @@ export default function Home() {
             LOCAL
           </div>
         )}
-        <div className="relative">
+        <div className="relative h-screen w-screen bg-[#130B2C] flex items-center justify-center overflow-hidden">
           <Image
             src="/background.png"
             alt="Background"
-            className="h-screen w-screen"
-            width={1268}
-            height={951}
-          ></Image>
-          <p className="font-quintessential absolute bottom-[6%] left-[5%] max-w-sm text-center text-2xl text-black md:bottom-[10%] md:left-[23%] md:max-w-xl">
-            Moonshot is lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
-            ipsum lorem ipsum lorem ipsum lorem ipsum
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: 'contain' }}
+          />
+          <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
+            
           </p>
           <a
             href="#rsvp"
-            className="font-quintessential absolute top-[40%] left-[50%] z-30 flex animate-bounce flex-col items-center rounded-full bg-red-500 px-5 py-3 text-3xl text-white shadow-lg"
+            className="font-quintessential absolute z-30 flex animate-bounce flex-col items-center rounded-full bg-red-500 px-4 py-2 text-2xl md:px-5 md:py-3 md:text-3xl text-white shadow-lg left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 md:top-[40%] md:translate-y-0"
           >
             RSVP now!
           </a>
         </div>
 
-        <div className="font-quintessential relative flex h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black">
+        <div id="rsvp" className="font-quintessential relative flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-10 md:pt-0">
           {stars.map((star, i) => (
             <Star key={i} />
           ))}
