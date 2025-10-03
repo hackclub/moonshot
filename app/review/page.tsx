@@ -32,7 +32,6 @@ const MAX_HOURS_PER_PROJECT = 15;
 const GOAL_COMPLETION_MIN_HOURS = 40; // Minimum project owner hours to be in "goal completing" range
 
 const MDXShippedApproval = lazy(() => import('./review-guidelines/shipped-approval.mdx'));
-const MDXViralApproval = lazy(() => import('./review-guidelines/viral-approval.mdx'));
 const MDXShipUpdateApproval = lazy(() => import('./review-guidelines/ship-update-approval.mdx'));
 const MDXOther = lazy(() => import('./review-guidelines/other.mdx'));
 
@@ -1118,7 +1117,6 @@ function ReviewPage() {
                     <div className="prose prose-sm max-w-none overflow-y-auto h-full">
                       <Suspense fallback={<div>Loading guidelines...</div>}>
                         {selectedProject.latestReview?.reviewType == 'ShippedApproval' && <MDXShippedApproval components={components} />}
-                        {selectedProject.latestReview?.reviewType == 'ViralApproval' && <MDXViralApproval components={components} />}
                         {selectedProject.latestReview?.reviewType == 'HoursApproval' && <MDXShipUpdateApproval components={components} />}
                         {(selectedProject.latestReview?.reviewType || 'Other') == 'Other' && <MDXOther components={components} />}
                       </Suspense>
