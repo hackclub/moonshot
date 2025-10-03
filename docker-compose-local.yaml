@@ -10,7 +10,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379
     ports:
-      - "9991:9991"
+      - "3000:3000"
     depends_on:
       - postgres
       - redis

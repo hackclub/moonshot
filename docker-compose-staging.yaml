@@ -7,5 +7,3 @@ services:
       service: app
     environment:
       - NODE_ENV=production
-    ports:
-      - ${BIND_PORT:-9998}:9991

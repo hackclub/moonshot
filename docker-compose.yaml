@@ -10,7 +10,7 @@ services:
     #  - "traefik.http.middlewares.moonshot-auth.basicauth.users=a:$2y$05$bcQ3LWVkYdUIMUA.O1MOe.MAGfeGnsCvAXb3jPPqPK23MpsSvixdy"
     #  - traefik.http.routers.https-0-gwkso00g48gwsk044owcs4gw-app.entryPoints=https, moonshot-auth
     environment:
-      - SERVICE_FQDN_APP_9991
+      - SERVICE_FQDN_APP_3000
       - NODE_ENV=production
     deploy:
       resources:
