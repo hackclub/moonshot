@@ -151,27 +151,32 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
           onClose={() => setToastMessage(null)}
         />
       )}
-      <div className="text-sand w-full max-w-4xl mb-1">
-        <h1 className="text-2xl md:text-6xl font-bold mb-1 md:mb-4">
-          RSVP for Moonshot!
-        </h1>
+          <div className="z-20 mx-5 flex flex-col items-center gap-10 rounded-lg border-2 border-[#333333] bg-[#22222266] px-0 py-5 [filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.1))] backdrop-blur-3xl transition-all duration-300 hover:[filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.3))] md:p-10">
+          <div>
+          <h2 id="rsvp" className="font-quintessential px-5 text-center text-5xl">
+            RSVP for Moonshot!
+          </h2>
+          <p className="font-quintessential mt-5 text-center text-xl">
+            Moonshot is for teenagers ages 13 to 18
+          </p>
+        </div>
 
-        <p className="text-center text-sm md:text-base mb-3 md:mb-6 text-sand/80">
-          Moonshot is for teenagers ages 13-18.
-        </p>
-
-        <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
-          <div className="lg:flex justify-center gap-1 md:gap-2">
-            <FormInput
+        <form className="grid grid-cols-1 gap-x-10 gap-y-5 text-xl md:grid-cols-2" onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-1">
+        <FormInput
               fieldName="First Name"
               state={state}
               placeholder="Prophet"
               required
               value={formData["First Name"]}
               onChange={(e) => handleInputChange("First Name", e.target.value)}
+              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
+              textStyle="font-quintessential"
             >
               First Name
             </FormInput>
+          </div>
+          <div className="flex flex-col gap-1">
             <FormInput
               fieldName="Last Name"
               state={state}
@@ -179,13 +184,15 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Last Name"]}
               onChange={(e) => handleInputChange("Last Name", e.target.value)}
+              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
+              textStyle="font-quintessential"
             >
               Last Name
             </FormInput>
           </div>
 
-          <div className="lg:flex justify-center gap-1 md:gap-2 md:mt-auto mt-[-10]">
-            <FormInput
+          <div className="flex flex-col gap-1">
+          <FormInput
               fieldName="Email"
               type="email"
               state={state}
@@ -193,9 +200,13 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Email"]}
               onChange={(e) => handleInputChange("Email", e.target.value)}
+              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
+              textStyle="font-quintessential"
             >
               Email
             </FormInput>
+          </div>
+          <div className="flex flex-col gap-1">
             <FormInput
               fieldName="Birthday"
               type="date"
@@ -204,22 +215,24 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Birthday"]}
               onChange={(e) => handleInputChange("Birthday", e.target.value)}
+              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
+              textStyle="font-quintessential"
             >
               Birthday
             </FormInput>
           </div>
 
-          <div className="flex justify-center mt-0 md:mt-2 pt-1 md:pt-5">
-            <button
-              className="py-1 md:py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer disabled:cursor-not-allowed transform-gpu hover:scale-105 focus:scale-105 duration-150"
-              disabled={isSubmitting}
-              type="submit"
-            >
-              <span className="flex items-center gap-1 flex-nowrap">
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </span>
-            </button>
-          </div>
+            <div className="col-span-1 md:col-span-2 flex justify-center">
+              <button
+                className="font-quintessential cursor-pointer rounded-full border-2 border-white bg-black px-4 py-2 text-2xl text-white hover:animate-pulse text-center"
+                disabled={isSubmitting}
+                type="submit"
+              >
+                <span className="flex items-center gap-1 flex-nowrap font-quintessential">
+                  {isSubmitting ? "Submitting..." : "Submit"}
+                </span>
+              </button>
+            </div>
         </form>
       </div>
     </>
