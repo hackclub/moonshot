@@ -16,7 +16,7 @@ export default function BadgeGenerator() {
 
   // Redirect to login if not authenticated
   if (status === "unauthenticated") {
-    router.push("/bay/login");
+    router.push("/launchpad/login");
     return null;
   }
 

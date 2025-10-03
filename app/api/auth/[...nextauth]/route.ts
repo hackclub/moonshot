@@ -351,9 +351,9 @@ export const opts: NextAuthOptions = {
     }
   },
   pages: {
-    signIn: '/bay/login',
-    verifyRequest: '/bay/login/verify',
-    error: '/bay/login/error',
+    signIn: '/launchpad/login',
+    verifyRequest: '/launchpad/login/verify',
+    error: '/launchpad/login/error',
   },
   debug: true  // Temporarily enable debug mode to see what's happening
 }

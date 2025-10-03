@@ -421,7 +421,7 @@ export async function POST(request: Request) {
                             codeUrl: createdProject.codeUrl || "",
                             playableUrl: createdProject.playableUrl || "",
                             screenshot: createdProject.screenshot || "",
-                            url: createdProject.projectID ? `/bay/projects/${createdProject.projectID}` : '/bay'
+                            url: createdProject.projectID ? `/launchpad/projects/${createdProject.projectID}` : '/bay'
                         }
                     }
                 });

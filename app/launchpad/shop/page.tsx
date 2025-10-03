@@ -33,7 +33,7 @@ export default function ShopPage() {
     const fetchData = async () => {
       try {
         // Fetch shop items
-        const itemsResponse = await fetch('/api/bay/shop/items');
+        const itemsResponse = await fetch('/api/launchpad/shop/items');
         if (itemsResponse.ok) {
           const itemsData = await itemsResponse.json();
           setItems(itemsData.items);
@@ -62,7 +62,7 @@ export default function ShopPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/bay/shop/purchase', {
+      const response = await fetch('/api/launchpad/shop/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

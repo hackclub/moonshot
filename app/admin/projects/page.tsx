@@ -1015,7 +1015,7 @@ function AdminProjectsContent() {
                   </div>
                 </div>
                 <a
-                  href={`/bay/${selectedProject.userId}`}
+                  href={`/launchpad/${selectedProject.userId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-3 py-1.5 border border-blue-300 shadow-sm text-xs font-medium rounded text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

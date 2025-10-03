@@ -4,7 +4,7 @@ import ProgressBar from "@/components/common/ProgressBar";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
-// Registration Complete Page (/bay/intro/register/complete)
+// Registration Complete Page (/launchpad/intro/register/complete)
 // Shows a confirmation page that the users registration has been recorded
 export default function Page() {
   function next() {

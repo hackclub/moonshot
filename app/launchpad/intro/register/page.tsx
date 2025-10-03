@@ -6,7 +6,7 @@ import Form from "./form";
 // Add dynamic directive at the top of the file after the imports
 export const dynamic = 'force-dynamic';
 
-// Registration Page (/bay/intro/register)
+// Registration Page (/launchpad/intro/register)
 // Guides the user to fill out a registration form
 export default async function Page() {
   const session = await getServerSession(opts);

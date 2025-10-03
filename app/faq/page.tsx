@@ -27,7 +27,7 @@ function AccessDeniedHaiku() {
     const fadeTimer = setTimeout(() => setVisible(true), 10);
     // Redirect after 5 seconds
     const redirectTimer = setTimeout(() => {
-      router.push('/bay/login');
+      router.push('/launchpad/login');
     }, 5000);
     return () => {
       clearTimeout(fadeTimer);

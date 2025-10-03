@@ -148,8 +148,8 @@ export default function Header({ session, status }: HeaderProps) {
                                 FAQ
                             </Link>
                             <Link 
-                                href="/bay/badge" 
-                                className={`transition-colors ${isActive('/bay/badge') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                href="/launchpad/badge" 
+                                className={`transition-colors ${isActive('/launchpad/badge') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
                             >
                                 Badge
                             </Link>
@@ -173,8 +173,8 @@ export default function Header({ session, status }: HeaderProps) {
                     {/* Eligible users can access Shop */}
                     {!isIslandMode && canAccessShop && (
                         <Link 
-                            href="/bay/shop" 
-                            className={`transition-colors ${isActive('/bay/shop') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                            href="/launchpad/shop" 
+                            className={`transition-colors ${isActive('/launchpad/shop') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
                         >
                             Shop
                         </Link>
@@ -303,8 +303,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         FAQ
                                     </Link>
                                     <Link 
-                                        href="/bay/badge" 
-                                        className={`block transition-colors ${isActive('/bay/badge') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        href="/launchpad/badge" 
+                                        className={`block transition-colors ${isActive('/launchpad/badge') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Badge
@@ -321,8 +321,8 @@ export default function Header({ session, status }: HeaderProps) {
                             {/* Eligible users can access Shop in mobile menu */}
                             {!isIslandMode && canAccessShop && (
                                 <Link 
-                                    href="/bay/shop" 
-                                    className={`block transition-colors ${isActive('/bay/shop') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                    href="/launchpad/shop" 
+                                    className={`block transition-colors ${isActive('/launchpad/shop') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     Shop

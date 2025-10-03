@@ -5,12 +5,12 @@ import { opts } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { getUserByEmail } from "@/lib/slack";
 
-// Hackatime Setup Page (/bay/intro/hackatime)
+// Hackatime Setup Page (/launchpad/intro/hackatime)
 // Guides and confirms the logged in users hackatime account and hackatime heartbeat
 export default async function Page() {
   const session = await getServerSession(opts);
 
-  if (!session || !session?.user || !session.user.email) redirect("/bay/login");
+  if (!session || !session?.user || !session.user.email) redirect("/launchpad/login");
   const slackId = await getUserByEmail(session!.user!.email).then((d) => d!.id);
 
   return (

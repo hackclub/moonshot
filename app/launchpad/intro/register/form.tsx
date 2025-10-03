@@ -22,7 +22,7 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
 
   // If the state changes and the data is valid, redirect to the form completion page
   useEffect(() => {
-    if (state.valid) redirect("/bay/intro/register/complete");
+    if (state.valid) redirect("/launchpad/intro/register/complete");
   }, [state]);
 
   return (
@@ -57,7 +57,7 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
                     <button
                       className="ml-2 lg:ml-8 my-2"
                       onClick={() =>
-                        signIn("slack", { callbackUrl: "/bay/login/success" })
+                        signIn("slack", { callbackUrl: "/launchpad/login/success" })
                       }
                     >
                       <img

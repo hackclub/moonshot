@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 
 // Client Side Login Option Modal
 export default function LoginOptions() {
-  const callback = "/bay/login/success";
+  const callback = "/launchpad/login/success";
 
   function loginWithSlack() {
     signIn("slack", { callbackUrl: callback });

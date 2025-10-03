@@ -10,30 +10,30 @@ export default async function Page() {
   const session = await getServerSession(opts);
 
   // If user not logged in, redirect to login page
-  if (!session || !session?.user) redirect("/bay/login");
+  if (!session || !session?.user) redirect("/launchpad/login");
 
   // FIXME: Flow Incomplete: Toriel invite
   // if (!(await checkSlackUserExists(session!.user!.email!)))
-  // redirect("/bay/intro/slack");
+  // redirect("/launchpad/intro/slack");
 
   // FIXME: Flow Incomplete
   // const slackUser = await getUserByEmail(session!.user!.email!);
   // const hackatimeUser = await checkHackatimeUserExists(slackUser!.id!);
-  // if (!hackatimeUser) redirect("/bay/intro/hackatime");
+  // if (!hackatimeUser) redirect("/launchpad/intro/hackatime");
 
   // TODO: Recent Heartbeat Endpoint not Available
   // FIXME: Flow Incomplete: Heartbeat endpoint not available
   // const hackatimeHeartbeat = await fetchRecentHeartbeat(slackUser!.id!)
-  // if (!hackatimeHeartbeat.has_heartbeat) redirect("/bay/intro/hackatime");
+  // if (!hackatimeHeartbeat.has_heartbeat) redirect("/launchpad/intro/hackatime");
 
   const records = await getRecords("Users", {
     filterByFormula: `Email = '${session!.user!.email!}'`,
     sort: [],
     maxRecords: 1,
   });
-  if (records.length < 1) redirect("/bay/intro/register");
+  if (records.length < 1) redirect("/launchpad/intro/register");
 
-  redirect("/bay/intro/register/complete");
+  redirect("/launchpad/intro/register/complete");
 
   return (
     <div className="flex justify-center items-center h-[100vh]">

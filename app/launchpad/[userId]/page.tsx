@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
-import { BayWithReviewMode } from '@/app/bay/page';
+import { BayWithReviewMode } from '@/app/launchpad/page';
 import type { ProjectType } from '@/app/api/projects/route';
 import { ReviewModeProvider } from '@/app/contexts/ReviewModeContext';
 

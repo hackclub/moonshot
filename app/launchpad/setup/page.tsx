@@ -18,7 +18,7 @@ export default function HackatimeSetup() {
         // Redirect to login if not authenticated
         if (status === 'unauthenticated') {
             console.log('Not authenticated, redirecting to login');
-            router.push('/bay/login');
+            router.push('/launchpad/login');
             return;
         }
 

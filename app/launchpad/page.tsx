@@ -58,7 +58,7 @@ function AccessDeniedHaiku() {
     const fadeTimer = setTimeout(() => setVisible(true), 10);
     // Redirect after 5 seconds
     const redirectTimer = setTimeout(() => {
-      router.push('/bay/login');
+      router.push('/launchpad/login');
     }, 5000);
     return () => {
       clearTimeout(fadeTimer);
@@ -734,7 +734,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
 
     // Check Hackatime setup from session... this really shouldn't happen, given our check earlier - but just in case
     if (!hackatimeId) {
-      router.push('/bay/setup');
+      router.push('/launchpad/setup');
       return;
     }
 

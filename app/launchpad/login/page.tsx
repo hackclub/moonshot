@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import LoginOptions from "./options";
 import { useRouter } from "next/navigation";
 
-// Login Page (/bay/login)
+// Login Page (/launchpad/login)
 export default function LoginPage() {
   const [visible, setVisible] = useState(false);
 
@@ -41,7 +41,7 @@ function AccessDeniedHaiku() {
     const fadeOutTimer = setTimeout(() => setVisible(false), 2000);
     // Redirect after fade-out completes (2.5s)
     const redirectTimer = setTimeout(() => {
-      router.push('/bay/login');
+      router.push('/launchpad/login');
     }, 2500);
 
     return () => {

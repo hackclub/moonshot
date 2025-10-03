@@ -1,7 +1,7 @@
 'use client';
 
 import React, { ReactNode, useRef, useState, useEffect } from 'react';
-import styles from '../../app/bay/tooltip.module.css';
+import styles from '../../app/launchpad/tooltip.module.css';
 
 interface TooltipProps {
   content: string;

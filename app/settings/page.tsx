@@ -28,7 +28,7 @@ function AccessDeniedHaiku() {
     const fadeTimer = setTimeout(() => setVisible(true), 10);
     // Redirect after 5 seconds
     const redirectTimer = setTimeout(() => {
-      router.push('/bay/login');
+      router.push('/launchpad/login');
     }, 5000);
     return () => {
       clearTimeout(fadeTimer);
@@ -150,7 +150,7 @@ function SettingsContent() {
       toast.success("Verification email sent! Please check your inbox.");
       
       // Redirect to verification page
-      router.push("/bay/login/verify");
+      router.push("/launchpad/login/verify");
     } catch (error) {
       console.error("Error requesting verification:", error);
       toast.error("Failed to send verification email. Please try again.");

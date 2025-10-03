@@ -27,7 +27,7 @@ export default function Prompt({ slackId }: { slackId: string }) {
   useEffect(recheck, []);
 
   function next() {
-    redirect("/bay/login/success");
+    redirect("/launchpad/login/success");
   }
 
   return (
