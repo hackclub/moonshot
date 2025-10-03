@@ -173,16 +173,6 @@ export default function Form({ hasSession }: { hasSession?: boolean }) {
               className="py-2 md:px-4 px-2 uppercase disabled:bg-dark-blue/20 bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-xs md:text-base transition hover:not-disabled:border-yellow backdrop-blur-sm rounded-full cursor-pointer"
               disabled={pending}
             >
-              <span className="flex items-center gap-1 flex-nowrap">
-                Submit
-                <Image
-                  src="/mark-check.svg"
-                  width={12}
-                  height={12}
-                  alt="next"
-                  className="w-8 h-8"
-                />
-              </span>
             </button>
           </div>
         </form>

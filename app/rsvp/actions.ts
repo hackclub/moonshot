@@ -36,7 +36,7 @@ export type FormSave = {
 
 // Check if the email is already RSVPed
 async function isEmailRSVPed(email: string): Promise<boolean> {
-    const records = await getRecords("RSVPs", {
+    const records = await getRecords("RSVP", {
         filterByFormula: `Email = '${email}'`,
         sort: [],
         maxRecords: 1,
@@ -174,7 +174,7 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
             console.log('Creating Airtable record...');
             // Create airtable record
             metrics.increment("success.rsvp_save", 1);
-            await createRecord("RSVPs", newEntry)
+            await createRecord("RSVP", newEntry)
             console.log('Airtable record created successfully');
         } catch (error) {
             console.error("Error creating record in RSVPs:", error);

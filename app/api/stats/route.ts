@@ -12,8 +12,8 @@ export async function GET() {
     },
     async () => {
       try {
-        const count = await getRecordCount("RSVPs");
-        console.log("received RSVP count from airtalbe", count);
+        const count = await getRecordCount("RSVP");
+        console.log("received RSVP count from airtable", count);
         metrics.increment("sucess.get_rsvp_count", 1);
         return NextResponse.json({ count });
       } catch (error) {

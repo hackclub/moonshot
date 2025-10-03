@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
-import Story from "@/components/launch/Story";
-import { ReactLenis } from "lenis/react";
+import { useState, useEffect } from "react";
+import Form from "@/app/rsvp/form";
+import SignupProgress from "@/components/common/SignupProgress";
 import LoadingModal from "@/components/common/LoadingModal";
 import Link from "next/link";
 import { useSearchParams } from 'next/navigation';
@@ -103,52 +103,61 @@ export default function Home() {
   }
 
   return (
-    <ReactLenis root>
-      <div>
-        <main className="h-[1000vh]">
-          {bannerOpacity > 0 && (
-            <Link href="https://hackclub.com">
-              <img
-                style={{
-                  position: "fixed",
-                  top: "20px",
-                  left: "0",
-                  border: "0",
-                  width: "180px",
-                  zIndex: "999",
-                  opacity: bannerOpacity,
-                  transition: "opacity 0.2s ease-out"
-                }}
-                src="https://assets.hackclub.com/banners/2025.svg"
-                alt="Hack Club"
-              />
-            </Link>
-          )}
-          {isLocalEnv && (
-            <div
+    <div>
+      <main className="min-h-screen">
+        {bannerOpacity > 0 && (
+          <Link href="https://hackclub.com">
+            <img
               style={{
                 position: "fixed",
-                bottom: "20px",
-                right: "20px",
-                backgroundColor: "rgba(0, 0, 0, 0.7)",
-                color: "white",
-                padding: "8px 16px",
-                borderRadius: "4px",
-                fontSize: "14px",
+                top: "20px",
+                left: "0",
+                border: "0",
+                width: "180px",
                 zIndex: "999",
-                fontFamily: "var(--font-poppins)"
+                opacity: bannerOpacity,
+                transition: "opacity 0.2s ease-out"
               }}
-            >
-              LOCAL
+              src="https://assets.hackclub.com/banners/2025.svg"
+              alt="Hack Club"
+            />
+          </Link>
+        )}
+        {isLocalEnv && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: "20px",
+              right: "20px",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              color: "white",
+              padding: "8px 16px",
+              borderRadius: "4px",
+              fontSize: "14px",
+              zIndex: "999",
+              fontFamily: "var(--font-poppins)"
+            }}
+          >
+            LOCAL
+          </div>
+        )}
+        <SearchParamsHandler>
+          {(prefillData) => (
+            <div className="w-full flex justify-center px-2 py-6">
+              <div className="w-full max-w-4xl">
+                <div className="mt-1 sm:mt-4">
+                  <SignupProgress />
+                </div>
+                <div className="mt-1 sm:mt-4 bg-sky-blue/30 border border-sky-blue p-2 sm:p-4 rounded-md w-full min-h-[400px] sm:min-h-[500px] backdrop-blur-sm flex flex-col justify-between text-center overflow-hidden">
+                  <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2">
+                    <Form hasSession={false} prefillData={prefillData || {}} />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
-          <Suspense fallback={<Story prefillData={{}} />}>
-            <SearchParamsHandler>
-              {(prefillData) => <Story prefillData={prefillData || {}} />}
-            </SearchParamsHandler>
-          </Suspense>
-        </main>
-      </div>
-    </ReactLenis>
+        </SearchParamsHandler>
+      </main>
+    </div>
   );
 }

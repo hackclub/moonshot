@@ -26,7 +26,7 @@ export class StatsService {
   private async updateStats() {
     try {
       console.log('Fetching RSVP count...');
-      const currentCount = await getRecordCount("RSVPs");
+      const currentCount = await getRecordCount("RSVP");
       const lastCount = await getCount();
       
       if (currentCount !== lastCount) {

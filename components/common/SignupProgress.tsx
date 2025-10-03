@@ -9,7 +9,7 @@ export default function SignupProgress() {
   useEffect(() => {
     const fetchCount = async () => {
       try {
-        const response = await fetch('/api/stats/count');
+        const response = await fetch('/api/stats');
         const data = await response.json();
         console.log("client received count", data);
         setCount(data.count);
@@ -34,8 +34,9 @@ export default function SignupProgress() {
   return (
     <div className="bg-sand/60 border border-sand p-4 rounded-md backdrop-blur-md text-dark-brown mb-4">
       <h2 className="text-2xl font-bold mb-2">🎉 Submit your projects to Moonshot!</h2>
+      <ProgressBar earnedProgress={progress} showLabels={false} className="mb-2" />
       <p className="text-sm sm:text-base">
-        RSVP HERE!
+        RSVPs so far: <span className="font-semibold">{count.toLocaleString()}</span>
       </p>
     </div>
   );

@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   }
   try {
     // Ensure the user is attending the event
-    const attendingTableName = "RSVPs"
+    const attendingTableName = "RSVP"
     const attendingRecords = await getRecords(attendingTableName, {
       filterByFormula: `{Email} = '${session.user.email}'`,
       sort: [{field: 'Email', direction: 'asc'}],

@@ -12,7 +12,7 @@ interface RSVPData {
 export async function fetchRSVPs() {
   try {
     console.log("Fetching RSVPs");
-    const records = await getRecords("RSVPs", {
+    const records = await getRecords("RSVP", {
       filterByFormula: "",
       sort: [],
       maxRecords: 50000

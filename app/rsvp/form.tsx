@@ -217,13 +217,6 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
             >
               <span className="flex items-center gap-1 flex-nowrap">
                 {isSubmitting ? "Submitting..." : "Submit"}
-                <Image
-                  src="/mark-check.svg"
-                  width={12}
-                  height={12}
-                  alt="next"
-                  className="w-6 h-6 md:w-8 md:h-8"
-                />
               </span>
             </button>
           </div>
