@@ -249,6 +249,17 @@ export default function Home() {
               className="w-56 md:w-72 h-auto drop-shadow-lg select-none"
             />
           </button>
+
+          {/* Bottom-center scrolling MOTD ticker */}
+          <div className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-3 z-[95] bg-black/40 text-white rounded-full px-4 py-1 backdrop-blur-sm motd-container">
+            <div className="motd-track overflow-hidden w-[41vw] max-w-[450px]">
+              <div className="motd-ticker inline-block whitespace-nowrap text-sm md:text-base tracking-wide">
+                <span>
+                  Come join us in Florida!  Visit NASA KSC and explore Universal Studios!  Teens only, you must be 13-18 to participate!  Totally free!!!
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
         ) : (
         <div id="rsvp" className="font-quintessential relative flex h-full w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
@@ -295,6 +306,9 @@ export default function Home() {
         .wiggle-slow { animation: slow-wiggle 7s ease-in-out infinite; }
         @keyframes spin-slow-kf { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spin-slow { animation: spin-slow-kf 60s linear infinite; transform-origin: center center; }
+        @keyframes motd-scroll-kf { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .motd-ticker { animation: motd-scroll-kf 20s linear infinite; }
+        .motd-container { border: 1px solid rgba(255,255,255,0.15); }
         
         .cloud-tr { transform: scale(0.67); transform-origin: top right; }
         /* Wide viewports (>= 2:1): hide Orph and top-right cloud; adjust title/button */
