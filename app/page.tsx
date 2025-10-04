@@ -102,8 +102,8 @@ export default function Home() {
 
   return (
     <div>
-      <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand">
-        {bannerOpacity > 0 && (
+      <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+        {activeView === 'hero' && bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
               style={{
@@ -111,11 +111,11 @@ export default function Home() {
                 top: "20px",
                 left: "0",
                 border: "0",
-                width: "180px",
                 zIndex: "999",
                 opacity: bannerOpacity,
                 transition: "opacity 0.2s ease-out"
               }}
+              className="hack-flag"
               src="https://assets.hackclub.com/banners/2025.svg"
               alt="Hack Club"
             />
@@ -238,22 +238,15 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setActiveView('rsvp')}
-            className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-60"
+            className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5"
           >
-            <Image
-              src="/rsvp.webp"
-              alt="RSVP now"
-              width={300}
-              height={120}
-              priority
-              className="w-56 md:w-72 h-auto drop-shadow-lg select-none"
-            />
+            RSVP NOW!
           </button>
 
           {/* Bottom-center scrolling MOTD ticker */}
           <div className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-3 z-[95] bg-black/40 text-white rounded-full px-4 py-1 backdrop-blur-sm motd-container">
             <div className="motd-track overflow-hidden w-[41vw] max-w-[450px]">
-              <div className="motd-ticker inline-block whitespace-nowrap text-sm md:text-base tracking-wide">
+              <div className="motd-ticker ticker-text inline-block whitespace-nowrap text-sm md:text-base tracking-wide font-luckiest">
                 <span>
                   Come join us in Florida!  Visit NASA KSC and explore Universal Studios!  Teens only, you must be 13-18 to participate!  Totally free!!!
                 </span>
@@ -262,7 +255,7 @@ export default function Home() {
           </div>
         </div>
         ) : (
-        <div id="rsvp" className="font-quintessential relative flex h-full w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
+        <div id="rsvp" className="font-quintessential relative flex h-full w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-2 md:pt-0">
           {stars.map((star, i) => (
             <Star key={i} />
           ))}
@@ -306,9 +299,27 @@ export default function Home() {
         .wiggle-slow { animation: slow-wiggle 7s ease-in-out infinite; }
         @keyframes spin-slow-kf { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spin-slow { animation: spin-slow-kf 60s linear infinite; transform-origin: center center; }
+        .font-luckiest { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; }
+        .ticker-text, .ticker-text * { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; }
+        .ticker-text { letter-spacing: 0.02em; text-transform: uppercase; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         @keyframes motd-scroll-kf { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .motd-ticker { animation: motd-scroll-kf 20s linear infinite; }
         .motd-container { border: 1px solid rgba(255,255,255,0.15); }
+        @keyframes wiggle-scale-kf {
+          0% { transform: rotate(-4deg) scale(1); }
+          50% { transform: rotate(4deg) scale(1.08); }
+          100% { transform: rotate(-4deg) scale(1); }
+        }
+        .wiggle-scale { animation: wiggle-scale-kf 2.6s ease-in-out infinite; transform-origin: center; }
+        .hack-flag { width: 180px; }
+        @media (max-aspect-ratio: 16/9) { .hack-flag { width: 140px !important; } }
+        @media (max-aspect-ratio: 4/3) { .hack-flag { width: 110px !important; } }
+        @media (max-aspect-ratio: 1/1) { .hack-flag { width: 90px !important; } }
+        @media (max-width: 480px) { .hack-flag { width: 90px !important; } }
+        /* Landscape mobile: reduce an additional ~25% to avoid overlap */
+        @media (orientation: landscape) and (max-height: 480px) {
+          .hack-flag { width: 105px !important; }
+        }
         
         .cloud-tr { transform: scale(0.67); transform-origin: top right; }
         /* Wide viewports (>= 2:1): hide Orph and top-right cloud; adjust title/button */

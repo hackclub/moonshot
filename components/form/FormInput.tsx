@@ -34,7 +34,7 @@ export default function FormInput({
 }) {
   return (
     <>
-      <div className="md:my-5 my-4 w-full px-3 sm:px-4">
+      <div className="md:my-3 my-2 w-full px-3 sm:px-4">
         <label className={`md:text-lg text-base font-semibold text-left text-sand ${textStyle}`}>
           {children}
           {required && <p className="text-red-500 inline">*</p>}
@@ -53,7 +53,7 @@ export default function FormInput({
           </div>
         )}
 
-        <br />
+        
 
         <input
           className={`md:text-base text-sm w-full px-3 sm:px-4 md:py-2 py-1.5 bg-white text-dark-brown disabled:bg-gray-200 rounded outline-1 outline-gray-200 ${inputStyle}`}

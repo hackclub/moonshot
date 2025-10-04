@@ -27,19 +27,20 @@ export default function SignupProgress() {
     return () => clearInterval(interval);
   }, []);
 
-  if (count === null) return null;
-
-  const progress = Math.min((count / 5000) * 100, 100);
+  const safeCount = count ?? 0;
+  const progress = Math.min((safeCount / 5000) * 100, 100);
 
   return (
-    <div className="relative z-20 h-6 w-80 rounded-t-lg border-2 border-b-0 border-[#333333] bg-[#333333] md:w-96">
-    <p className="font-quintessential relative bottom-8 w-full text-center text-lg">
-      {progress}% to liftoff
-    </p>
-    <div
-      style={{ width: `${progress}%` }}
-      className="absolute top-0 left-0 h-full rounded-t-lg bg-red-500"
-    ></div>
-  </div>
+    <div className="relative z-20 mb-4 flex w-full flex-col items-center">
+      <p className="font-luckiest text-sm md:text-base mb-1">
+        {safeCount}/5000
+      </p>
+      <div className="relative h-3 w-72 md:w-96 rounded-full border border-[#333333] bg-[#333333] overflow-hidden">
+        <div
+          style={{ width: `${progress}%` }}
+          className="absolute top-0 left-0 h-full rounded-full bg-[#7EA6FF]"
+        ></div>
+      </div>
+    </div>
   );
 } 

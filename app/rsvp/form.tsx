@@ -167,6 +167,13 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
     }));
   };
 
+  const allFilled = (
+    (formData["First Name"]?.trim().length ?? 0) > 0 &&
+    (formData["Last Name"]?.trim().length ?? 0) > 0 &&
+    (formData["Email"]?.trim().length ?? 0) > 0 &&
+    (formData["Birthday"]?.trim().length ?? 0) > 0
+  );
+
   return (
     <>
       {toastMessage && (
@@ -176,18 +183,34 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
           onClose={() => setToastMessage(null)}
         />
       )}
-          <div className="z-20 mx-5 flex flex-col items-center gap-10 rounded-lg border-2 border-[#333333] bg-[#22222266] px-0 py-5 [filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.1))] backdrop-blur-3xl transition-all duration-300 hover:[filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.3))] md:p-10">
+          <div className="z-20 mx-5 flex flex-col items-center gap-4 rounded-lg border-2 border-[#333333] bg-[#22222266] px-0 py-3 [filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.1))] backdrop-blur-3xl transition-all duration-300 hover:[filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.3))] md:p-6">
           <div>
-          <h2 id="rsvp" className="font-quintessential px-5 text-center text-5xl">
-            RSVP for Moonshot!
-          </h2>
-          <p className="font-quintessential mt-5 text-center text-xl">
-            Moonshot is for teenagers ages 13 to 18
+          <h3 id="rsvp" className="font-luckiest px-3 text-center text-4xl md:text-5xl leading-tight" aria-label="MOONSHOT">
+            {(() => {
+              const text = 'MOONSHOT';
+              const slotSeconds = 1.2; // time allocated per letter (spaced out)
+              return text.split('').map((ch, i) => (
+                <span
+                  key={i}
+                  className="inline-block moonshot-letter font-luckiest"
+                  style={{
+                    animationDelay: `${i * slotSeconds}s`,
+                    // total duration makes pulses sequential and non-overlapping
+                    animationDuration: `${text.length * slotSeconds}s`,
+                  }}
+                >
+                  {ch}
+                </span>
+              ));
+            })()}
+          </h3>
+          <p className="mt-2 text-center text-lg md:text-xl" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+            TEENS 13 TO 18 ONLY
           </p>
         </div>
 
-        <form className="grid grid-cols-1 gap-x-10 gap-y-5 text-xl md:grid-cols-2" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-1">
+        <form className="grid grid-cols-1 gap-x-8 gap-y-3 text-lg md:text-xl md:grid-cols-2 font-luckiest" onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-0.5">
         <FormInput
               fieldName="First Name"
               state={state}
@@ -195,13 +218,13 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["First Name"]}
               onChange={(e) => handleInputChange("First Name", e.target.value)}
-              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
-              textStyle="font-quintessential"
+              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              textStyle="font-luckiest"
             >
               First Name
             </FormInput>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             <FormInput
               fieldName="Last Name"
               state={state}
@@ -209,14 +232,14 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Last Name"]}
               onChange={(e) => handleInputChange("Last Name", e.target.value)}
-              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
-              textStyle="font-quintessential"
+              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              textStyle="font-luckiest"
             >
               Last Name
             </FormInput>
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
           <FormInput
               fieldName="Email"
               type="email"
@@ -225,13 +248,13 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Email"]}
               onChange={(e) => handleInputChange("Email", e.target.value)}
-              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
-              textStyle="font-quintessential"
+              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              textStyle="font-luckiest"
             >
               Email
             </FormInput>
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             <FormInput
               fieldName="Birthday"
               type="date"
@@ -240,26 +263,38 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Birthday"]}
               onChange={(e) => handleInputChange("Birthday", e.target.value)}
-              inputStyle="min-w-52 rounded-lg bg-white p-2 text-black outline-0 font-quintessential"
-              textStyle="font-quintessential"
+              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              textStyle="font-luckiest"
             >
               Birthday
             </FormInput>
           </div>
 
-            <div className="col-span-1 md:col-span-2 flex justify-center">
+            <div className="col-span-1 md:col-span-2 flex justify-center mt-1">
               <button
-                className="font-quintessential cursor-pointer rounded-full border-2 border-white bg-black px-4 py-2 text-2xl text-white hover:animate-pulse text-center"
-                disabled={isSubmitting}
+                className={`font-luckiest tracking-wide uppercase cursor-pointer rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl text-white shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 text-center ${allFilled ? 'wiggle-scale' : ''} ${(!allFilled || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}`}
+                disabled={!allFilled || isSubmitting}
                 type="submit"
               >
-                <span className="flex items-center gap-1 flex-nowrap font-quintessential">
+                <span className="flex items-center gap-1 flex-nowrap font-luckiest">
                   {isSubmitting ? "Submitting..." : "Submit"}
                 </span>
               </button>
             </div>
         </form>
       </div>
+      <style jsx>{`
+        @keyframes moonshotPulse {
+          0% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+          4% { filter: drop-shadow(0 0 12px rgba(255,255,255,0.95)); }
+          8% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+          50% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+          54% { filter: drop-shadow(0 0 12px rgba(255,255,255,0.95)); }
+          58% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+          100% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+        }
+        .moonshot-letter { animation-name: moonshotPulse; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+      `}</style>
     </>
   );
 }

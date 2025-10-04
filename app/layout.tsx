@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_Da_2, Poppins, Quintessential } from "next/font/google";
+import { Baloo_Da_2, Poppins, Quintessential, Luckiest_Guy } from "next/font/google";
 import "./globals.css";
 import "@/app/info/info.css";
 import "@/app/api/stats/init";
@@ -18,6 +18,12 @@ const baloo = Baloo_Da_2({
 
 const quintessential = Quintessential({
   variable: "--font-quintessential",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const luckiest = Luckiest_Guy({
+  variable: "--font-luckiest",
   subsets: ["latin"],
   weight: "400",
 });
@@ -57,7 +63,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
-      <body className={`${poppins.variable} ${baloo.variable} ${quintessential.variable} `}>
+      <body className={`${poppins.variable} ${baloo.variable} ${quintessential.variable} ${luckiest.variable}`}>
         {children}
         <script defer data-domain="moonshot.hackclub.com" src="https://plausible.io/js/script.js"></script>
       </body>
