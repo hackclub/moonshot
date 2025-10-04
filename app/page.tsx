@@ -62,6 +62,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPercent, setScrollPercent] = useState(0);
   const isLocalEnv = process.env.NODE_ENV === 'development';
+  const [activeView, setActiveView] = useState<'hero' | 'rsvp'>('hero');
   const stars = Array(50).fill(null);
   const percentage = 50
 
@@ -138,15 +139,16 @@ export default function Home() {
             LOCAL
           </div>
         )}
-        <div
-          className="relative w-screen flex items-center justify-center overflow-hidden min-h-[100svh] min-h-[100dvh] md:h-screen"
-          style={{
-            backgroundImage: 'url("/star-tile.png")',
-            backgroundRepeat: 'repeat',
-            backgroundSize: '256px 256px',
-            backgroundColor: '#130B2C'
-          }}
-        >
+        {activeView === 'hero' ? (
+          <div
+            className="relative w-screen flex items-center justify-center overflow-hidden min-h-[100svh] min-h-[100dvh] md:h-screen"
+            style={{
+              backgroundImage: 'url("/star-tile.png")',
+              backgroundRepeat: 'repeat',
+              backgroundSize: '256px 256px',
+              backgroundColor: '#130B2C'
+            }}
+          >
           {/* Title overlay */}
           <Image
             src="/off-to-moonshot-overlay.webp"
@@ -155,7 +157,7 @@ export default function Home() {
             height={400}
             priority
             sizes="80vw"
-            className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-[80px] w-[80vw] max-w-[900px] h-auto z-30"
+            className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-[80px] w-[80vw] max-w-[900px] h-auto z-50"
           />
           {/* Moon (moonpheus) behind top-right clouds */}
           <Image
@@ -177,6 +179,25 @@ export default function Home() {
             priority
             sizes="50vw"
             className="pointer-events-none select-none absolute top-0 right-0 max-w-[65vw] md:max-w-[50vw] w-auto h-auto z-10 opacity-90"
+          />
+          {/* Simple bottom clouds: no scaling, raw images anchored to bottom */}
+          <Image
+            src="/bottom-clouds.webp"
+            alt=""
+            width={1600}
+            height={800}
+            priority
+            sizes="200vw"
+            className="pointer-events-none select-none absolute bottom-0 left-1/2 -translate-x-1/2 z-20 w-[220vw] md:w-[200vw] h-auto"
+          />
+          <Image
+            src="/more-bottom-clouds.webp"
+            alt=""
+            width={1600}
+            height={800}
+            priority
+            sizes="220vw"
+            className="pointer-events-none select-none absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 w-[240vw] md:w-[220vw] h-auto"
           />
           {/* Decorative astronauts with gentle wiggle */}
           <Image
@@ -201,10 +222,10 @@ export default function Home() {
           <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
             
           </p>
-          <a
-            href="#rsvp"
-            className="absolute z-30 left-1/2 -translate-x-1/2 bottom-[6%] md:bottom-[10%] animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-60"
-            style={{ scrollMarginTop: '0' }}
+          <button
+            type="button"
+            onClick={() => setActiveView('rsvp')}
+            className="absolute z-40 left-1/2 -translate-x-1/2 bottom-[6%] md:bottom-[10%] animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-60"
           >
             <Image
               src="/rsvp.webp"
@@ -214,8 +235,42 @@ export default function Home() {
               priority
               className="w-56 md:w-72 h-auto drop-shadow-lg select-none"
             />
-          </a>
+          </button>
         </div>
+        ) : (
+        <div id="rsvp" className="font-quintessential relative flex min-h-[100svh] min-h-[100dvh] md:min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
+          {stars.map((star, i) => (
+            <Star key={i} />
+          ))}
+          <Floating seed={Math.random()}>
+            <Image
+              src="/character.webp"
+              width={500}
+              height={500}
+              alt="Character"
+              className="w-60 h-auto"
+            />
+          </Floating>
+          <Floating seed={Math.random()}>
+            <Image
+              src="/orph.webp"
+              width={500}
+              height={500}
+              alt="Astro Orpheus"
+              className="w-60 h-auto"
+            />
+          </Floating>
+
+        <SearchParamsHandler>
+          {(prefillData) => (
+            <>
+                  <SignupProgress />
+                  <Form hasSession={false} prefillData={prefillData || {}} />
+            </>
+          )}
+        </SearchParamsHandler>
+        </div>
+        )}
 
         <div id="rsvp" className="font-quintessential relative flex min-h-[100svh] min-h-[100dvh] md:min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
           {stars.map((star, i) => (
