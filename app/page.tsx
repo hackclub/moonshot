@@ -138,7 +138,7 @@ export default function Home() {
             LOCAL
           </div>
         )}
-        <div className="relative h-screen w-screen bg-[#130B2C] flex items-center justify-center overflow-hidden">
+        <div className="relative w-screen bg-[#130B2C] flex items-center justify-center overflow-hidden min-h-[100svh] min-h-[100dvh] md:h-screen">
           <Image
             src="/background.png"
             alt="Background"
@@ -152,13 +152,21 @@ export default function Home() {
           </p>
           <a
             href="#rsvp"
-            className="font-quintessential absolute z-30 flex animate-bounce flex-col items-center rounded-full bg-red-500 px-4 py-2 text-2xl md:px-5 md:py-3 md:text-3xl text-white shadow-lg left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 md:top-[40%] md:translate-y-0"
+            className="absolute z-30 left-1/2 -translate-x-1/2 bottom-[6%] md:bottom-[10%] animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-60"
+            style={{ scrollMarginTop: '0' }}
           >
-            RSVP now!
+            <Image
+              src="/rsvp.png"
+              alt="RSVP now"
+              width={300}
+              height={120}
+              priority
+              className="w-56 md:w-72 h-auto drop-shadow-lg select-none"
+            />
           </a>
         </div>
 
-        <div id="rsvp" className="font-quintessential relative flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-10 md:pt-0">
+        <div id="rsvp" className="font-quintessential relative flex min-h-[100svh] min-h-[100dvh] md:min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
           {stars.map((star, i) => (
             <Star key={i} />
           ))}
@@ -168,7 +176,7 @@ export default function Home() {
               width={500}
               height={500}
               alt="Character"
-              className="h-60 w-60"
+              className="w-60 h-auto"
             />
           </Floating>
           <Floating seed={Math.random()}>
@@ -177,7 +185,7 @@ export default function Home() {
               width={500}
               height={500}
               alt="Astro Orpheus"
-              className="h-60 w-60"
+              className="w-60 h-auto"
             />
           </Floating>
 
