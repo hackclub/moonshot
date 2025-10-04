@@ -102,7 +102,7 @@ export default function Home() {
 
   return (
     <div>
-      <main className="min-h-screen bg-[#130B2C] text-sand">
+      <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand">
         {bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
@@ -141,7 +141,7 @@ export default function Home() {
         )}
         {activeView === 'hero' ? (
           <div
-            className="relative w-screen flex items-center justify-center overflow-hidden min-h-[100svh] min-h-[100dvh] md:h-screen"
+            className="relative w-screen h-full flex items-center justify-center overflow-hidden"
             style={{
               backgroundImage: 'url("/star-tile.png")',
               backgroundRepeat: 'repeat',
@@ -157,7 +157,7 @@ export default function Home() {
             height={400}
             priority
             sizes="80vw"
-            className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-[80px] w-[80vw] max-w-[900px] h-auto z-50"
+            className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-[80px] w-[80vw] max-w-[900px] h-auto z-50 hero-title"
           />
           {/* Moon (moonpheus) behind top-right clouds */}
           <Image
@@ -167,7 +167,7 @@ export default function Home() {
             height={400}
             priority
             sizes="25vw"
-            className="pointer-events-none select-none absolute top-6 right-[12vw] w-[105px] md:w-[150px] h-auto z-0 opacity-90"
+            className="pointer-events-none select-none absolute top-6 right-[12vw] w-[105px] md:w-[150px] xl:w-[220px] xl:right-[20vw] h-auto z-0 opacity-90 spin-slow"
           />
           
           {/* Top-right clouds overlay */}
@@ -178,7 +178,7 @@ export default function Home() {
             height={800}
             priority
             sizes="50vw"
-            className="pointer-events-none select-none absolute top-0 right-0 max-w-[65vw] md:max-w-[50vw] w-auto h-auto z-10 opacity-90"
+            className="pointer-events-none select-none absolute top-0 right-0 max-w-[75vw] md:max-w-[60vw] w-auto h-auto z-35 opacity-90 cloud-tr ultra-hide"
           />
           {/* Simple bottom clouds: no scaling, raw images anchored to bottom */}
           <Image
@@ -188,8 +188,20 @@ export default function Home() {
             height={800}
             priority
             sizes="200vw"
-            className="pointer-events-none select-none absolute bottom-0 left-1/2 -translate-x-1/2 z-20 w-[220vw] md:w-[200vw] h-auto"
+            className="pointer-events-none select-none absolute bottom-0 left-1/2 -translate-x-1/2 z-20 w-[220vw] md:w-[200vw] h-auto opacity-50 cloud-back"
           />
+          {/* Rollercoaster anchored to bottom, between back and front clouds */}
+          <div className="pointer-events-none select-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[140vw] md:w-[120vw] max-w-[1400px]" style={{ zIndex: 25 }}>
+            <Image
+              src="/roller-coaster.webp"
+              alt=""
+              width={1600}
+              height={800}
+              priority
+              sizes="1600px"
+              className="w-full h-auto"
+            />
+          </div>
           <Image
             src="/more-bottom-clouds.webp"
             alt=""
@@ -197,8 +209,9 @@ export default function Home() {
             height={800}
             priority
             sizes="220vw"
-            className="pointer-events-none select-none absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 w-[240vw] md:w-[220vw] h-auto"
+            className="pointer-events-none select-none absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 w-[240vw] md:w-[220vw] h-auto opacity-50 cloud-front"
           />
+          
           {/* Decorative astronauts with gentle wiggle */}
           <Image
             src="/cat-stronaut.webp"
@@ -207,7 +220,7 @@ export default function Home() {
             height={200}
             priority
             sizes="20vw"
-            className="pointer-events-none select-none absolute top-28 md:top-32 left-6 w-[180px] md:w-[270px] h-auto z-30 wiggle-slow"
+            className="pointer-events-none select-none absolute top-28 md:top-32 xl:top-48 left-6 w-[180px] md:w-[270px] xl:w-[360px] h-auto z-40 wiggle-slow"
           />
           <Image
             src="/orph.webp"
@@ -216,7 +229,7 @@ export default function Home() {
             height={220}
             priority
             sizes="20vw"
-            className="pointer-events-none select-none absolute bottom-[12vh] right-6 w-[202px] md:w-[294px] h-auto z-30 wiggle-slow"
+            className="pointer-events-none select-none absolute bottom-[12vh] md:bottom-[14vh] xl:bottom-[22vh] right-6 w-[202px] md:w-[294px] xl:w-[360px] h-auto z-40 wiggle-slow ultra-hide"
           />
           
           <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
@@ -225,7 +238,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setActiveView('rsvp')}
-            className="absolute z-40 left-1/2 -translate-x-1/2 bottom-[6%] md:bottom-[10%] animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-60"
+            className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-60"
           >
             <Image
               src="/rsvp.webp"
@@ -238,7 +251,7 @@ export default function Home() {
           </button>
         </div>
         ) : (
-        <div id="rsvp" className="font-quintessential relative flex min-h-[100svh] min-h-[100dvh] md:min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
+        <div id="rsvp" className="font-quintessential relative flex h-full w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
           {stars.map((star, i) => (
             <Star key={i} />
           ))}
@@ -271,40 +284,7 @@ export default function Home() {
         </SearchParamsHandler>
         </div>
         )}
-
-        <div id="rsvp" className="font-quintessential relative flex min-h-[100svh] min-h-[100dvh] md:min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-16 md:pt-0">
-          {stars.map((star, i) => (
-            <Star key={i} />
-          ))}
-          <Floating seed={Math.random()}>
-            <Image
-              src="/character.webp"
-              width={500}
-              height={500}
-              alt="Character"
-              className="w-60 h-auto"
-            />
-          </Floating>
-          <Floating seed={Math.random()}>
-            <Image
-              src="/orph.webp"
-              width={500}
-              height={500}
-              alt="Astro Orpheus"
-              className="w-60 h-auto"
-            />
-          </Floating>
-
-        <SearchParamsHandler>
-          {(prefillData) => (
-            <>
-                  <SignupProgress />
-                  <Form hasSession={false} prefillData={prefillData || {}} />
-            </>
-          )}
-        </SearchParamsHandler>
-        </div>
-
+        
       </main>
       <style jsx global>{`
         @keyframes slow-wiggle {
@@ -313,7 +293,31 @@ export default function Home() {
           100% { transform: rotate(-2deg) translateY(0); }
         }
         .wiggle-slow { animation: slow-wiggle 7s ease-in-out infinite; }
+        @keyframes spin-slow-kf { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spin-slow { animation: spin-slow-kf 60s linear infinite; transform-origin: center center; }
+        
+        .cloud-tr { transform: scale(0.67); transform-origin: top right; }
+        /* Wide viewports (>= 2:1): hide Orph and top-right cloud; adjust title/button */
+        @media (min-aspect-ratio: 2/1) {
+          .ultra-hide { display: none !important; }
+          .hero-title { top: 24px !important; }
+          .rsvp-btn { top: 62% !important; }
+        }
+        /* Also apply for common widescreen (>= 16:9) */
+        @media (min-aspect-ratio: 16/9) {
+          .ultra-hide { display: none !important; }
+          .hero-title { top: 24px !important; }
+          .rsvp-btn { top: 62% !important; }
+        }
+        /* Fallback for short landscape heights */
+        @media (orientation: landscape) and (max-height: 520px) {
+          .ultra-hide { display: none !important; }
+          .hero-title { top: 16px !important; }
+          .rsvp-btn { top: 64% !important; }
+        }
+        
       `}</style>
     </div>
   );
 }
+
