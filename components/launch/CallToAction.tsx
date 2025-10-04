@@ -22,7 +22,7 @@ export default function CallToAction({ previous, prefillData }: { previous: numb
         <button className="absolute top-auto md:top-5 md:bottom-auto bottom-3 left-3 text-6xl rotate-90" onClick={() => {
           scrollToPercent(previous);
         }}>
-          <Image width={80} height={80} src="/back-arrow.png" alt="arrow" className="md:w-20 md:h-20 w-15 h-15" />
+          <Image width={80} height={80} src="/back-arrow.webp" alt="arrow" className="md:w-20 md:h-20 w-15 h-15" />
         </button>
         <div className="w-screen h-screen flex flex-col items-center p-2 sm:p-4">
           <div className="mt-1 sm:mt-4 w-full sm:w-[600px] max-w-4xl">

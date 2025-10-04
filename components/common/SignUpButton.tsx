@@ -26,7 +26,7 @@ export default function SignUpButton() {
       <span className="flex items-center gap-3 flex-nowrap">
         RSVP
         <Image
-          src="/back-arrow.png"
+          src="/back-arrow.webp"
           width={24}
           height={24}
           alt="next"

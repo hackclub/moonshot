@@ -138,15 +138,66 @@ export default function Home() {
             LOCAL
           </div>
         )}
-        <div className="relative w-screen bg-[#130B2C] flex items-center justify-center overflow-hidden min-h-[100svh] min-h-[100dvh] md:h-screen">
+        <div
+          className="relative w-screen flex items-center justify-center overflow-hidden min-h-[100svh] min-h-[100dvh] md:h-screen"
+          style={{
+            backgroundImage: 'url("/star-tile.png")',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '256px 256px',
+            backgroundColor: '#130B2C'
+          }}
+        >
+          {/* Title overlay */}
           <Image
-            src="/background.png"
-            alt="Background"
-            fill
+            src="/off-to-moonshot-overlay.webp"
+            alt="Off to Moonshot!"
+            width={1200}
+            height={400}
             priority
-            sizes="100vw"
-            style={{ objectFit: 'contain' }}
+            sizes="80vw"
+            className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-[80px] w-[80vw] max-w-[900px] h-auto z-30"
           />
+          {/* Moon (moonpheus) behind top-right clouds */}
+          <Image
+            src="/moonpheus-nosticker.webp"
+            alt="Moon"
+            width={400}
+            height={400}
+            priority
+            sizes="25vw"
+            className="pointer-events-none select-none absolute top-6 right-[12vw] w-[105px] md:w-[150px] h-auto z-0 opacity-90"
+          />
+          
+          {/* Top-right clouds overlay */}
+          <Image
+            src="/topright-cloud.webp"
+            alt=""
+            width={1200}
+            height={800}
+            priority
+            sizes="50vw"
+            className="pointer-events-none select-none absolute top-0 right-0 max-w-[65vw] md:max-w-[50vw] w-auto h-auto z-10 opacity-90"
+          />
+          {/* Decorative astronauts with gentle wiggle */}
+          <Image
+            src="/cat-stronaut.webp"
+            alt="Cat-stronaut"
+            width={200}
+            height={200}
+            priority
+            sizes="20vw"
+            className="pointer-events-none select-none absolute top-28 md:top-32 left-6 w-[180px] md:w-[270px] h-auto z-30 wiggle-slow"
+          />
+          <Image
+            src="/orph.webp"
+            alt="Orph astronaut"
+            width={220}
+            height={220}
+            priority
+            sizes="20vw"
+            className="pointer-events-none select-none absolute bottom-[12vh] right-6 w-[202px] md:w-[294px] h-auto z-30 wiggle-slow"
+          />
+          
           <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
             
           </p>
@@ -156,7 +207,7 @@ export default function Home() {
             style={{ scrollMarginTop: '0' }}
           >
             <Image
-              src="/rsvp.png"
+              src="/rsvp.webp"
               alt="RSVP now"
               width={300}
               height={120}
@@ -172,7 +223,7 @@ export default function Home() {
           ))}
           <Floating seed={Math.random()}>
             <Image
-              src="/character.png"
+              src="/character.webp"
               width={500}
               height={500}
               alt="Character"
@@ -181,7 +232,7 @@ export default function Home() {
           </Floating>
           <Floating seed={Math.random()}>
             <Image
-              src="/orph.png"
+              src="/orph.webp"
               width={500}
               height={500}
               alt="Astro Orpheus"
@@ -200,6 +251,14 @@ export default function Home() {
         </div>
 
       </main>
+      <style jsx global>{`
+        @keyframes slow-wiggle {
+          0% { transform: rotate(-2deg) translateY(0); }
+          50% { transform: rotate(2deg) translateY(4px); }
+          100% { transform: rotate(-2deg) translateY(0); }
+        }
+        .wiggle-slow { animation: slow-wiggle 7s ease-in-out infinite; }
+      `}</style>
     </div>
   );
 }

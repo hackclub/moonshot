@@ -88,7 +88,7 @@ export default function Prompt({ slackId }: { slackId: string }) {
             <span className="flex items-center gap-3 flex-nowrap">
               Next!
               <Image
-                src="/back-arrow.png"
+                src="/back-arrow.webp"
                 width={24}
                 height={24}
                 alt="next"

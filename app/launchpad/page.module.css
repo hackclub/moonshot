@@ -7,8 +7,8 @@
 
 /* Applied only in Island Experience mode */
 .islandBackground {
-  /* Image should be placed at public/bay-island-bg.png */
-  background-image: url('/bay-island-bg.png');
+  /* Image should be placed at public/bay-island-bg.webp */
+  background-image: url('/bay-island-bg.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

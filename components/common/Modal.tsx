@@ -81,7 +81,7 @@ export default function Modal({
       >
         <div className={`${styles.header} sticky top-0 z-10 bg-white`}>
           <span className='flex flex-row items-center'>
-          <img src="/bottle.png" className="w-[60px] -rotate-45" />
+          <img src="/bottle.webp" className="w-[60px] -rotate-45" />
           <h2 id="modal-title" className={styles.title}>{title}</h2>
           </span>
          <button 

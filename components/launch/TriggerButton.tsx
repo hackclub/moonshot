@@ -12,7 +12,7 @@ export default function TriggerButton({ children, targetPercent, backwards = fal
     }}>
       <span className="flex items-center gap-3 flex-nowrap">
         {children}
-        <Image src="/back-arrow.png" width={24} height={24} alt="next" className={`w-8 h-8 transition-transform duration-300 ${backwards ? '' : '-scale-x-100'} group-hover:translate-x-1`} />
+        <Image src="/back-arrow.webp" width={24} height={24} alt="next" className={`w-8 h-8 transition-transform duration-300 ${backwards ? '' : '-scale-x-100'} group-hover:translate-x-1`} />
       </span> 
     </button>
   )

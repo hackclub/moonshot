@@ -35,7 +35,7 @@ export default function Page() {
               <span className="flex items-center gap-1 flex-nowrap">
                 Landing Page
                 <Image
-                  src="/back-arrow.png"
+                  src="/back-arrow.webp"
                   width={24}
                   height={24}
                   alt="next"
