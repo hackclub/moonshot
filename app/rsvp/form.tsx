@@ -2,6 +2,8 @@
 
 import FormGroup from "@/components/form/FormGroup";
 import FormInput from "@/components/form/FormInput";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import FormSelect from "@/components/form/FormSelect";
 import countries from "@/types/countries";
 import { save, FormSave } from "./actions";
@@ -167,6 +169,14 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
     }));
   };
 
+  const [birthdayDate, setBirthdayDate] = useState<Date | null>(null);
+  
+  // Calculate date 16 years ago for calendar's initial open date
+  const getDefaultCalendarDate = () => {
+    const today = new Date();
+    return new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
+  };
+
   const allFilled = (
     (formData["First Name"]?.trim().length ?? 0) > 0 &&
     (formData["Last Name"]?.trim().length ?? 0) > 0 &&
@@ -225,7 +235,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
           </p>
         </div>
 
-        <form className="grid grid-cols-1 gap-x-8 gap-y-3 text-lg md:text-xl md:grid-cols-2 font-luckiest" onSubmit={handleSubmit}>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-lg md:text-xl font-luckiest items-start content-start" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-0.5">
         <FormInput
               fieldName="First Name"
@@ -234,7 +244,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["First Name"]}
               onChange={(e) => handleInputChange("First Name", e.target.value)}
-              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              inputStyle="font-luckiest placeholder:font-luckiest"
               textStyle="font-luckiest"
             >
               First Name
@@ -248,7 +258,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Last Name"]}
               onChange={(e) => handleInputChange("Last Name", e.target.value)}
-              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              inputStyle="font-luckiest placeholder:font-luckiest"
               textStyle="font-luckiest"
             >
               Last Name
@@ -264,48 +274,55 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Email"]}
               onChange={(e) => handleInputChange("Email", e.target.value)}
-              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
+              inputStyle="font-luckiest placeholder:font-luckiest"
               textStyle="font-luckiest"
             >
               Email
             </FormInput>
           </div>
-          <div className="flex flex-col gap-0.5">
-            <FormInput
-              fieldName="Birthday"
-              type="date"
-              state={state}
-              placeholder=""
-              required
-              value={formData["Birthday"]}
-              onChange={(e) => handleInputChange("Birthday", e.target.value)}
-              inputStyle="min-w-48 rounded-lg bg-white px-2 py-1.5 text-black outline-0 font-luckiest placeholder:font-luckiest"
-              textStyle="font-luckiest"
-            >
-              Birthday
-            </FormInput>
+          <div className="flex flex-col gap-0.5 md:col-start-2 md:row-start-2 px-[13px] pt-[13px]">
+            <label className="md:text-lg text-base font-semibold text-left text-sand font-luckiest">Birthday</label>
+            <DatePicker
+              selected={birthdayDate}
+              onChange={(date: Date | null) => {
+                setBirthdayDate(date);
+                handleInputChange("Birthday", date ? date.toISOString().slice(0, 10) : "");
+              }}
+              openToDate={getDefaultCalendarDate()}
+              placeholderText="mm/dd/yyyy"
+              dateFormat="MM/dd/yyyy"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              className="md:text-base text-sm w-full px-3 sm:px-4 md:py-2 py-1.5 bg-white text-dark-brown disabled:bg-gray-200 rounded outline-1 outline-gray-200 font-luckiest font-normal placeholder:font-luckiest"
+              wrapperClassName="w-full"
+              withPortal
+              portalId="root-portal"
+            />
           </div>
 
-            <div className="col-span-1 md:col-span-2 flex justify-center mt-1 relative">
-              <button
-                className={`font-luckiest tracking-wide uppercase cursor-pointer rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl text-white shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 text-center ${allFilled ? 'wiggle-scale' : ''} ${(!allFilled || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}`}
-                disabled={!allFilled || isSubmitting}
-                type="submit"
-              >
-                <span className="flex items-center gap-1 flex-nowrap font-luckiest">
-                  {isSubmitting ? "Submitting..." : "Submit"}
-                </span>
-              </button>
-              {!allFilled && !isSubmitting && (
-                <div
-                  className="absolute inset-0 z-10 rounded-2xl cursor-not-allowed"
-                  role="button"
-                  tabIndex={0}
-                  aria-disabled="true"
-                  onClick={handleDisabledClick}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleDisabledClick(); }}
-                />
-              )}
+            <div className="col-span-1 md:col-span-2 flex justify-center mt-1">
+              <div className="relative inline-block">
+                <button
+                  className={`font-luckiest tracking-wide uppercase cursor-pointer rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl text-white shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 text-center ${allFilled ? 'wiggle-scale' : ''} ${(!allFilled || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  disabled={!allFilled || isSubmitting}
+                  type="submit"
+                >
+                  <span className="flex items-center gap-1 flex-nowrap font-luckiest">
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </span>
+                </button>
+                {!allFilled && !isSubmitting && (
+                  <div
+                    className="absolute inset-0 z-10 rounded-2xl cursor-not-allowed"
+                    role="button"
+                    tabIndex={0}
+                    aria-disabled="true"
+                    onClick={handleDisabledClick}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleDisabledClick(); }}
+                  />
+                )}
+              </div>
             </div>
         </form>
       </div>
@@ -320,6 +337,109 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
           100% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
         }
         .moonshot-letter { animation-name: moonshotPulse; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+        /* Date input: use Luckiest Guy (regular) with smoothing so it doesn't appear heavier */
+        .calendar-input,
+        .calendar-input::-webkit-datetime-edit,
+        .calendar-input::-webkit-datetime-edit-text,
+        .calendar-input::-webkit-datetime-edit-month-field,
+        .calendar-input::-webkit-datetime-edit-day-field,
+        .calendar-input::-webkit-datetime-edit-year-field,
+        .calendar-input::-webkit-calendar-picker-indicator,
+        .calendar-input::-webkit-clear-button,
+        .calendar-input::-webkit-inner-spin-button {
+          font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important;
+          font-weight: 400 !important;
+          font-size: 15px !important;
+          letter-spacing: 0.01em !important;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        .calendar-input::placeholder { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.01em !important; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        @-moz-document url-prefix() {
+          .calendar-input { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.01em !important; -moz-osx-font-smoothing: grayscale; }
+        }
+        /* Adjust datepicker popper to align close to input and ensure visibility on mobile */
+        /* Make react-datepicker wrapper containers fill and align like our inputs */
+        :global(.react-datepicker-wrapper) { width: 100%; display: block; }
+        :global(.react-datepicker__input-container) { width: 100%; display: block; }
+        :global(.react-datepicker__input-container input) {
+          box-sizing: border-box;
+          font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important;
+          font-weight: 400 !important;
+        }
+        /* Portal: center the calendar in the viewport with a subtle backdrop */
+        :global(#root-portal) {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          z-index: 9999 !important;
+          pointer-events: none !important;
+        }
+        :global(#root-portal > *) {
+          pointer-events: auto !important;
+        }
+        :global(.react-datepicker__portal) {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          z-index: 9999 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          background: rgba(0, 0, 0, 0.6) !important;
+          padding: 20px !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker) {
+          position: relative !important;
+          margin: auto !important;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+          border-radius: 12px !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          overflow: hidden !important;
+          max-width: min(400px, 90vw) !important;
+        }
+        /* Ensure calendar components are properly sized */
+        :global(.react-datepicker__portal .react-datepicker__month-container) {
+          float: none !important;
+          width: 100% !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker__header) {
+          background-color: #f0f0f0 !important;
+          border-bottom: 1px solid #d0d0d0 !important;
+          padding: 12px 0 !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker__current-month) {
+          font-size: 1rem !important;
+          font-weight: 600 !important;
+          padding: 4px 0 !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker__month) {
+          margin: 0.4rem !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker__day-names) {
+          display: flex !important;
+          justify-content: space-around !important;
+          padding: 0 0.4rem !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker__week) {
+          display: flex !important;
+          justify-content: space-around !important;
+          padding: 0 0.4rem !important;
+        }
+        :global(.react-datepicker__portal .react-datepicker__day-name),
+        :global(.react-datepicker__portal .react-datepicker__day) {
+          width: 2.2rem !important;
+          height: 2.2rem !important;
+          line-height: 2.2rem !important;
+          margin: 0.2rem !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
       `}</style>
     </>
   );

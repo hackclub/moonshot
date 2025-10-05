@@ -65,6 +65,7 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.variable} ${baloo.variable} ${quintessential.variable} ${luckiest.variable}`}>
         {children}
+        <div id="root-portal"></div>
         <script defer data-domain="moonshot.hackclub.com" src="https://plausible.io/js/script.js"></script>
       </body>
     </html>
