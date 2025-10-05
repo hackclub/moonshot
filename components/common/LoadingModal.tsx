@@ -15,7 +15,9 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
 }) => {
   const [progress, setProgress] = useState(0);
   const [showLoader, setShowLoader] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(titles[0]);
+  const [currentTitle, setCurrentTitle] = useState(() => 
+    titles[Math.floor(Math.random() * titles.length)]
+  );
   
   const areImagesCached = async (): Promise<boolean> => {
     // Always return false to force showing the loader
@@ -75,7 +77,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
     checkCacheAndLoad();
   }, [onLoadComplete, imageUrls]);
 
-  // Rotate through titles every 5 seconds
+  // Rotate through titles every 2 seconds
   useEffect(() => {
     if (!showLoader) return;
     
@@ -86,7 +88,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
         // Pick a random one
         return otherTitles[Math.floor(Math.random() * otherTitles.length)];
       });
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [showLoader, titles]);
@@ -95,17 +97,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({
 
   return (
     <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h2 className={styles.title}>{currentTitle}</h2>
-        <div className={styles.spinner} />
-        <div className={styles.progressBar}>
-          <div 
-            className={styles.progressFill} 
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className={styles.progressText}>{progress}%</div>
-      </div>
+      <h2 className={styles.title}>{currentTitle}</h2>
     </div>
   );
 };

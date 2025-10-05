@@ -155,6 +155,17 @@ export default function Home() {
 
   const imageUrls = [
     "/logo.svg",
+    "/star-tile.png",
+    "/off-to-moonshot-overlay.webp",
+    "/moonpheus-nosticker.webp",
+    "/topright-cloud.webp",
+    "/bottom-clouds.webp",
+    "/roller-coaster.webp",
+    "/more-bottom-clouds.webp",
+    "/cat-stronaut.webp",
+    "/orph.webp",
+    "/character.webp",
+    "https://assets.hackclub.com/banners/2025.svg",
   ];
 
   if (isLoading) {
