@@ -89,10 +89,10 @@ export default function Modal({
          <button 
             onClick={handleClose}
             hidden={hideCloseButton}
-            className={styles.closeButton}
+            className={`${styles.closeButton} text-3xl font-bold leading-none ${dark ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-gray-900'}`}
             aria-label="Close modal"
           >
-            <img className='w-[40px]' src="/mark-cross.svg" />
+            ✕
           </button>
         </div>
         <div className={`${styles.content} overflow-x-auto ${dark ? 'bg-black text-white' : ''} font-luckiest`} ref={contentRef}>
