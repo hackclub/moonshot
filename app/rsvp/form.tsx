@@ -174,6 +174,22 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
     (formData["Birthday"]?.trim().length ?? 0) > 0
   );
 
+  const getMissingFields = () => {
+    const missing: string[] = [];
+    if (!(formData["First Name"]?.trim())) missing.push('First Name');
+    if (!(formData["Last Name"]?.trim())) missing.push('Last Name');
+    if (!(formData["Email"]?.trim())) missing.push('Email');
+    if (!(formData["Birthday"]?.trim())) missing.push('Birthday');
+    return missing;
+  };
+
+  const handleDisabledClick = () => {
+    if (allFilled) return;
+    const missing = getMissingFields();
+    setToastType('error');
+    setToastMessage(`Please complete: ${missing.join(', ')}`);
+  };
+
   return (
     <>
       {toastMessage && (
@@ -270,7 +286,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
             </FormInput>
           </div>
 
-            <div className="col-span-1 md:col-span-2 flex justify-center mt-1">
+            <div className="col-span-1 md:col-span-2 flex justify-center mt-1 relative">
               <button
                 className={`font-luckiest tracking-wide uppercase cursor-pointer rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl text-white shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 text-center ${allFilled ? 'wiggle-scale' : ''} ${(!allFilled || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}`}
                 disabled={!allFilled || isSubmitting}
@@ -280,6 +296,16 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
                   {isSubmitting ? "Submitting..." : "Submit"}
                 </span>
               </button>
+              {!allFilled && !isSubmitting && (
+                <div
+                  className="absolute inset-0 z-10 rounded-2xl cursor-not-allowed"
+                  role="button"
+                  tabIndex={0}
+                  aria-disabled="true"
+                  onClick={handleDisabledClick}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleDisabledClick(); }}
+                />
+              )}
             </div>
         </form>
       </div>

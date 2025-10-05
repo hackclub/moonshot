@@ -12,6 +12,7 @@ interface ModalProps {
   okText?: string;
   hideFooter?: boolean;
   hideCloseButton?: boolean;
+  dark?: boolean;
 }
 
 export default function Modal({ 
@@ -21,7 +22,8 @@ export default function Modal({
   children,
   okText = 'OK',
   hideFooter = false,
-  hideCloseButton = false
+  hideCloseButton = false,
+  dark = false
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -79,10 +81,10 @@ export default function Modal({
         aria-labelledby="modal-title"
         aria-modal="true"
       >
-        <div className={`${styles.header} sticky top-0 z-10 bg-white`}>
+        <div className={`${styles.header} sticky top-0 z-10 ${dark ? 'bg-black text-white border-b border-white/10' : 'bg-white'}`}>
           <span className='flex flex-row items-center'>
-          <img src="/bottle.webp" className="w-[60px] -rotate-45" />
-          <h2 id="modal-title" className={styles.title}>{title}</h2>
+          {!dark && <img src="/bottle.webp" className="w-[60px] -rotate-45" />}
+          <h2 id="modal-title" className={`${styles.title} font-luckiest uppercase`}>{title}</h2>
           </span>
          <button 
             onClick={handleClose}
@@ -93,14 +95,14 @@ export default function Modal({
             <img className='w-[40px]' src="/mark-cross.svg" />
           </button>
         </div>
-        <div className={`${styles.content} overflow-x-auto`} ref={contentRef}>
+        <div className={`${styles.content} overflow-x-auto ${dark ? 'bg-black text-white' : ''} font-luckiest`} ref={contentRef}>
           {children}
         </div>
         {!hideFooter && (
-          <div className={`${styles.footer} sticky bottom-0 z-10 bg-white`}>
+          <div className={`${styles.footer} sticky bottom-0 z-10 ${dark ? 'bg-black text-white border-t border-white/10' : 'bg-white'}`}>
             <button 
               onClick={handleClose}
-              className={styles.okButton}
+              className={`${styles.okButton} ${dark ? 'font-luckiest tracking-wide uppercase rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-2 text-xl shadow-[0_6px_0_rgba(0,0,0,0.4),0_0_14px_rgba(59,130,246,0.25)] hover:brightness-110' : ''}`}
             >
               {okText}
             </button>

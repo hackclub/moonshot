@@ -8,6 +8,8 @@ import { useSearchParams } from 'next/navigation';
 import { PrefillData } from "@/types/prefill";
 import Image from "next/image";
 import Floating from "@/components/common/Floating";
+import Modal from "@/components/common/Modal";
+import ReactMarkdown from "react-markdown";
 import Star from "@/components/common/Star";
 
 const loadingMessages = [
@@ -63,6 +65,8 @@ export default function Home() {
   const [scrollPercent, setScrollPercent] = useState(0);
   const isLocalEnv = process.env.NODE_ENV === 'development';
   const [activeView, setActiveView] = useState<'hero' | 'rsvp'>('hero');
+  const [faqOpen, setFaqOpen] = useState(false);
+  const [faqText, setFaqText] = useState<string>("");
   const stars = Array(50).fill(null);
   const percentage = 50
 
@@ -84,6 +88,69 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (faqOpen && !faqText) {
+      fetch('/faq.md')
+        .then((r) => r.text())
+        .then(setFaqText)
+        .catch(() => setFaqText('FAQ could not be loaded.'));
+    }
+  }, [faqOpen, faqText]);
+
+  // Minimal markdown -> HTML for headings, lists, and paragraphs
+  const markdownToHtml = (md: string): string => {
+    const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const italic = (s: string) => s.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    const linkify = (s: string) =>
+      s
+        // Markdown-style links [text](url|mailto:)
+        .replace(/\[([^\]]+)\]\(((?:https?:\/\/|mailto:)[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1<\/a>')
+        // Plain URLs
+        .replace(/(?<![\">])(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1<\/a>')
+        // Plain emails
+        .replace(/(?<![\w@.>])(\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b)/g, '<a href="mailto:$1">$1<\/a>');
+    const lines = md.split(/\r?\n/);
+    let html = '';
+    let inList = false;
+    let inSection = false;
+    const flushList = () => { if (inList) { html += '</ul>'; inList = false; } };
+    const openSection = () => { if (!inSection) { html += '<div class="faq-section">'; inSection = true; } };
+    const closeSection = () => { flushList(); if (inSection) { html += '</div>'; inSection = false; } };
+    for (let raw of lines) {
+      const line = raw.replace(/\s+$/,'');
+      if (/^\s*$/.test(line)) { flushList(); continue; }
+      const h = line.match(/^(#{1,6})\s+(.+)/);
+      if (h) {
+        const level = h[1].length;
+        const text = linkify(italic(esc(h[2])));
+        if (level === 1) { // top heading
+          closeSection();
+          html += `<h2 class="faq-title">${text}</h2>`;
+        } else if (level >= 3) { // treat ### as question headers
+          closeSection();
+          html += `<h3 class="faq-question">${text}</h3>`;
+          openSection();
+        } else {
+          closeSection();
+          html += `<h3>${text}</h3>`;
+        }
+        continue;
+      }
+      const li = line.match(/^[-*]\s+(.+)/);
+      if (li) {
+        openSection();
+        if (!inList) { html += '<ul class="faq-list">'; inList = true; }
+        html += `<li>${linkify(italic(esc(li[1])))}</li>`;
+        continue;
+      }
+      openSection();
+      const withBreaks = linkify(italic(esc(line))).replace(/\s\s$/,'<br/>');
+      html += `<p class="faq-paragraph">${withBreaks}</p>`;
+    }
+    closeSection();
+    return html;
+  };
+
   const bannerOpacity = Math.max(0, Math.min(1, (0.75 - scrollPercent) / 0.1));
 
   const imageUrls = [
@@ -103,6 +170,13 @@ export default function Home() {
   return (
     <div>
       <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+        {/* Global FAQ button (visible on both hero and RSVP views) */}
+        <button
+          onClick={() => setFaqOpen(true)}
+          className="fixed top-4 right-4 z-[200] font-luckiest uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
+        >
+          FAQ
+        </button>
         {activeView === 'hero' && bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
@@ -288,7 +362,28 @@ export default function Home() {
         </SearchParamsHandler>
         </div>
         )}
-        
+        {/* FAQ Modal */}
+        <Modal isOpen={faqOpen} onClose={() => setFaqOpen(false)} title="FAQ" dark>
+          <div className="prose max-w-none font-luckiest text-white">
+            <div className="max-h-[70vh] overflow-y-auto px-2 faq-content">
+              {faqText ? (
+                <ReactMarkdown
+                  components={{
+                    a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-red-400 underline hover:text-red-300" />,
+                    h1: ({node, ...props}) => <h2 {...props} className="faq-title" />,
+                    h2: ({node, ...props}) => <h3 {...props} className="faq-title" />,
+                    h3: ({node, ...props}) => <h3 {...props} className="faq-question" />,
+                    ul: ({node, ...props}) => <ul {...props} className="faq-list" />,
+                    p: ({node, ...props}) => <p {...props} className="faq-paragraph" />,
+                  }}
+                >
+                  {faqText}
+                </ReactMarkdown>
+              ) : 'Loading...'}
+            </div>
+          </div>
+        </Modal>
+
       </main>
       <style jsx global>{`
         @keyframes slow-wiggle {
@@ -341,6 +436,13 @@ export default function Home() {
           .rsvp-btn { top: 64% !important; }
         }
         
+        /* FAQ styling */
+        .faq-title { font-size: 1.25rem; margin-bottom: 0.75rem; }
+        .faq-question { font-size: 1.125rem; margin-top: 1rem; margin-bottom: 0.5rem; text-decoration: underline; }
+        .faq-paragraph { margin: 0.25rem 0; }
+        .faq-list { list-style: disc; margin-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
+        .faq-content a { color: #ef4444; text-decoration: underline; }
+
       `}</style>
     </div>
   );
