@@ -35,12 +35,12 @@ function RSVPLink() {
   const rsvpLink = searchParams.toString() ? `/rsvp?${searchParams.toString()}` : '/rsvp';
   
   return (
-    <Link
+    <a
       href={rsvpLink}
       className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
     >
       RSVP NOW!
-    </Link>
+    </a>
   );
 }
 
@@ -302,12 +302,12 @@ export default function Home() {
             
           </p>
           <Suspense fallback={
-            <Link
+            <a
               href="/rsvp"
               className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
             >
               RSVP NOW!
-            </Link>
+            </a>
           }>
             <RSVPLink />
           </Suspense>
