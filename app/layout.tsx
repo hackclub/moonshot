@@ -52,6 +52,13 @@ export const metadata: Metadata = {
       "A 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios.",
     images: ['https://moonshot.hackclub.com/launchImgSmaller.webp'], // Path to your image
   },
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.png'],
+    apple: ['/favicon.png'],
+  },
 };
 
 export default function RootLayout({
