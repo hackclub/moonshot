@@ -4,6 +4,10 @@ import createMDX from '@next/mdx'
 const nextConfig: NextConfig = {
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   output: 'standalone',
+  generateBuildId: async () => {
+    // Use timestamp to ensure unique build IDs and prevent chunk collisions
+    return `build-${Date.now()}`;
+  },
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
