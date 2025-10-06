@@ -6,6 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.moonshot-auth.rule=Host(`n8g80wqosg484s0ws4oo0ksc.a.selfhosted.hackclub.com`)"
+      - "traefik.http.routers.moonshot-auth.entrypoints=https"
+      - "traefik.http.routers.moonshot-auth.tls=true"
+      - "traefik.http.routers.moonshot-auth.tls.certresolver=letsencrypt"
+      - "traefik.http.services.moonshot-auth.loadbalancer.server.port=3000"
     environment:
       - SERVICE_FQDN_APP_3000
       - NODE_ENV=production
