@@ -81,7 +81,6 @@ export default function RSVPPage() {
   }, [faqOpen, faqText]);
 
   const imageUrls = [
-    "/logo.svg",
     "/star-tile.png",
     "/character.webp",
     "/orph.webp",

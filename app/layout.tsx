@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ChunkReloadGuard from "@/app/ChunkReloadGuard";
 import { Baloo_Da_2, Poppins, Quintessential, Luckiest_Guy } from "next/font/google";
 import "./globals.css";
 import "@/app/info/info.css";
@@ -64,6 +65,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>
       <body className={`${poppins.variable} ${baloo.variable} ${quintessential.variable} ${luckiest.variable}`}>
+        <ChunkReloadGuard />
         {children}
         <div id="root-portal"></div>
         <script defer data-domain="moonshot.hackclub.com" src="https://plausible.io/js/script.js"></script>
