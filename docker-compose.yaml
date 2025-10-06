@@ -13,6 +13,8 @@ services:
       - "traefik.http.routers.moonshot-auth.tls=true"
       - "traefik.http.routers.moonshot-auth.tls.certresolver=letsencrypt"
       - "traefik.http.services.moonshot-auth.loadbalancer.server.port=3000"
+      - "traefik.http.services.moonshot-auth.loadbalancer.sticky=true"
+      - "traefik.http.services.moonshot-auth.loadbalancer.sticky.cookie.name=moonshot_session"
     environment:
       - SERVICE_FQDN_APP_3000
       - NODE_ENV=production
