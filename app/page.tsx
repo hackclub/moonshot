@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import LoadingModal from "@/components/common/LoadingModal";
 import Link from "next/link";
 import Image from "next/image";
@@ -30,6 +30,20 @@ const loadingMessages = [
   "Boarding the Hogwarts Express...",
 ];
 
+function RSVPLink() {
+  const searchParams = useSearchParams();
+  const rsvpLink = searchParams.toString() ? `/rsvp?${searchParams.toString()}` : '/rsvp';
+  
+  return (
+    <Link
+      href={rsvpLink}
+      className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
+    >
+      RSVP NOW!
+    </Link>
+  );
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPercent, setScrollPercent] = useState(0);
@@ -37,14 +51,10 @@ export default function Home() {
   const [faqOpen, setFaqOpen] = useState(false);
   const [faqText, setFaqText] = useState<string>("");
   const percentage = 50
-  const searchParams = useSearchParams();
 
   const handleLoadComplete = () => {
     setIsLoading(false);
   };
-
-  // Build the RSVP link with query params preserved
-  const rsvpLink = searchParams.toString() ? `/rsvp?${searchParams.toString()}` : '/rsvp';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -291,12 +301,16 @@ export default function Home() {
           <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
             
           </p>
-          <Link
-            href={rsvpLink}
-            className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
-          >
-            RSVP NOW!
-          </Link>
+          <Suspense fallback={
+            <Link
+              href="/rsvp"
+              className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
+            >
+              RSVP NOW!
+            </Link>
+          }>
+            <RSVPLink />
+          </Suspense>
 
           {/* Bottom-center scrolling MOTD ticker */}
           <div className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-3 z-[95] bg-black/40 text-white rounded-full px-4 py-1 backdrop-blur-sm motd-container">
