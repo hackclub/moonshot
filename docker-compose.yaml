@@ -6,9 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    labels:
-      - "traefik.http.middlewares.moonshot-auth.basicauth.users=${BASICAUTH_USERS}"
-      - traefik.http.routers.https-0-gwkso00g48gwsk044owcs4gw-app.entryPoints=https, moonshot-auth
     environment:
       - SERVICE_FQDN_APP_3000
       - NODE_ENV=production
