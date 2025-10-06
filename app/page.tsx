@@ -1,16 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import Form from "@/app/rsvp/form";
-import SignupProgress from "@/components/common/SignupProgress";
 import LoadingModal from "@/components/common/LoadingModal";
 import Link from "next/link";
-import { useSearchParams } from 'next/navigation';
-import { PrefillData } from "@/types/prefill";
 import Image from "next/image";
-import Floating from "@/components/common/Floating";
 import Modal from "@/components/common/Modal";
 import ReactMarkdown from "react-markdown";
-import Star from "@/components/common/Star";
+import { useSearchParams } from 'next/navigation';
 
 const loadingMessages = [
   "Fueling the rocket...",
@@ -35,44 +30,21 @@ const loadingMessages = [
   "Boarding the Hogwarts Express...",
 ];
 
-// Extract the search params logic to a separate client component
-function SearchParamsHandler({ children }: { children: (prefillData: PrefillData) => React.ReactNode }) {
-  const searchParams = useSearchParams();
-  const [prefillData, setPrefillData] = useState<PrefillData>({});
-
-  useEffect(() => {
-    const firstName = searchParams.get('first')?.trim().replace(/[^A-Za-z0-9-]/g, '');
-    const lastName = searchParams.get('last')?.trim().replace(/[^A-Za-z0-9-]/g, '');
-    const email = searchParams.get('email')?.trim().replace(/[^A-Za-z0-9-@.]/g, '');
-    const birthdayISO = searchParams.get('birthday')?.trim().replace(/[^A-Za-z0-9-:T]/g, '');
-
-    const formattedBirthday = birthdayISO ? birthdayISO.split('T')[0] : null;
-
-    setPrefillData({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      birthday: formattedBirthday,
-    });
-    console.log("Prefill Data from URL:", { firstName, lastName, email, birthday: formattedBirthday });
-  }, [searchParams]);
-
-  return <>{children(prefillData)}</>;
-}
-
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPercent, setScrollPercent] = useState(0);
   const isLocalEnv = process.env.NODE_ENV === 'development';
-  const [activeView, setActiveView] = useState<'hero' | 'rsvp'>('hero');
   const [faqOpen, setFaqOpen] = useState(false);
   const [faqText, setFaqText] = useState<string>("");
-  const stars = Array(50).fill(null);
   const percentage = 50
+  const searchParams = useSearchParams();
 
   const handleLoadComplete = () => {
     setIsLoading(false);
   };
+
+  // Build the RSVP link with query params preserved
+  const rsvpLink = searchParams.toString() ? `/rsvp?${searchParams.toString()}` : '/rsvp';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -188,7 +160,7 @@ export default function Home() {
         >
           FAQ
         </button>
-        {activeView === 'hero' && bannerOpacity > 0 && (
+        {bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
               style={{
@@ -224,8 +196,7 @@ export default function Home() {
             LOCAL
           </div>
         )}
-        {activeView === 'hero' ? (
-          <div
+        <div
             className="relative w-screen h-full flex items-center justify-center overflow-hidden"
             style={{
               backgroundImage: 'url("/star-tile.png")',
@@ -320,13 +291,12 @@ export default function Home() {
           <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
             
           </p>
-          <button
-            type="button"
-            onClick={() => setActiveView('rsvp')}
-            className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5"
+          <Link
+            href={rsvpLink}
+            className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
           >
             RSVP NOW!
-          </button>
+          </Link>
 
           {/* Bottom-center scrolling MOTD ticker */}
           <div className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-3 z-[95] bg-black/40 text-white rounded-full px-4 py-1 backdrop-blur-sm motd-container">
@@ -339,40 +309,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        ) : (
-        <div id="rsvp" className="font-quintessential relative flex h-full w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-2 md:pt-0">
-          {stars.map((star, i) => (
-            <Star key={i} />
-          ))}
-          <Floating seed={Math.random()}>
-            <Image
-              src="/character.webp"
-              width={500}
-              height={500}
-              alt="Character"
-              className="w-60 h-auto"
-            />
-          </Floating>
-          <Floating seed={Math.random()}>
-            <Image
-              src="/orph.webp"
-              width={500}
-              height={500}
-              alt="Astro Orpheus"
-              className="w-60 h-auto"
-            />
-          </Floating>
-
-        <SearchParamsHandler>
-          {(prefillData) => (
-            <>
-                  <SignupProgress />
-                  <Form hasSession={false} prefillData={prefillData || {}} />
-            </>
-          )}
-        </SearchParamsHandler>
-        </div>
-        )}
         {/* FAQ Modal */}
         <Modal isOpen={faqOpen} onClose={() => setFaqOpen(false)} title="FAQ" dark>
           <div className="prose max-w-none font-luckiest text-white">
@@ -428,20 +364,14 @@ export default function Home() {
         }
         
         .cloud-tr { transform: scale(0.67); transform-origin: top right; }
-        /* Wide viewports (>= 2:1): hide Orph and top-right cloud; adjust title/button */
-        @media (min-aspect-ratio: 2/1) {
+        /* Very wide viewports (>= 21:9): hide Orph and top-right cloud; adjust title/button */
+        @media (min-aspect-ratio: 21/9) {
           .ultra-hide { display: none !important; }
           .hero-title { top: 24px !important; }
           .rsvp-btn { top: 62% !important; }
         }
-        /* Also apply for common widescreen (>= 16:9) */
-        @media (min-aspect-ratio: 16/9) {
-          .ultra-hide { display: none !important; }
-          .hero-title { top: 24px !important; }
-          .rsvp-btn { top: 62% !important; }
-        }
-        /* Fallback for short landscape heights */
-        @media (orientation: landscape) and (max-height: 520px) {
+        /* Very short landscape heights */
+        @media (orientation: landscape) and (max-height: 400px) {
           .ultra-hide { display: none !important; }
           .hero-title { top: 16px !important; }
           .rsvp-btn { top: 64% !important; }

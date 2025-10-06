@@ -211,7 +211,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
       )}
           <div className="z-20 mx-5 flex flex-col items-center gap-4 rounded-lg border-2 border-[#333333] bg-[#22222266] px-0 py-3 [filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.1))] backdrop-blur-3xl transition-all duration-300 hover:[filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.3))] md:p-6 max-h-[90vh] overflow-y-auto">
           <div>
-          <h3 id="rsvp" className="font-luckiest px-3 text-center text-4xl md:text-5xl leading-tight" aria-label="MOONSHOT">
+          <h3 id="rsvp" className="font-luckiest px-3 text-center text-4xl md:text-5xl leading-tight text-white" aria-label="MOONSHOT">
             {(() => {
               const text = 'MOONSHOT';
               const slotSeconds = 1.2; // time allocated per letter (spaced out)
@@ -230,7 +230,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               ));
             })()}
           </h3>
-          <p className="mt-2 text-center text-lg md:text-xl" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+          <p className="mt-2 text-center text-lg md:text-xl text-white" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
             TEENS 13 TO 18 ONLY
           </p>
         </div>
