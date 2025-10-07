@@ -231,7 +231,8 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
             })()}
           </h3>
           <p className="mt-2 text-center text-lg md:text-xl text-white" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
-            TEENS 13 TO 18 ONLY
+          DECEMBER 12-15 - ORLANDO, FL<br></br>
+          TEENS 13 TO 18 ONLY
           </p>
         </div>
 

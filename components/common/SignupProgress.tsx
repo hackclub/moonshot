@@ -32,7 +32,7 @@ export default function SignupProgress() {
 
   return (
     <div className="relative z-20 mb-4 flex w-full flex-col items-center">
-      <p className="font-luckiest text-sm md:text-base mb-1">
+      <p className="font-luckiest text-white text-sm md:text-base mb-1">
         {safeCount}/5000
       </p>
       <div className="relative h-3 w-72 md:w-96 rounded-full border border-[#333333] bg-[#333333] overflow-hidden">
