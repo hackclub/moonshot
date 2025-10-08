@@ -4,6 +4,7 @@ import { Baloo_Da_2, Poppins, Quintessential, Luckiest_Guy } from "next/font/goo
 import "./globals.css";
 import "@/app/info/info.css";
 import "@/app/api/stats/init";
+import Script from "next/script";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -75,7 +76,21 @@ export default function RootLayout({
         <ChunkReloadGuard />
         {children}
         <div id="root-portal"></div>
-        <script defer data-domain="moonshot.hackclub.com" src="https://plausible.io/js/script.js"></script>
+        {process.env.NODE_ENV === "production" && (
+          <>
+            <Script
+              src="https://plausible.io/js/pa-nzb6Zze2AAGidzdDAKnXb.js"
+              strategy="afterInteractive"
+            />
+            <Script id="plausible-init" strategy="afterInteractive">
+              {`
+                window.plausible = window.plausible || function(){ (plausible.q = plausible.q || []).push(arguments) };
+                plausible.init = plausible.init || function(i){ plausible.o = i || {} };
+                plausible.init();
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );
