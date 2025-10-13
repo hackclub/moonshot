@@ -282,7 +282,11 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
             </FormInput>
           </div>
           <div className="flex flex-col gap-0.5 md:col-start-2 md:row-start-2 px-[13px] pt-[13px]">
-            <label className="md:text-lg text-base font-semibold text-left text-sand font-luckiest">Birthday</label>
+            <label className="md:text-lg text-base font-semibold text-left text-sand font-luckiest" style={{
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              letterSpacing: '0.01em'
+            }}>Birthday</label>
             <DatePicker
               selected={birthdayDate}
               onChange={(date: Date | null) => {

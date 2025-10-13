@@ -35,7 +35,11 @@ export default function FormInput({
   return (
     <>
       <div className="md:my-3 my-2 w-full px-3 sm:px-4">
-        <label className={`md:text-lg text-base font-semibold text-left text-sand ${textStyle}`}>
+        <label className={`md:text-lg text-base font-semibold text-left text-sand ${textStyle}`} style={{
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+          letterSpacing: '0.01em'
+        }}>
           {children}
           {required && <p className="text-red-500 inline">*</p>}
         </label>
