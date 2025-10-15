@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { handleMoonshotReferralRedirect } from './lib/redirectMoonshotReferral';
 
 export const config = {
   matcher: [
@@ -22,6 +23,8 @@ export const config = {
 };
 
 export default async function middleware(request: NextRequest) {
+  const moonshotRedirect = handleMoonshotReferralRedirect(request);
+  if (moonshotRedirect) return moonshotRedirect;
 
   return NextResponse.next();
 }
