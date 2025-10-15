@@ -4,16 +4,34 @@ const LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID = process.env.LOOPS_TRANSACTIONA
 const LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID;
 const LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID;
 
-if (!LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID");
-if (!LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID");
-if (!LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID");
-if (!LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID");
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const LOOPS_MOCK_KEY = (LOOPS_API_KEY || '').toLowerCase() === 'mock';
+const LOOPS_USE_MOCK = LOOPS_MOCK_KEY && !IS_PRODUCTION;
+
+if (IS_PRODUCTION && LOOPS_MOCK_KEY) {
+    throw new Error("LOOPS_API_KEY cannot be set to 'mock' in production");
+}
+
+if (!LOOPS_USE_MOCK) {
+    if (!LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID");
+    if (!LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID");
+    if (!LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID");
+    if (!LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID");
+}
 
 async function sendEmailWithLoops(
     transactionEmailId: string,
     targetEmail: string,
     emailParams: Record<string, string>,
 ) {
+    if (LOOPS_USE_MOCK) {
+        console.log('[MOCK LOOPS] Transactional email', {
+            transactionalId: transactionEmailId,
+            email: targetEmail,
+            dataVariables: { ...emailParams }
+        });
+        return;
+    }
     const response = await fetch("https://app.loops.so/api/v1/transactional", {
         method: "POST",
         headers: {
