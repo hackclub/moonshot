@@ -25,7 +25,7 @@ const schema = z.object({
 
 type SchemaType = z.infer<typeof schema>;
 
-type Data = Record<string, FormDataEntryValue | FormDataEntryValue[]>;
+type Data = Record<string, FormDataEntryValue | FormDataEntryValue[] | null>;
 
 export type EntryData = Record<string, string | number | string[] | null>;
 
@@ -37,8 +37,13 @@ export type FormSave = {
 
 // Check if the email is already RSVPed
 async function isEmailRSVPed(email: string): Promise<boolean> {
+    // Escape Airtable formula string literal by doubling single quotes
+    const escapeForAirtable = (value: string): string => value.replace(/'/g, "''");
+
+    const exact = escapeForAirtable(email.toLowerCase());
+
     const records = await getRecords("RSVP", {
-        filterByFormula: `Email = '${email}'`,
+        filterByFormula: `{Email} = '${exact}'`,
         sort: [],
         maxRecords: 1,
     });
@@ -63,7 +68,13 @@ async function getClientIP(): Promise<string> {
 }
 
 function sanitizeEmail(email: string): string {
-    return email.toLowerCase().replace(/[\s+']/g, '');
+    // Preserve '+'; normalize and remove invisible/zero-width chars; trim and lowercase
+    const zeroWidthChars = /[\u200B\u200C\u200D\uFEFF]/g;
+    return email
+        .normalize('NFKC')
+        .replace(zeroWidthChars, '')
+        .trim()
+        .toLowerCase();
 }
 
 /**
@@ -120,7 +131,8 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
                 }
             }
 
-            (validated.data as SchemaType)["Email"] = email.data
+            // Ensure a canonical, Airtable-safe value is stored
+            (validated.data as SchemaType)["Email"] = sanitizeEmail(email.data)
             console.log('Email validated successfully - ', email.data);
         }
 
@@ -146,7 +158,7 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
         // If a session exists, use that email on the new entry
         if (session && session!.user && session!.user!.email) {
             console.log('Using session email:', session.user.email);
-            newEntry["Email"] = session!.user!.email!
+            newEntry["Email"] = sanitizeEmail(session!.user!.email!)
         }
 
         // If neither a session nor the form data contain an email, return prematurily
@@ -164,6 +176,8 @@ export async function save(state: FormSave, payload: FormData): Promise<FormSave
                 data: newEntry,
                 valid: false
             }
+        } else {
+            console.log('Email is not already RSVPed');
         }
 
         // Add IP address to the entry
