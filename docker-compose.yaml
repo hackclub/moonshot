@@ -6,13 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.moonshot.rule=Host(`${CANONICAL_HOST}`)"
-        - "traefik.http.routers.moonshot.entrypoints=https"
-        - "traefik.http.routers.moonshot.tls=true"
-        - "traefik.http.routers.moonshot.tls.certresolver=letsencrypt"
-        - "traefik.http.services.moonshot.loadbalancer.server.port=3000"
     environment:
       - NODE_ENV=production
     deploy:
