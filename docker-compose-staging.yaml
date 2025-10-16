@@ -5,3 +5,12 @@ services:
     extends:
       file: docker-compose.yaml
       service: app
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.moonshot-testing.rule=Host(`${CANONICAL_HOST}`)"
+        - "traefik.http.routers.moonshot-testing.entrypoints=https"
+        - "traefik.http.routers.moonshot-testing.tls=true"
+        - "traefik.http.routers.moonshot-testing.tls.certresolver=letsencrypt"
+        - "traefik.http.services.moonshot-testing.loadbalancer.server.port=3000"
+    environment:
+      - NODE_ENV=production
