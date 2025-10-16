@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 export default function FAQ() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -84,6 +85,24 @@ export default function FAQ() {
       </div>
 
       <div className="floating-stickers" ref={stickersLayerRef}></div>
+
+      {/* Back to RSVP button */}
+      <Link
+        href="/rsvp"
+        className="fixed top-6 left-6 z-[200] uppercase tracking-wider text-white transition-all duration-300 px-8 py-4 rounded-2xl border-3 shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.5)] hover:scale-110 transform-gpu text-xl font-bold"
+        style={{ 
+          fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive',
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08))',
+          borderColor: 'rgba(255, 255, 255, 0.4)',
+          backdropFilter: 'blur(15px)',
+          textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+        }}
+      >
+        <span className="flex items-center gap-3">
+          <span className="text-2xl">🚀</span>
+          <span>Back to RSVP</span>
+        </span>
+      </Link>
 
       <div className="container">
         <h1 className="title">🚀 Moonshot FAQ</h1>

@@ -3,8 +3,6 @@ import { useState, useEffect, Suspense } from "react";
 import LoadingModal from "@/components/common/LoadingModal";
 import Link from "next/link";
 import Image from "next/image";
-import Modal from "@/components/common/Modal";
-import ReactMarkdown from "react-markdown";
 import { useSearchParams } from 'next/navigation';
 
 const loadingMessages = [
@@ -48,8 +46,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPercent, setScrollPercent] = useState(0);
   const isLocalEnv = process.env.NODE_ENV === 'development';
-  const [faqOpen, setFaqOpen] = useState(false);
-  const [faqText, setFaqText] = useState<string>("");
   const percentage = 50
 
   const handleLoadComplete = () => {
@@ -70,14 +66,6 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (faqOpen && !faqText) {
-      fetch('/faq.md')
-        .then((r) => r.text())
-        .then(setFaqText)
-        .catch(() => setFaqText('FAQ could not be loaded.'));
-    }
-  }, [faqOpen, faqText]);
 
   // Minimal markdown -> HTML for headings, lists, and paragraphs
   const markdownToHtml = (md: string): string => {
@@ -164,12 +152,12 @@ export default function Home() {
     <div>
       <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
         {/* Global FAQ button (visible on both hero and RSVP views) */}
-        <button
-          onClick={() => setFaqOpen(true)}
+        <Link
+          href="/faq"
           className="fixed top-4 right-4 z-[200] font-luckiest uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
         >
           FAQ
-        </button>
+        </Link>
         {bannerOpacity > 0 && (
           <Link href="https://hackclub.com">
             <img
@@ -323,27 +311,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* FAQ Modal */}
-        <Modal isOpen={faqOpen} onClose={() => setFaqOpen(false)} title="FAQ" dark>
-          <div className="prose max-w-none font-luckiest text-white">
-            <div className="max-h-[70vh] overflow-y-auto px-2 faq-content">
-              {faqText ? (
-                <ReactMarkdown
-                  components={{
-                    a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-red-400 underline hover:text-red-300" />,
-                    h1: ({node, ...props}) => <h2 {...props} className="faq-title" />,
-                    h2: ({node, ...props}) => <h3 {...props} className="faq-title" />,
-                    h3: ({node, ...props}) => <h3 {...props} className="faq-question" />,
-                    ul: ({node, ...props}) => <ul {...props} className="faq-list" />,
-                    p: ({node, ...props}) => <p {...props} className="faq-paragraph" />,
-                  }}
-                >
-                  {faqText}
-                </ReactMarkdown>
-              ) : 'Loading...'}
-            </div>
-          </div>
-        </Modal>
 
       </main>
       <style jsx global>{`
