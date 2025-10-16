@@ -364,7 +364,7 @@ export default function FAQ() {
           border: 2px solid rgba(255, 255, 255, 0.2);
           transition: all 0.3s ease;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          z-index: 1;
+          z-index: 2;
         }
         .faq-standalone .faq-item:hover {
           transform: translateY(-5px);
@@ -416,6 +416,8 @@ export default function FAQ() {
           backdrop-filter: blur(10px);
           border: 2px solid rgba(255, 255, 255, 0.3);
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          position: relative;
+          z-index: 2;
         }
         .faq-standalone .intro-section h2 {
           font-size: 2rem;
@@ -465,11 +467,11 @@ export default function FAQ() {
         .faq-standalone .faq-answer-content a:hover { color: #ffed4e; border-bottom-color: #ffed4e; text-shadow: 0 0 8px rgba(255, 215, 0, 0.5); }
         .faq-standalone .faq-answer-content a[href="#journaling-system"] { color: #98d8c8; border-bottom-color: #98d8c8; }
         .faq-standalone .faq-answer-content a[href="#journaling-system"]:hover { color: #7bc4b2; border-bottom-color: #7bc4b2; text-shadow: 0 0 8px rgba(123, 196, 178, 0.5); }
-        .faq-standalone .section-heading { text-align: center; font-size: 2.5rem; font-weight: bold; margin: 40px 0 30px 0; padding: 20px; border-radius: 25px; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); animation: glow 2s ease-in-out infinite alternate; }
+        .faq-standalone .section-heading { text-align: center; font-size: 2.5rem; font-weight: bold; margin: 40px 0 30px 0; padding: 20px; border-radius: 25px; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); animation: glow 2s ease-in-out infinite alternate; position: relative; z-index: 2; }
         .faq-standalone .section-heading.rules { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; border: 3px solid #ff5252; }
         .faq-standalone .section-heading.faq { background: linear-gradient(135deg, #4ecdc4, #44a08d); color: white; border: 3px solid #26a69a; }
         .faq-standalone .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2; }
-        .faq-standalone .floating-stickers { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+        .faq-standalone .floating-stickers { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
         .faq-standalone .floating-sticker { position: absolute; width: 96px; height: auto; opacity: 0.95; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.35)); animation-name: bobY, swayX, spinSlight; animation-iteration-count: infinite, infinite, infinite; animation-timing-function: ease-in-out, ease-in-out, linear; }
         @keyframes bobY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
         @keyframes swayX { 0%,100% { margin-left: 0; } 50% { margin-left: 12px; } }
