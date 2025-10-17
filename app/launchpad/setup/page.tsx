@@ -26,7 +26,7 @@ export default function HackatimeSetup() {
         if (session?.user?.hackatimeId) {
             console.log('Already have Hackatime ID, redirecting to bay');
             // Force a full page reload to ensure session is fresh
-            window.location.href = '/bay';
+            window.location.href = '/launchpad';
             return;
         }
 
@@ -41,10 +41,10 @@ export default function HackatimeSetup() {
 
                 if (!mounted) return;
 
-                if (data.isSetup) {
-                    console.log('✅ Hackatime is set up, redirecting to bay');
+                if (data.isSetup || process.env.NEXT_PUBLIC_HACKATIME_MOCK === 'true' || process.env.NEXT_PUBLIC_HACKATIME_MOCK === '1') {
+                    console.log('✅ Hackatime is set up, redirecting to launchpad');
                     // Force a full page reload to ensure session is fresh
-                    window.location.href = '/bay';
+                    window.location.href = '/launchpad';
                 } else {
                     console.log('❌ Hackatime is not set up - waiting...');
                     setIsChecking(false);

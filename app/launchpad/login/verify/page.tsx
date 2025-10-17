@@ -8,14 +8,14 @@ import Toast from '@/components/common/Toast';
 export default function VerifyPage() {
   return (
     <Suspense fallback={
-      <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
+      <div className="fixed inset-0">
         <div className="flex items-center justify-center h-full">
-          <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-xl p-8 border border-gray-200 max-w-md w-full mx-4">
-            <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">Verifying Email</h1>
-            <p className="text-gray-600 text-center mb-4">
+          <div className="rounded-xl shadow-xl p-8 border max-w-md w-full mx-4 text-[var(--foreground)]" style={{ backgroundColor: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)' }}>
+            <h1 className="text-3xl font-bold text-center mb-4" style={{ color: 'var(--foreground)' }}>Verifying Email</h1>
+            <p className="text-center mb-4" style={{ color: 'var(--foreground)' }}>
               Please check your email for a verification link.
             </p>
-            <p className="text-gray-600 text-center mb-6">
+            <p className="text-center mb-6" style={{ color: 'var(--foreground)' }}>
               <strong>Important:</strong> Be sure to check your spam or junk folder if you don't see the email in your inbox.
             </p>
           </div>
@@ -71,10 +71,10 @@ function VerifyContent() {
           });
 
           if (result?.ok) {
-            console.log('SignIn successful, redirecting to /bay');
+            console.log('SignIn successful, redirecting to /launchpad');
             // Wait a moment for session to be established
             setTimeout(() => {
-              router.push('/bay');
+              router.push('/launchpad');
             }, 1000);
           } else {
             console.error('SignIn failed:', result?.error);
@@ -97,14 +97,14 @@ function VerifyContent() {
   }, [searchParams, router]);
 
   return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
+    <div className="fixed inset-0">
       <div className="flex items-center justify-center h-full">
-        <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-xl p-8 border border-gray-200 max-w-md w-full mx-4">
-          <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">Verifying Email</h1>
-          <p className="text-gray-600 text-center mb-4">
+        <div className="rounded-xl shadow-xl p-8 border max-w-md w-full mx-4 text-[var(--foreground)]" style={{ backgroundColor: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)' }}>
+          <h1 className="text-3xl font-bold text-center mb-4" style={{ color: 'var(--foreground)' }}>Verifying Email</h1>
+          <p className="text-center mb-4" style={{ color: 'var(--foreground)' }}>
             Please check your email for a verification link.
           </p>
-          <p className="text-gray-600 text-center mb-6">
+          <p className="text-center mb-6" style={{ color: 'var(--foreground)' }}>
             <strong>Important:</strong> Be sure to check your spam or junk folder if you don't see the email in your inbox.
           </p>
           {toastMessage && (

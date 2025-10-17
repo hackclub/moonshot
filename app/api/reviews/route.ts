@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     const host = process.env.NEXTAUTH_URL;
     // Still include result text in notifications if provided in the request
     const resultText = body.result ? `${body.result === 'approve' ? 'Approved' : (body.result === 'reject' ? 'Rejected' : 'Commented')}: ` : '';
-    const updateContent = `Review Update for ${project.name} just came in! ${resultText}Check it out at https://${host}/bay`;
+    const updateContent = `Review Update for ${project.name} just came in! ${resultText}Check it out at https://${host}/launchpad`;
 
     const date = new Date();
     const datetime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`

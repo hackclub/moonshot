@@ -304,26 +304,26 @@ function GalleryInner() {
 
   if (status === "loading" || isExperienceModeLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Please sign in to view the gallery.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+        <p>Please sign in to view the gallery.</p>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen ${isIslandMode ? styles.islandBackground : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${isIslandMode ? styles.islandBackground : ''}`} style={{ backgroundColor: 'var(--background)' }}>
       <Header session={session} status={status} />
       <main className="container mx-auto px-4 py-8">
         {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="rounded-lg shadow-sm p-6 mb-8" style={{ backgroundColor: 'rgba(17,24,39,1)', color: 'var(--foreground)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Search */}
             <div className="lg:col-span-2">
@@ -570,7 +570,8 @@ function GalleryInner() {
             {filteredAndSortedProjects.map((project) => (
               <div 
                 key={project.projectID} 
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                style={{ backgroundColor: 'rgba(17,24,39,1)', color: 'var(--foreground)' }}
               >
                 {/* Project Screenshot */}
                 <div className="relative h-48 w-full">
@@ -755,7 +756,7 @@ function GalleryInner() {
 
 export default function Gallery() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-600">Loading...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}><p>Loading...</p></div>}>
       <GalleryInner />
     </Suspense>
   );

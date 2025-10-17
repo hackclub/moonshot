@@ -149,7 +149,7 @@ export default function Home() {
   }
 
   return (
-    <div>
+    <div className="theme-reset">
       <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
         {/* Global FAQ button (visible on both hero and RSVP views) */}
         <Link

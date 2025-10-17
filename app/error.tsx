@@ -15,15 +15,16 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="fixed inset-0 bg-sky-blue/30 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-white/80 p-8 rounded-lg shadow-lg text-center max-w-md">
-        <h1 className="text-6xl font-bold text-dark-blue mb-4">OOPS!</h1>
-        <p className="text-lg text-dark-blue/80 mb-6">
-          Something went wrong. Don't worry, our crew is working on it!
+    <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="rounded-lg shadow-lg text-center max-w-md p-8 border" style={{ backgroundColor: 'rgba(17,24,39,1)', borderColor: 'rgba(255,255,255,0.1)', color: 'var(--foreground)' }}>
+        <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>Your rocket exploded!</h1>
+        <p className="text-base mb-6" style={{ color: 'var(--foreground)' }}>
+          An unexpected error occurred.
         </p>
         <button
           onClick={reset}
-          className="py-2 px-4 uppercase bg-dark-blue/60 text-sand border border-sand whitespace-nowrap text-base transition hover:border-yellow hover:scale-105 hover:shadow-lg hover:shadow-dark-blue/20 backdrop-blur-sm rounded-full cursor-pointer"
+          className="py-2 px-4 rounded-md border transition cursor-pointer"
+          style={{ backgroundColor: '#0b0f19', color: 'var(--foreground)', borderColor: 'rgba(255,255,255,0.2)' }}
         >
           Try Again
         </button>

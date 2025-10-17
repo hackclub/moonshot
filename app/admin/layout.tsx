@@ -53,7 +53,7 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
                 Only users with Administrator role can access this section.
               </p>
               <Link 
-                href="/bay"
+                href="/launchpad"
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 Return to My Projects

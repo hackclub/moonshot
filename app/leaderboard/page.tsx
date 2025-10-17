@@ -216,8 +216,8 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
           <div className="flex items-center justify-between w-full py-1 md:py-2">
             <div className="flex-grow px-2 sm:px-4 md:px-0">
               <div className="flex items-center justify-center gap-2 sm:gap-3 min-w-0">
-                <Tooltip content={`You've built ${projects != undefined ? projects.length : 0} project${projects != null && projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}>
-                  <img src="/ship2.png" alt="Ship" className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center" />
+                <Tooltip content={<span>{`You've built ${projects != undefined ? projects.length : 0} project${projects != null && projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}</span>}>
+                  <div className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
                 </Tooltip>
                 <div 
                   className="flex-grow cursor-pointer min-w-0" 
@@ -234,8 +234,8 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                     tooltipPosition="top"
                   />
                 </div>
-                <Tooltip content="Your prize - a fantastic island adventure with friends">
-                  <img src="/island2.png" alt="Island" className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center" />
+                <Tooltip content={<span>Your prize - a fantastic island adventure with friends</span>}>
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
                 </Tooltip>
               </div>
             </div>

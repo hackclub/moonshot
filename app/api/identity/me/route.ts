@@ -10,6 +10,14 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Mock identity verification: bypass external checks and mark as verified
+    if (process.env.IDENTITY_MOCK === 'true' || process.env.IDENTITY_MOCK === '1') {
+      return NextResponse.json({
+        verification_status: 'verified',
+        verified: true,
+      });
+    }
+
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id,

@@ -63,6 +63,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Space-dark reskin: toggled by adding `theme-reskin` class to a root element */
+:root.theme-reskin {
+  --background: #0b0f19; /* deep space blue-black */
+  --foreground: #e6edf3; /* soft light for contrast */
+}
+
+/* Opt-out wrapper for pages that should keep their original palette */
+.theme-reset {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
 h1 {
   font-family: "ohno-softie-variable", sans-serif;
   font-variation-settings: "wght" 600;

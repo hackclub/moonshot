@@ -21,9 +21,9 @@ export default function LoginOptions() {
 
   return (
     <>
-      <div className="flex justify-center flex-col items-center my-4 rounded-lg bg-gray-100/60 p-2">
-        <h2 className="text-2xl font-bold mb-4 text-dark-blue">Welcome, hacker!</h2>
-        <p className="text-base text-black mb-2 max-w-xs text-center break-words">Use the same email / slack account on your Hackatime account to sign in! You do not need to have a Moonshot account to begin.</p>
+      <div className="flex justify-center flex-col items-center my-4 rounded-lg bg-[#0f1623] text-[var(--foreground)] p-2 border border-white/10">
+        <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>Login to the Launchpad</h2>
+        <p className="text-base mb-2 max-w-xs text-center break-words" style={{ color: 'var(--foreground)' }}>Use the same email / slack account on your Hackatime account to sign in! You do not need to have a Moonshot account to begin.</p>
         <button className="my-2 cursor-pointer" onClick={loginWithSlack}>
           <img
             src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
@@ -31,11 +31,11 @@ export default function LoginOptions() {
           />
         </button>
 
-        <p className="mb-.5 mt-2 text-lg"> or </p>
+        <p className="mb-.5 mt-2 text-lg" style={{ color: 'var(--foreground)' }}> or </p>
 
         <form action={loginWithEmail} className="flex flex-row items-center gap-2 w-full flex-nowrap" style={{ minWidth: 0 }}>
             <input
-            className="flex-grow min-w-0 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+            className="flex-grow min-w-0 px-4 py-3 rounded-lg border border-white/20 bg-[#0b1220] text-[var(--foreground)] placeholder-white/50 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               name="email"
               placeholder="Email"
               type="email"

@@ -2,16 +2,12 @@
   width: 100%;
   min-height: 100vh;
   padding: 2rem;
-  background: #f5f5f5;
+  background: var(--background);
 }
 
 /* Applied only in Island Experience mode */
 .islandBackground {
-  /* Image should be placed at public/bay-island-bg.webp */
-  background-image: url('/bay-island-bg.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: var(--background);
 }
 
 .content {
@@ -47,7 +43,7 @@
     padding-right: 1rem;
     padding-top: 0;
     padding-bottom: 0;
-    background: #f5f5f5;
+    background: var(--background);
   }
   .content {
     max-width: 100%;

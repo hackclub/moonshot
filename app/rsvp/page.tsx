@@ -85,7 +85,7 @@ export default function RSVPPage() {
   }
 
   return (
-    <div>
+    <div className="theme-reset">
       <main className="font-quintessential relative flex min-h-[100svh] w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-2 md:pt-0" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
         {/* FAQ button */}
         <Link

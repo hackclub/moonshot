@@ -35,62 +35,9 @@ import { useExperienceMode } from '@/lib/useExperienceMode';
 // Force dynamic rendering to prevent prerendering errors during build
 export const dynamic = 'force-dynamic';
 
-function Loading() {
-  return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
-      <div className="relative flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Loading...
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
+import LoadingOverlay from '@/components/common/LoadingOverlay';
 
-function AccessDeniedHaiku() {
-  const router = useRouter();
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // Start fade-in after mount
-    const fadeTimer = setTimeout(() => setVisible(true), 10);
-    // Redirect after 5 seconds
-    const redirectTimer = setTimeout(() => {
-      router.push('/launchpad/login');
-    }, 5000);
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(redirectTimer);
-    };
-  }, [router]);
-
-  return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
-      <div className="relative flex items-center justify-center h-full">
-        <div
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: 'opacity 4s ease-in',
-            display: 'inline-block'
-          }}
-          className="text-center"
-        >
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Stranded on the shore,
-          </p>
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Treasure lies beyond the waves,
-          </p>
-          <p className="text-5xl md:text-6xl font-serif text-white font-bold">
-            Sign in to set sail.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import AccessDenied from '@/components/common/AccessDenied';
 
 // Add these action functions before the Bay component
 async function createProjectAction(state: FormSave, formData: FormData): Promise<FormSave> {
@@ -491,9 +438,9 @@ export default function Bay() {
   const router = useRouter();
 
   // Early return if not authenticated
-  if (status === "loading") return <Loading />
+  if (status === "loading") return <LoadingOverlay />
   if (status === "unauthenticated") {
-    return <AccessDeniedHaiku />;
+    return <AccessDenied />;
   }
 
   return (
@@ -541,6 +488,11 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
+    // In mock mode, never show identity popup
+    if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
+      setShowIdentityPopup(false);
+      return;
+    }
     const getIdentity = async () => {
       const response = await fetch('/api/identity/me');
       const userResponse = impersonationData ? await fetch(`/api/users/${impersonationData.userId}`) : await fetch('/api/users/me');
@@ -732,9 +684,31 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
       return;
     }
 
-    // Check Hackatime setup from session... this really shouldn't happen, given our check earlier - but just in case
+    // In mock mode, skip redirect to setup to avoid loops
+    if (process.env.NEXT_PUBLIC_HACKATIME_MOCK === 'true' || process.env.NEXT_PUBLIC_HACKATIME_MOCK === '1') {
+      setIsLoadingHackatime(false);
+      setLoadedForUserId(userId);
+      return;
+    }
+
+    // If session lacks hackatimeId, consult server status; only redirect if server says not set up
     if (!hackatimeId) {
-      router.push('/launchpad/setup');
+      (async () => {
+        try {
+          const resp = await fetch('/api/hackatime/status');
+          if (resp.ok) {
+            const status = await resp.json();
+            if (status?.isSetup) {
+              setIsLoadingHackatime(false);
+              setLoadedForUserId(userId);
+              return;
+            }
+          }
+        } catch {
+          // fall through to redirect
+        }
+        router.push('/launchpad/setup');
+      })();
       return;
     }
 
@@ -1055,7 +1029,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
 
                 >
                   <img 
-                    src="/ship2.png" 
+                    src="/" 
                     alt="Ship" 
                     className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center"
 
@@ -1086,7 +1060,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   />
                 </div>
                 <Tooltip content="Your prize - a fantastic island adventure with friends">
-                  <img src="/island2.png" alt="Island" className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center" />
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
                 </Tooltip>
               </div>
             </div>
@@ -1112,7 +1086,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
               <div className="relative flex items-center justify-center bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 w-24 sm:w-28 md:w-32 h-[90px] sm:h-[100px] md:h-[108px]" style={{overflow: 'hidden'}}>
                 <div className="relative w-full h-full flex items-center justify-center">
                                       <img 
-                      src="/shell_720.png"
+                      src=""
                       alt="Clamshell"
                       className={`w-full h-full object-contain ${isGlowing ? 'clamshell-animated' : ''}`}
                       style={{transform: 'scale(1.6) translateX(-2px) translateY(-2px)'}}

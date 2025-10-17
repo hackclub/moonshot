@@ -25,9 +25,7 @@ export default function Bay({ start, end, previous, next }:{ start: number, end:
   return (
     <div className="fixed inset-0 z-0">
       <div className="h-screen w-screen aspect-video flex" style={{
-        backgroundImage: `url('/bay.webp')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center right",
+        backgroundColor: 'var(--background)'
       }}>
         <div className="absolute top-8 right-8 z-50">
           <TriggerButton targetPercent={1} waves>Sign up</TriggerButton>

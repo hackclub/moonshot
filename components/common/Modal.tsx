@@ -83,7 +83,7 @@ export default function Modal({
       >
         <div className={`${styles.header} sticky top-0 z-10 ${dark ? 'bg-black text-white border-b border-white/10' : 'bg-white'}`}>
           <span className='flex flex-row items-center'>
-          {!dark && <img src="/bottle.webp" className="w-[60px] -rotate-45" />}
+          {/* decorative image removed */}
           <h2 id="modal-title" className={`${styles.title} font-luckiest uppercase`}>{title}</h2>
           </span>
          <button 
