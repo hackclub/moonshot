@@ -4,12 +4,12 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
 import UserCategoryDisplay from '@/components/common/UserCategoryDisplay';
-import { calculateProgressMetrics, getProjectHackatimeHours, ProgressMetrics } from '@/app/launchpad/page';
+import { calculateProgressMetrics, getProjectHackatimeHours, ProgressMetrics } from '@/lib/project-client';
 import { ProjectType } from '@/app/api/projects/route';
-import { SessionWrapper } from '../launchpad/layout';
 import { SessionProvider, useSession } from 'next-auth/react';
+import Header from '@/components/common/Header';
 import MultiPartProgressBar, { ProgressSegment } from '@/components/common/MultiPartProgressBar';
-import { Tooltip } from 'recharts';
+import Tooltip from '@/components/common/Tooltip';
 import Modal from '@/components/common/Modal';
 
 // Force dynamic rendering to prevent prerendering errors during build
@@ -216,13 +216,13 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
           <div className="flex items-center justify-between w-full py-1 md:py-2">
             <div className="flex-grow px-2 sm:px-4 md:px-0">
               <div className="flex items-center justify-center gap-2 sm:gap-3 min-w-0">
-                <Tooltip content={<span>{`You've built ${projects != undefined ? projects.length : 0} project${projects != null && projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}</span>}>
+                <Tooltip content={`You've built ${projects != undefined ? projects.length : 0} project${projects != null && projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}>
                   <div className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
                 </Tooltip>
                 <div 
                   className="flex-grow cursor-pointer min-w-0" 
                   onClick={() => setIsProgressModalOpen(true)}
-                  title="When this progress bar reaches 100%, you have the opportunity to purchase a ticket to Florida"
+                  title="When this progress bar reaches 100%, you're eligible for going to the island!"
                 >
                   <MultiPartProgressBar 
                     projects={projects}
@@ -234,7 +234,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                     tooltipPosition="top"
                   />
                 </div>
-                <Tooltip content={<span>Your prize - a fantastic island adventure with friends</span>}>
+                <Tooltip content={`Your prize - a fantastic island adventure with friends`}>
                   <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
                 </Tooltip>
               </div>
@@ -573,15 +573,23 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
 
 // Main component that wraps the content with Suspense
 export default function Users() {
+  function PageShell() {
+    const { data: session, status } = useSession();
+    return (
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+        <Header session={session} status={status} />
+        <div className="flex-1 p-6">
+          <Suspense fallback={<div className="flex justify-center items-center h-64">Loading users...</div>}>
+            <LeaderboardContent />
+          </Suspense>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <SessionProvider>
-      <SessionWrapper>
-        <Suspense fallback={<div>Loading users...</div>}>
-        <div className="min-h-screen flex flex-col p-6">
-          <LeaderboardContent />
-        </div>
-      </Suspense>
-      </SessionWrapper>
+      <PageShell />
     </SessionProvider>
   );
 }
