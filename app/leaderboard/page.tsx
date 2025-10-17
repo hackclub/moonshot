@@ -577,7 +577,9 @@ export default function Users() {
     const { data: session, status } = useSession();
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
-        <Header session={session} status={status} />
+        <Suspense fallback={<div className="w-full h-16" />}> 
+          <Header session={session} status={status} />
+        </Suspense>
         <div className="flex-1 p-6">
           <Suspense fallback={<div className="flex justify-center items-center h-64">Loading users...</div>}>
             <LeaderboardContent />
