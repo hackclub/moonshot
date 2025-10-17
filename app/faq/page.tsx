@@ -12,6 +12,18 @@ export default function FAQ() {
     const stickersLayer = stickersLayerRef.current;
     if (!container || !stickersLayer) return;
 
+    // Ensure stickers do not appear above the header area (when header exists)
+    const updateStickersTopOffset = () => {
+      const headerEl = document.querySelector('nav');
+      const headerHeight = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+      stickersLayer.style.top = `${headerHeight}px`;
+      stickersLayer.style.left = '0';
+      stickersLayer.style.right = '0';
+      stickersLayer.style.bottom = '0';
+    };
+    updateStickersTopOffset();
+    window.addEventListener('resize', updateStickersTopOffset);
+
     const faqItems = Array.from(container.querySelectorAll('.faq-item')) as HTMLElement[];
 
     // Floating stickers setup
@@ -71,6 +83,7 @@ export default function FAQ() {
       createdImages.forEach((img) => stickersLayer.removeChild(img));
       // Cleanup handlers
       clickHandlers.forEach((off) => off());
+      window.removeEventListener('resize', updateStickersTopOffset);
     };
   }, []);
 
@@ -86,23 +99,7 @@ export default function FAQ() {
 
       <div className="floating-stickers" ref={stickersLayerRef}></div>
 
-      {/* Back to RSVP button */}
-      <Link
-        href="/rsvp"
-        className="fixed top-6 left-6 z-[200] uppercase tracking-wider text-white transition-all duration-300 px-8 py-4 rounded-2xl border-3 shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.5)] hover:scale-110 transform-gpu text-xl font-bold"
-        style={{ 
-          fontFamily: '"Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08))',
-          borderColor: 'rgba(255, 255, 255, 0.4)',
-          backdropFilter: 'blur(15px)',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-        }}
-      >
-        <span className="flex items-center gap-3">
-          <span className="text-2xl">🚀</span>
-          <span>Back to RSVP</span>
-        </span>
-      </Link>
+      {/* Back to RSVP button removed */}
 
       <div className="container">
         <h1 className="title">🚀 Moonshot FAQ</h1>
@@ -490,7 +487,7 @@ export default function FAQ() {
         .faq-standalone .section-heading.rules { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; border: 3px solid #ff5252; }
         .faq-standalone .section-heading.faq { background: linear-gradient(135deg, #4ecdc4, #44a08d); color: white; border: 3px solid #26a69a; }
         .faq-standalone .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -2; }
-        .faq-standalone .floating-stickers { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+        .faq-standalone .floating-stickers { position: fixed; left: 0; right: 0; bottom: 0; top: 0; pointer-events: none; z-index: 1; }
         .faq-standalone .floating-sticker { position: absolute; width: 96px; height: auto; opacity: 0.95; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.35)); animation-name: bobY, swayX, spinSlight; animation-iteration-count: infinite, infinite, infinite; animation-timing-function: ease-in-out, ease-in-out, linear; }
         @keyframes bobY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
         @keyframes swayX { 0%,100% { margin-left: 0; } 50% { margin-left: 12px; } }
