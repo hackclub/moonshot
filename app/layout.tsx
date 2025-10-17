@@ -68,7 +68,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="theme-reskin">
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/mfm5adk.css" />
       </head>

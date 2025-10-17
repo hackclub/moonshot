@@ -13,7 +13,7 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
+    <div className="fixed inset-0">
       <div className="relative flex items-center justify-center h-full">
         <div
           style={{
@@ -21,9 +21,7 @@ export default function LoginPage() {
             transition: "opacity 0.5s ease-in"
           }}
         >
-          <div className="flex justify-center flex-col items-center my-4 rounded-lg bg-white p-2">
             <LoginOptions />
-          </div>
         </div>
       </div>
     </div>
@@ -52,7 +50,7 @@ function AccessDeniedHaiku() {
   }, [router]);
 
   return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
+    <div className="fixed inset-0">
       <div className="relative flex items-center justify-center h-full">
         <div
           style={{

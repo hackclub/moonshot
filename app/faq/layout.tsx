@@ -7,7 +7,7 @@ export default function FAQLayout({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <SessionWrapper>
-        {children}
+        <div className="theme-reset">{children}</div>
       </SessionWrapper>
     </SessionProvider>
   );
@@ -24,11 +24,11 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
           session={session}
           status={status}
         />
-        {children}
+        <div className="theme-reset">{children}</div>
       </>
     );
   }
   
   // When not authenticated, just show children (which will handle its own auth flow)
-  return children;
+  return <div className="theme-reset">{children}</div>;
 } 
