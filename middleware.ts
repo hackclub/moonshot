@@ -29,6 +29,16 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
   const expectedUser = 'admin';
   const expectedPass = authPassword;
 
+  // If production canonical host, only gate /launchpad (RSVP/FAQ remain open)
+  const canonicalHostEnv = (process.env.CANONICAL_HOST || '').toLowerCase();
+  const isProdCanonical = canonicalHostEnv === 'moonshot.hackclub.com';
+  if (isProdCanonical) {
+    const path = request.nextUrl.pathname || '/';
+    if (!path.startsWith('/launchpad')) {
+      return null; // do not gate non-launchpad routes
+    }
+  }
+
   const authHeader = request.headers.get('authorization') || '';
   const unauthorized = () => new Response('Authentication required.', {
     status: 401,
@@ -61,14 +71,15 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
 }
 
 export default async function middleware(request: NextRequest) {
+  // Handle hack.club → hackclub.com referral redirects FIRST so we can append r=slug
+  const moonshotRedirect = handleMoonshotReferralRedirect(request);
+  if (moonshotRedirect) return moonshotRedirect;
+
   const canonicalRedirect = redirectToCanonicalHostIfNeeded(request);
   if (canonicalRedirect) return canonicalRedirect;
 
   const authResponse = enforceBasicAuthIfEnabled(request);
   if (authResponse) return authResponse;
-
-  const moonshotRedirect = handleMoonshotReferralRedirect(request);
-  if (moonshotRedirect) return moonshotRedirect;
 
   return NextResponse.next();
 }
