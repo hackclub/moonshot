@@ -1009,7 +1009,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           className={styles.progressSection}
         >
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4 mt-2.5 md:mt-1">
-          {impersonationData ? `${impersonationData.user.name ? `${impersonationData.user.name}'s Voyage` : 'User Voyage'}` : 'Your Voyage'}
+          {impersonationData ? `${impersonationData.user.name ? `${impersonationData.user.name}'s Progress` : 'User Progress'}` : 'Your Progress'}
         </h2>
         
         {/* Show pending orders for non-impersonation mode */}
@@ -1074,7 +1074,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                 <div className={`text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 ${isGlowing ? 'percentage-animated' : ''}`}>
                   {Math.round(progressMetrics.totalPercentageWithPurchased)}%
                 </div>
-                <div className={`text-[10px] sm:text-xs text-gray-500 text-center ${isGlowing ? 'percentage-animated' : ''}`}>Island Progress</div>
+                <div className={`text-[10px] sm:text-xs text-gray-500 text-center ${isGlowing ? 'percentage-animated' : ''}`}>Progress</div>
               </div>
             </Tooltip>
             

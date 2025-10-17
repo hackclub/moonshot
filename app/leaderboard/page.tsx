@@ -222,7 +222,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                 <div 
                   className="flex-grow cursor-pointer min-w-0" 
                   onClick={() => setIsProgressModalOpen(true)}
-                  title="When this progress bar reaches 100%, you're eligible for going to the island!"
+                  title="When this progress bar reaches 100%, you have the opportunity to purchase a ticket to Florida"
                 >
                   <MultiPartProgressBar 
                     projects={projects}

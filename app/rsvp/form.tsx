@@ -211,14 +211,14 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
       )}
           <div className="z-20 mx-5 flex flex-col items-center gap-4 rounded-lg border-2 border-[#333333] bg-[#22222266] px-0 py-3 [filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.1))] backdrop-blur-3xl transition-all duration-300 hover:[filter:drop-shadow(5px_5px_20px_rgba(255,255,255,0.3))] md:p-6 max-h-[90vh] overflow-y-auto">
           <div>
-          <h3 id="rsvp" className="font-luckiest px-3 text-center text-4xl md:text-5xl leading-tight text-white" aria-label="MOONSHOT">
+          <h3 id="rsvp" className="font-kavoon px-3 text-center text-4xl md:text-5xl leading-tight text-white" aria-label="MOONSHOT">
             {(() => {
               const text = 'MOONSHOT';
               const slotSeconds = 1.2; // time allocated per letter (spaced out)
               return text.split('').map((ch, i) => (
                 <span
                   key={i}
-                  className="inline-block moonshot-letter font-luckiest"
+                  className="inline-block moonshot-letter font-kavoon"
                   style={{
                     animationDelay: `${i * slotSeconds}s`,
                     // total duration makes pulses sequential and non-overlapping
@@ -230,13 +230,13 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               ));
             })()}
           </h3>
-          <p className="mt-2 text-center text-lg md:text-xl text-white" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+          <p className="mt-2 text-center text-lg md:text-xl text-white" style={{ fontFamily: 'var(--font-kavoon), Kavoon, cursive' }}>
           DECEMBER 12-15 - ORLANDO, FL<br></br>
           TEENS 13 TO 18 ONLY
           </p>
         </div>
 
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-lg md:text-xl font-luckiest items-start content-start" onSubmit={handleSubmit}>
+        <form className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-lg md:text-xl font-kavoon items-start content-start" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-0.5">
         <FormInput
               fieldName="First Name"
@@ -245,8 +245,8 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["First Name"]}
               onChange={(e) => handleInputChange("First Name", e.target.value)}
-              inputStyle="font-luckiest placeholder:font-luckiest"
-              textStyle="font-luckiest"
+              inputStyle="font-kavoon placeholder:font-kavoon"
+              textStyle="font-kavoon"
             >
               First Name
             </FormInput>
@@ -259,8 +259,8 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Last Name"]}
               onChange={(e) => handleInputChange("Last Name", e.target.value)}
-              inputStyle="font-luckiest placeholder:font-luckiest"
-              textStyle="font-luckiest"
+              inputStyle="font-kavoon placeholder:font-kavoon"
+              textStyle="font-kavoon"
             >
               Last Name
             </FormInput>
@@ -275,14 +275,14 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               required
               value={formData["Email"]}
               onChange={(e) => handleInputChange("Email", e.target.value)}
-              inputStyle="font-luckiest placeholder:font-luckiest"
-              textStyle="font-luckiest"
+              inputStyle="font-kavoon placeholder:font-kavoon"
+              textStyle="font-kavoon"
             >
               Email
             </FormInput>
           </div>
           <div className="flex flex-col gap-0.5 md:col-start-2 md:row-start-2 px-[13px] pt-[13px]">
-            <label className="md:text-lg text-base font-semibold text-left text-sand font-luckiest" style={{
+            <label className="md:text-lg text-base font-semibold text-left text-sand font-kavoon" style={{
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               letterSpacing: '0.01em'
@@ -299,7 +299,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
               showMonthDropdown
               showYearDropdown
               dropdownMode="select"
-              className="md:text-base text-sm w-full px-3 sm:px-4 md:py-2 py-1.5 bg-white text-dark-brown disabled:bg-gray-200 rounded outline-1 outline-gray-200 font-luckiest font-normal placeholder:font-luckiest"
+              className="md:text-base text-sm w-full px-3 sm:px-4 md:py-2 py-1.5 bg-white text-dark-brown disabled:bg-gray-200 rounded outline-1 outline-gray-200 font-kavoon font-normal placeholder:font-kavoon"
               wrapperClassName="w-full"
               withPortal
               portalId="root-portal"
@@ -309,11 +309,11 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
             <div className="col-span-1 md:col-span-2 flex justify-center mt-1">
               <div className="relative inline-block">
                 <button
-                  className={`font-luckiest tracking-wide uppercase cursor-pointer rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl text-white shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 text-center ${allFilled ? 'wiggle-scale' : ''} ${(!allFilled || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  className={`font-kavoon tracking-wide uppercase cursor-pointer rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl text-white shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 text-center ${allFilled ? 'wiggle-scale' : ''} ${(!allFilled || isSubmitting) ? 'opacity-60 cursor-not-allowed' : ''}`}
                   disabled={!allFilled || isSubmitting}
                   type="submit"
                 >
-                  <span className="flex items-center gap-1 flex-nowrap font-luckiest">
+                  <span className="flex items-center gap-1 flex-nowrap font-kavoon">
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </span>
                 </button>
@@ -352,16 +352,16 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
         .calendar-input::-webkit-calendar-picker-indicator,
         .calendar-input::-webkit-clear-button,
         .calendar-input::-webkit-inner-spin-button {
-          font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important;
+          font-family: var(--font-kavoon), 'Kavoon', cursive !important;
           font-weight: 400 !important;
           font-size: 15px !important;
           letter-spacing: 0.01em !important;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-        .calendar-input::placeholder { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.01em !important; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .calendar-input::placeholder { font-family: var(--font-kavoon), 'Kavoon', cursive !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.01em !important; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         @-moz-document url-prefix() {
-          .calendar-input { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.01em !important; -moz-osx-font-smoothing: grayscale; }
+          .calendar-input { font-family: var(--font-kavoon), 'Kavoon', cursive !important; font-weight: 400 !important; font-size: 15px !important; letter-spacing: 0.01em !important; -moz-osx-font-smoothing: grayscale; }
         }
         /* Adjust datepicker popper to align close to input and ensure visibility on mobile */
         /* Make react-datepicker wrapper containers fill and align like our inputs */
@@ -369,7 +369,7 @@ export default function Form({ hasSession, prefillData }: { hasSession?: boolean
         :global(.react-datepicker__input-container) { width: 100%; display: block; }
         :global(.react-datepicker__input-container input) {
           box-sizing: border-box;
-          font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important;
+          font-family: var(--font-kavoon), 'Kavoon', cursive !important;
           font-weight: 400 !important;
         }
         /* Portal: center the calendar in the viewport with a subtle backdrop */

@@ -35,7 +35,7 @@ function RSVPLink() {
   return (
     <a
       href={rsvpLink}
-      className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
+      className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-kavoon tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
     >
       RSVP NOW!
     </a>
@@ -150,11 +150,11 @@ export default function Home() {
 
   return (
     <div className="theme-reset">
-      <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+      <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-kavoon), Kavoon, cursive' }}>
         {/* Global FAQ button (visible on both hero and RSVP views) */}
         <Link
           href="/faq"
-          className="fixed top-4 right-4 z-[200] font-luckiest uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
+          className="fixed top-4 right-4 z-[200] font-kavoon uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
         >
           FAQ
         </Link>
@@ -188,7 +188,7 @@ export default function Home() {
               borderRadius: "4px",
               fontSize: "14px",
               zIndex: "999",
-              fontFamily: "var(--font-poppins)"
+              fontFamily: "var(--font-kavoon)"
             }}
           >
             LOCAL
@@ -292,7 +292,7 @@ export default function Home() {
           <Suspense fallback={
             <a
               href="/rsvp"
-              className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-luckiest tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
+              className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-kavoon tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
             >
               RSVP NOW!
             </a>
@@ -303,7 +303,7 @@ export default function Home() {
           {/* Bottom-center scrolling MOTD ticker */}
           <div className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-3 z-[95] bg-black/40 text-white rounded-full px-4 py-1 backdrop-blur-sm motd-container">
             <div className="motd-track overflow-hidden w-[41vw] max-w-[450px]">
-              <div className="motd-ticker ticker-text inline-block whitespace-nowrap text-sm md:text-base tracking-wide font-luckiest">
+              <div className="motd-ticker ticker-text inline-block whitespace-nowrap text-sm md:text-base tracking-wide font-kavoon">
                 <span>
                   Come join us in Florida!  Visit NASA KSC and explore Universal Studios!  Teens only, you must be 13-18 to participate!  Totally free!!!
                 </span>
@@ -322,8 +322,8 @@ export default function Home() {
         .wiggle-slow { animation: slow-wiggle 7s ease-in-out infinite; }
         @keyframes spin-slow-kf { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spin-slow { animation: spin-slow-kf 60s linear infinite; transform-origin: center center; }
-        .font-luckiest { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; }
-        .ticker-text, .ticker-text * { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; }
+        .font-luckiest { font-family: var(--font-kavoon), 'Kavoon', cursive !important; }
+        .ticker-text, .ticker-text * { font-family: var(--font-kavoon), 'Kavoon', cursive !important; }
         .ticker-text { letter-spacing: 0.02em; text-transform: uppercase; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         @keyframes motd-scroll-kf { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .motd-ticker { animation: motd-scroll-kf 20s linear infinite; }

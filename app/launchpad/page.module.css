@@ -98,18 +98,18 @@
   margin-bottom: 0.25rem;
   padding-top: 0.5rem;
   padding-bottom: 3rem;
-  background-color: #f5f5f5;
+  background-color: transparent;
 }
 
 .progressSection h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #374151;
+  color: var(--foreground);
 }
 
 .description {
-  color: #666;
+  color: var(--foreground);
   margin-bottom: 1.5rem;
 }
 
@@ -179,7 +179,7 @@
     margin-bottom: 0.25rem;
     padding-top: 0.5rem;
     padding-bottom: 3rem;
-    background-color: #f5f5f5;
+    background-color: transparent;
   }
 }
 
