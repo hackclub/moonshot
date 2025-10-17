@@ -411,17 +411,17 @@ export default function Header({ session, status }: HeaderProps) {
                         )}
                         <button
                             onClick={() => setDropdownOpen((prev) => !prev)}
-                            className="bg-white text-[#47D1F6] font-bold px-3 sm:px-4 py-2 rounded-lg shadow hover:bg-[#f9e9c7] hover:text-[#3B2715] transition text-sm whitespace-nowrap"
+                            className="bg-white text-black font-bold px-3 sm:px-4 py-2 rounded-lg shadow hover:text-red-600 transition text-sm whitespace-nowrap"
                         >
-                            Log out
+                            Eject
                         </button>
                         {dropdownOpen && (
-                            <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg p-4 w-40 z-10">
+                            <div className="absolute right-0 top-full mt-2 bg-white text-black rounded-lg shadow-lg p-4 w-40 z-10">
                                 <div className="text-center space-y-4">
-                                <p className="text-sm text-center">Are you sure you want to log out?</p>
+                                <p className="text-sm text-center text-black">Are you sure you want to log out?</p>
                                     <button
                                         type="submit"
-                                        className="bg-white text-[#47D1F6] font-bold px-4 py-2 rounded-lg shadow hover:bg-[#f9e9c7] hover:text-[#3B2715] transition"
+                                        className="bg-white text-red-600 font-bold px-4 py-2 rounded-lg shadow hover:bg-red-50 hover:text-red-700 transition"
                                         onClick={() => signOut()}
                                     >
                                         Log me out!

@@ -86,7 +86,7 @@ export default function RSVPPage() {
 
   return (
     <div className="theme-reset">
-      <main className="font-quintessential relative flex min-h-[100svh] w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-2 md:pt-0" style={{ fontFamily: 'var(--font-luckiest), cursive' }}>
+      <main className="font-quintessential relative flex min-h-[100svh] w-full overflow-hidden flex-col items-center justify-center bg-gradient-to-br from-[#150340] to-black pt-2 md:pt-0" style={{ fontFamily: 'var(--font-kavoon), Kavoon, cursive' }}>
         {/* FAQ button */}
         <Link
           href="/faq"
@@ -115,7 +115,7 @@ export default function RSVPPage() {
               borderRadius: "4px",
               fontSize: "14px",
               zIndex: "999",
-              fontFamily: "var(--font-poppins)"
+              fontFamily: "var(--font-kavoon)"
             }}
           >
             LOCAL
@@ -158,7 +158,7 @@ export default function RSVPPage() {
 
       </main>
       <style jsx global>{`
-        .font-luckiest { font-family: var(--font-luckiest), 'Luckiest Guy', cursive !important; }
+        .font-luckiest { font-family: var(--font-kavoon), 'Kavoon', cursive !important; }
         
       `}</style>
     </div>

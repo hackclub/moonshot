@@ -23,7 +23,7 @@ export default function Sidebar({
         </div>
         <p
           className="text-xl text-sky-600 mt-1"
-          style={{ fontFamily: "var(--font-baloo)" }}
+          style={{ fontFamily: "var(--font-kavoon)" }}
         >
           August 8-11
         </p>
@@ -32,7 +32,7 @@ export default function Sidebar({
             href="/"
             className={`text-base flex justify-between items-center flex-nowrap rounded py-2 px-4 text-center transition w-full max-w-xs
               bg-slate-200/50 hover:bg-blue-300/50 shadow group font-semibold text-dark-blue`}
-            style={{ fontFamily: "var(--font-baloo)" }}
+            style={{ fontFamily: "var(--font-kavoon)" }}
           >
             <svg
               className="w-5 h-5 text-sky-600 group-hover:-translate-x-1 transition-transform"

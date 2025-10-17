@@ -69,7 +69,7 @@ export default function HackatimeSetup() {
 
     // Return different UI based on checking status
     return (
-        <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
+        <div className="fixed inset-0">
             <div className="relative flex items-center justify-center h-full">
                 <div className="bg-black/60 p-8 rounded-xl max-w-xl text-center">
                     {isChecking ? (

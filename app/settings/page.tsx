@@ -141,17 +141,17 @@ function SettingsContent() {
   const userRole = userData?.role || session?.user?.role || 'User';
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-gray-100">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Settings</h1>
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto bg-gray-00 border border-gray-300 p-6 rounded-lg shadow text-white">
+        <h1 className="text-3xl font-bold mb-8 text-white">Settings</h1>
         
         <div className="space-y-8">
           <div className="pb-6">
             <div className="space-y-4">
               <div>
-                <p className="text-gray-600 mb-1">Name</p>
+                <p className="text-white mb-1">Name</p>
                 <div className="flex items-center">
-                  <p className="font-medium">{userName || "Unknown"}</p>
+                  <p className="font-medium text-white">{userName || "Unknown"}</p>
                   <span className={`ml-3 px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${getRoleBadgeStyle(userRole)}`}>
                     {userRole}
                   </span>
@@ -159,12 +159,12 @@ function SettingsContent() {
               </div>
               
               <div>
-                <p className="text-gray-600 mb-1">Email</p>
-                <p className="font-medium">{userEmail}</p>
+                <p className="text-white mb-1">Email</p>
+                <p className="font-medium text-white">{userEmail}</p>
               </div>
               
               <div>
-                <p className="text-gray-600 mb-1">Email Verified?</p>
+                <p className="text-white mb-1">Email Verified?</p>
                 <div className="flex items-center">
                   {userEmailVerified ? (
                     <span className="px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -178,7 +178,7 @@ function SettingsContent() {
                       <button
                         onClick={handleRequestVerification}
                         disabled={isRequestingVerification}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
+                        className="text-sm text-white hover:opacity-80 font-medium underline transition-colors"
                       >
                         {isRequestingVerification ? "Sending..." : "Fix this..."}
                       </button>
@@ -188,7 +188,7 @@ function SettingsContent() {
               </div>
 
               <div>
-                <p className="text-gray-600 mb-1">Identity Verified?</p>
+                <p className="text-white mb-1">Identity Verified?</p>
                 <div className="flex items-center">
                   {identityStatus === 'verified' ? (
                     <span className="px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -209,7 +209,7 @@ function SettingsContent() {
                           window.open(url, '_blank');
                         }}
                         disabled={isRequestingVerification}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
+                        className="text-sm text-white hover:opacity-80 font-medium underline transition-colors"
                       >
                         {isRequestingVerification ? "Verifying..." : "Verify My Identity"}
                       </button>
@@ -219,7 +219,7 @@ function SettingsContent() {
               </div>
               
               <div>
-                <p className="text-gray-600 mb-1">Slack Connected?</p>
+                <p className="text-white mb-1">Slack Connected?</p>
                 <div className="flex items-center">
                   {userSlack ? (
                     <span className="px-2 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -233,7 +233,7 @@ function SettingsContent() {
                       <button
                         onClick={handleConnectSlack}
                         disabled={isConnectingSlack}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium underline transition-colors"
+                        className="text-sm text-white hover:opacity-80 font-medium underline transition-colors"
                       >
                         {isConnectingSlack ? "Connecting..." : "Fix this..."}
                       </button>

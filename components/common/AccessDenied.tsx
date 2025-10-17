@@ -16,7 +16,7 @@ export default function AccessDenied({ redirectTo = '/launchpad/login', fadeMs =
     const fadeTimer = setTimeout(() => setVisible(true), 10);
     const redirectTimer = setTimeout(() => {
       router.push(redirectTo);
-    }, 5000);
+    }, 1750);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(redirectTimer);
@@ -34,14 +34,8 @@ export default function AccessDenied({ redirectTo = '/launchpad/login', fadeMs =
           }}
           className="text-center"
         >
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Stranded on the shore,
-          </p>
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Treasure lies beyond the waves,
-          </p>
           <p className="text-5xl md:text-6xl font-serif text-white font-bold">
-            Sign in to set sail.
+            Redirecting you to the login page...
           </p>
         </div>
       </div>

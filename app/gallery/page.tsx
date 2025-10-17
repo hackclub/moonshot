@@ -321,13 +321,13 @@ function GalleryInner() {
   return (
     <div className={`min-h-screen ${isIslandMode ? styles.islandBackground : ''}`} style={{ backgroundColor: 'var(--background)' }}>
       <Header session={session} status={status} />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 text-white">
         {/* Filters and Search */}
-        <div className="rounded-lg shadow-sm p-6 mb-8" style={{ backgroundColor: 'rgba(17,24,39,1)', color: 'var(--foreground)' }}>
+        <div className="rounded-lg shadow-sm p-6 mb-8 text-white" style={{ backgroundColor: 'rgba(17,24,39,1)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Search */}
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Search Projects
               </label>
               <div className="relative">
@@ -348,7 +348,7 @@ function GalleryInner() {
 
             {/* Status Filters */}
             <div className="lg:col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Filter by Status
               </label>
               <div className="flex gap-4 py-2">
@@ -361,7 +361,7 @@ function GalleryInner() {
                       onChange={(e) => setShowViral(e.target.checked)}
                       className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
                     />
-                    <span className="ml-2 text-sm text-gray-700">Viral</span>
+                    <span className="ml-2 text-sm text-white">Viral</span>
                   </label>
                 )}
                 <label className="flex items-center">
@@ -371,14 +371,14 @@ function GalleryInner() {
                     onChange={(e) => setShowShipped(e.target.checked)}
                     className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Shipped</span>
+                  <span className="ml-2 text-sm text-white">Shipped</span>
                 </label>
               </div>
             </div>
 
             {/* Sort Options */}
             <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-2">
                 Sort by
               </label>
               <div className="flex flex-wrap gap-2">
@@ -495,7 +495,7 @@ function GalleryInner() {
           {isIslandMode && challengeTags.length > 0 && (
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-white">
                   Filter by Challenge Tags
                 </label>
                 {selectedChallengeTags.length > 0 && (
@@ -545,7 +545,7 @@ function GalleryInner() {
 
           {/* Results Count */}
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-white">
               Showing {filteredAndSortedProjects.length} of {totalProjectsForCurrentMode} projects
             </p>
           </div>
@@ -553,15 +553,15 @@ function GalleryInner() {
 
         {isLoading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading projects...</p>
+            <p className="text-white">Loading projects...</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <p className="text-red-600">{error}</p>
+            <p className="text-white">{error}</p>
           </div>
         ) : filteredAndSortedProjects.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">
+            <p className="text-white">
               {projects.length === 0 ? 'No projects found.' : 'No projects match your current filters.'}
             </p>
           </div>
@@ -570,8 +570,8 @@ function GalleryInner() {
             {filteredAndSortedProjects.map((project) => (
               <div 
                 key={project.projectID} 
-                className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                style={{ backgroundColor: 'rgba(17,24,39,1)', color: 'var(--foreground)' }}
+                className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow text-white"
+                style={{ backgroundColor: 'rgba(17,24,39,1)' }}
               >
                 {/* Project Screenshot */}
                 <div className="relative h-48 w-full">
@@ -593,7 +593,7 @@ function GalleryInner() {
                 <div className="p-4">
                   <div className="flex flex-col">
                     <div className="flex flex-row items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      <h3 className="text-lg font-semibold text-white truncate">
                         {project.name}
                       </h3>
                       {project.rawHours > 0 && (
@@ -612,7 +612,7 @@ function GalleryInner() {
                             height={20}
                             className="w-5 h-5 rounded-full"
                           />
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-white">
                             {project.user.slack ? (
                               <a 
                                 href={`https://hackclub.slack.com/app_redirect?channel=${project.user.slack}`}
@@ -660,7 +660,7 @@ function GalleryInner() {
                   </div>
 
                   {project.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    <p className="text-white text-sm mb-3 line-clamp-2">
                       {project.description}
                     </p>
                   )}

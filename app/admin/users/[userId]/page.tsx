@@ -312,7 +312,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             </div>
             
             <div>
-              <h3 className="text-lg font-medium mb-2">Island Progress</h3>
+              <h3 className="text-lg font-medium mb-2">Progress</h3>
               <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 rounded-lg border border-blue-200">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-1">

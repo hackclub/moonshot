@@ -1009,7 +1009,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           className={styles.progressSection}
         >
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4 mt-2.5 md:mt-1">
-          {impersonationData ? `${impersonationData.user.name ? `${impersonationData.user.name}'s Voyage` : 'User Voyage'}` : 'Your Voyage'}
+          {impersonationData ? `${impersonationData.user.name ? `${impersonationData.user.name}'s Progress` : 'User Progress'}` : 'Your Progress'}
         </h2>
         
         {/* Show pending orders for non-impersonation mode */}
@@ -1069,12 +1069,12 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           {/* Progress + Clamshells Section */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 mt-4">
             {/* Progress representation */}
-            <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentageWithPurchased)}% of the way to the Island!!!`}>
+            <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentageWithPurchased)}% of the way to Florida!!!`}>
               <div className="flex flex-col items-center justify-center w-24 sm:w-28 md:w-32 bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 h-[90px] sm:h-[100px] md:h-[108px]">
                 <div className={`text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 ${isGlowing ? 'percentage-animated' : ''}`}>
                   {Math.round(progressMetrics.totalPercentageWithPurchased)}%
                 </div>
-                <div className={`text-[10px] sm:text-xs text-gray-500 text-center ${isGlowing ? 'percentage-animated' : ''}`}>Island Progress</div>
+                <div className={`text-[10px] sm:text-xs text-gray-500 text-center ${isGlowing ? 'percentage-animated' : ''}`}>Progress</div>
               </div>
             </Tooltip>
             
