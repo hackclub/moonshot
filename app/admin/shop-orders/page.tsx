@@ -400,7 +400,7 @@ export default function ShopOrdersPage() {
                           </div>
                           <div className="flex items-center gap-4 text-sm text-gray-600">
                             <span className="flex items-center">
-                              <img src="/shell_720.png" alt="Shell" className="w-4 h-4 mr-1" />
+                              <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/10" />
                               {Math.round(order.price / order.quantity)} shells each
                             </span>
                             <span>Qty: {order.quantity}</span>

@@ -38,7 +38,7 @@ export default function AccessDeniedPage() {
             
             <div className="flex flex-col space-y-3">
               <Link 
-                href="/bay"
+                href="/launchpad"
                 className="w-full py-2 bg-blue-600 text-white text-center rounded hover:bg-blue-700 transition-colors"
               >
                 Return to My Projects

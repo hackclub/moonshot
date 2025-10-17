@@ -5,62 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 import { Toaster, toast } from "sonner";
 
-function Loading() {
-  return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
-      <div className="relative flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Loading...
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
+import LoadingOverlay from '@/components/common/LoadingOverlay';
 
-function AccessDeniedHaiku() {
-  const router = useRouter();
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // Start fade-in after mount
-    const fadeTimer = setTimeout(() => setVisible(true), 10);
-    // Redirect after 5 seconds
-    const redirectTimer = setTimeout(() => {
-      router.push('/launchpad/login');
-    }, 5000);
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(redirectTimer);
-    };
-  }, [router]);
-
-  return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
-      <div className="relative flex items-center justify-center h-full">
-        <div
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: 'opacity 4s ease-in',
-            display: 'inline-block'
-          }}
-          className="text-center"
-        >
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Stranded on the shore,
-          </p>
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Treasure lies beyond the waves,
-          </p>
-          <p className="text-5xl md:text-6xl font-serif text-white font-bold">
-            Sign in to set sail.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import AccessDenied from '@/components/common/AccessDenied';
 
 interface UserData {
   id: string;
@@ -126,9 +73,9 @@ function SettingsContent() {
   }, [status, session]);
 
   // Early return if not authenticated
-  if (status === "loading") return <Loading />
+  if (status === "loading") return <LoadingOverlay />
   if (status === "unauthenticated") {
-    return <AccessDeniedHaiku />;
+    return <AccessDenied />;
   }
 
   // Function to trigger email verification
@@ -334,7 +281,7 @@ function SettingsWithSearchParams() {
 // Main component with Suspense
 export default function Settings() {
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<LoadingOverlay />}>
       <SettingsWithSearchParams />
     </Suspense>
   );

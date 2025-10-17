@@ -2,11 +2,12 @@ import { HacaktimeMostRecentHeartbeat, HackatimeProject, HackatimeStatsProject }
 import { prisma } from "@/lib/prisma";
 import metrics from "@/metrics";
 
-if (!process.env.HACKATIME_API_TOKEN) {
+const HACKATIME_MOCK = process.env.HACKATIME_MOCK === 'true' || process.env.HACKATIME_MOCK === '1';
+if (!process.env.HACKATIME_API_TOKEN && !HACKATIME_MOCK) {
   throw new Error('HACKATIME_API_TOKEN environment variable must be set');
 }
 
-const HACKATIME_API_TOKEN = process.env.HACKATIME_API_TOKEN;
+const HACKATIME_API_TOKEN = process.env.HACKATIME_API_TOKEN || (HACKATIME_MOCK ? 'mock-token' : '');
 const HACKATIME_RACK_ATTACK_BYPASS_TOKEN = process.env.HACKATIME_RACK_ATTACK_BYPASS_TOKEN;
 
 async function makeHackatimeRequest(uri: string) {
@@ -167,7 +168,9 @@ export interface HackatimeSetupStatus {
  * exists in our database or can be found via their email.
  */
 export async function checkHackatimeSetup(userId: string, userEmail: string): Promise<HackatimeSetupStatus> {
-  // return { isSetup: false };
+  if (HACKATIME_MOCK) {
+    return { isSetup: true };
+  }
 
   try {
     // First check if we already have a Hackatime ID stored

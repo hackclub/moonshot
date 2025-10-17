@@ -148,7 +148,7 @@ export default function ShopPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
-              <img src="/shell_720.png" alt="Shell" className="w-12 h-12 mr-3" />
+              <div className="w-12 h-12 mr-3 rounded-full border border-white/10" />
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Shell Shop</h1>
             </div>
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
@@ -158,7 +158,7 @@ export default function ShopPage() {
             {/* Shell Balance Display */}
             {userShells !== null && (
               <div className="inline-flex items-center bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-full px-6 py-3 shadow-sm">
-                <img src="/shell_720.png" alt="Shell" className="w-5 h-5 mr-2" />
+                <div className="w-5 h-5 mr-2 rounded-full border border-white/10" />
                 <span className="text-xl font-bold text-blue-900">{userShells.shells}</span>
                 <span className="ml-2 text-blue-700 font-medium">available</span>
               </div>
@@ -198,7 +198,7 @@ export default function ShopPage() {
                 {/* Price */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <img src="/shell_720.png" alt="Shell" className="w-6 h-6 mr-2" />
+                    <div className="w-6 h-6 mr-2 rounded-full border border-white/10" />
                     <span className="text-2xl font-bold text-blue-600">{item.price}</span>
                     <span className="text-gray-500 ml-1">shells</span>
                   </div>
@@ -273,7 +273,7 @@ export default function ShopPage() {
               <div className="flex items-center justify-between">
                 <span className="font-medium text-gray-700">Total:</span>
                 <div className="flex items-center">
-                  <img src="/shell_720.png" alt="Shell" className="w-5 h-5 mr-1" />
+                  <div className="w-5 h-5 mr-1 rounded-full border border-white/10" />
                   <span className="text-xl font-bold text-blue-600">{selectedItem.price * quantity}</span>
                   <span className="text-gray-500 ml-1">shells</span>
                 </div>

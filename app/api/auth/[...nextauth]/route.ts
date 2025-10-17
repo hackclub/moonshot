@@ -347,7 +347,7 @@ export const opts: NextAuthOptions = {
       // Clear experience mode cookie on login so it gets reset based on user status
       // Note: We need to add a flag to clear this on the client side since we can't 
       // access cookies directly in the redirect callback
-      return `${baseUrl}/bay?clearExperience=true`;
+      return `${baseUrl}/launchpad?clearExperience=true`;
     }
   },
   pages: {

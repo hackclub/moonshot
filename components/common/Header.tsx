@@ -107,7 +107,7 @@ export default function Header({ session, status }: HeaderProps) {
     };
 
     return (
-        <nav className="w-full px-4 sm:px-6 py-4 bg-[#47D1F6] flex items-center justify-between shadow-md">
+        <nav className="w-full px-4 sm:px-6 py-4 bg-transparent flex items-center justify-between shadow-md" style={{ backgroundColor: 'var(--background)' }}>
             <div className="flex items-center relative min-w-0" ref={mobileMenuRef}>
                 {/* Mobile menu button */}
                 <button 
@@ -122,8 +122,8 @@ export default function Header({ session, status }: HeaderProps) {
                 {/* Desktop menu */}
                 <div className="hidden md:flex space-x-3 lg:space-x-4 xl:space-x-6 text-white">
                     <Link 
-                        href="/bay" 
-                        className={`transition-colors ${isActive('/bay') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                        href="/launchpad" 
+                        className={`transition-colors ${isActive('/launchpad') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
                     >
                         My Projects
                     </Link>
@@ -273,8 +273,8 @@ export default function Header({ session, status }: HeaderProps) {
                     <div className="absolute left-0 top-full mt-2 bg-white rounded-lg shadow-lg p-4 w-48 z-20 md:hidden">
                         <div className="space-y-4">
                             <Link 
-                                href="/bay" 
-                                className={`block transition-colors ${isActive('/bay') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                href="/launchpad" 
+                                className={`block transition-colors ${isActive('/launchpad') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 My Projects

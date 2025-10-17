@@ -584,7 +584,7 @@ export default function ShopItemsPage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <img src="/shell_720.png" alt="Shell" className="w-4 h-4 mr-1" />
+                    <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/10" />
                     <span className="text-sm text-gray-900">{item.price}</span>
                   </div>
                 </td>

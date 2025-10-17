@@ -15,36 +15,9 @@ interface User {
   image: string | null;
 }
 
-function Loading() {
-  return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
-      <div className="relative flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Loading...
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import LoadingOverlay from '@/components/common/LoadingOverlay';
 
-function AccessDenied() {
-  return (
-    <div className="fixed inset-0 bg-[url(/bay.webp)] bg-cover bg-center">
-      <div className="relative flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-5xl md:text-6xl font-serif mb-6 text-white font-bold">
-            Access Denied
-          </p>
-          <p className="text-2xl md:text-3xl font-serif text-white">
-            Admin access required
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
+import AccessDenied from '@/components/common/AccessDenied';
 
 export default function AdminImpersonateBay() {
   const { data: session, status } = useSession();
@@ -104,15 +77,15 @@ export default function AdminImpersonateBay() {
   };
 
   if (status === 'loading' || isLoading) {
-    return <Loading />;
+    return <LoadingOverlay />;
   }
 
   if (!session || !isAdmin) {
-    return <AccessDenied />;
+    return <AccessDenied fadeMs={1000} redirectTo="/launchpad/login" />;
   }
 
   if (!user) {
-    return <Loading />;
+    return <LoadingOverlay />;
   }
 
   // Prepare impersonation data for the bay component

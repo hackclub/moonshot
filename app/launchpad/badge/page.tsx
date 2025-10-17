@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import styles from "./badge.module.css";
 
 // Variables for easy swapping
-const BADGE_IMAGE_URL =
-  "https://replace-me.doesnotexist.imsorry.com.png";
+const CANONICAL_HOST = process.env.NEXT_PUBLIC_CANONICAL_HOST || 'moonshot.hackclub.com';
+const TARGET_LINK = `https://${CANONICAL_HOST}`;
+const BADGE_IMAGE_URL = "https://replace-me.doesnotexist.imsorry.com.png";
 
 export default function BadgeGenerator() {
   const { status } = useSession();

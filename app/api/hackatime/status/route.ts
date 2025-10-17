@@ -3,6 +3,9 @@ import { requireUserSession } from "@/lib/requireUserSession";
 
 export async function GET() {
     try {
+        if (process.env.HACKATIME_MOCK === 'true' || process.env.HACKATIME_MOCK === '1') {
+            return Response.json({ isSetup: true });
+        }
         console.log('🔍 Checking Hackatime status - starting');
         const user = await requireUserSession();
         console.log('👤 User session:', { 

@@ -80,7 +80,7 @@ export async function GET(request: Request) {
             userId: user.id
         };
         
-        // ALL USERS (including admins) get filtered based on experience mode on /bay
+        // ALL USERS (including admins) get filtered based on experience mode on /launchpad
         if (isIslandMode) {
             // Island mode: only show projects with 'island-project' tag
             whereClause.projectTags = {
@@ -421,7 +421,7 @@ export async function POST(request: Request) {
                             codeUrl: createdProject.codeUrl || "",
                             playableUrl: createdProject.playableUrl || "",
                             screenshot: createdProject.screenshot || "",
-                            url: createdProject.projectID ? `/launchpad/projects/${createdProject.projectID}` : '/bay'
+                            url: createdProject.projectID ? `/launchpad/projects/${createdProject.projectID}` : '/launchpad'
                         }
                     }
                 });

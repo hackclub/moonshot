@@ -1,8 +1,5 @@
 .islandBackground {
-  background-image: url('/bay-island-bg.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-color: var(--background);
 }
 
 
