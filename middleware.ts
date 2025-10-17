@@ -29,6 +29,16 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
   const expectedUser = 'admin';
   const expectedPass = authPassword;
 
+  // If production canonical host, only gate /launchpad (RSVP/FAQ remain open)
+  const canonicalHostEnv = (process.env.CANONICAL_HOST || '').toLowerCase();
+  const isProdCanonical = canonicalHostEnv === 'moonshot.hackclub.com';
+  if (isProdCanonical) {
+    const path = request.nextUrl.pathname || '/';
+    if (!path.startsWith('/launchpad')) {
+      return null; // do not gate non-launchpad routes
+    }
+  }
+
   const authHeader = request.headers.get('authorization') || '';
   const unauthorized = () => new Response('Authentication required.', {
     status: 401,
