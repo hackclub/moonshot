@@ -1069,7 +1069,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           {/* Progress + Clamshells Section */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 mt-4">
             {/* Progress representation */}
-            <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentageWithPurchased)}% of the way to the Island!!!`}>
+            <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentageWithPurchased)}% of the way to Florida!!!`}>
               <div className="flex flex-col items-center justify-center w-24 sm:w-28 md:w-32 bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 h-[90px] sm:h-[100px] md:h-[108px]">
                 <div className={`text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 ${isGlowing ? 'percentage-animated' : ''}`}>
                   {Math.round(progressMetrics.totalPercentageWithPurchased)}%

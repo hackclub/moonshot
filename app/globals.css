@@ -96,7 +96,16 @@ p {
 }
 
 .link {
-  @apply underline hover:text-dark-blue transition
+  @apply underline transition;
+}
+
+/* Global link hover color override */
+a {
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: #f97316 !important; /* orange-500 */
 }
 
 .text-outline-dark-blue {
