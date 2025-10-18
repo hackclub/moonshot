@@ -123,8 +123,8 @@ export default function ShopOrdersPage() {
       const data = await response.json();
 
       // Show success message for rejections (shell reimbursement)
-      if (status === 'rejected' && data.shellsReimbursed) {
-        setSuccessMessage(`${data.shellsReimbursed} shells have been reimbursed to the user.`);
+      if (status === 'rejected' && data.currencyReimbursed) {
+        setSuccessMessage(`${data.currencyReimbursed} currency have been reimbursed to the user.`);
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -144,7 +144,7 @@ export default function ShopOrdersPage() {
 
       // Show success message for refunds
       if (status === 'refunded') {
-        let message = `Order refunded! ${data.shellsReimbursed} shells have been reimbursed to the user.`;
+        let message = `Order refunded! ${data.currencyReimbursed} currency have been reimbursed to the user.`;
         if (data.progressRemoved) {
           message += ` ${data.progressRemoved} hours of progress have been removed.`;
         }
@@ -261,16 +261,16 @@ export default function ShopOrdersPage() {
                 <div><span className="font-medium">Item:</span> {confirmationOrder.itemName}</div>
                 <div><span className="font-medium">Customer:</span> {confirmationOrder.user.name} ({confirmationOrder.user.email})</div>
                 <div><span className="font-medium">Quantity:</span> {confirmationOrder.quantity}</div>
-                <div><span className="font-medium">Price:</span> {confirmationOrder.price} shells</div>
+                <div><span className="font-medium">Price:</span> {confirmationOrder.price} currency</div>
                 {confirmationAction === 'fulfill' && confirmationOrder.itemName.toLowerCase().includes('progress') && (
                   <div><span className="font-medium">Progress to apply:</span> {confirmationOrder.quantity}%</div>
                 )}
                 {confirmationAction === 'reject' && (
-                  <div><span className="font-medium">Shells to reimburse:</span> {confirmationOrder.price}</div>
+                  <div><span className="font-medium">currency to reimburse:</span> {confirmationOrder.price}</div>
                 )}
                 {confirmationAction === 'refund' && (
                   <>
-                    <div><span className="font-medium">Shells to reimburse:</span> {confirmationOrder.price}</div>
+                    <div><span className="font-medium">currency to reimburse:</span> {confirmationOrder.price}</div>
                     {confirmationOrder.itemName.toLowerCase().includes('progress') && (
                       <div><span className="font-medium">Progress to remove:</span> {confirmationOrder.quantity}%</div>
                     )}
@@ -401,10 +401,10 @@ export default function ShopOrdersPage() {
                           <div className="flex items-center gap-4 text-sm text-gray-600">
                             <span className="flex items-center">
                               <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/10" />
-                              {Math.round(order.price / order.quantity)} shells each
+                              {Math.round(order.price / order.quantity)} currency each
                             </span>
                             <span>Qty: {order.quantity}</span>
-                            <span>Total: {order.price} shells</span>
+                            <span>Total: {order.price} currency</span>
                           </div>
                         </div>
                         <div className="text-right">

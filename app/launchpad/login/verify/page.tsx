@@ -32,6 +32,7 @@ function VerifyContent() {
   const searchParams = useSearchParams();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<'success' | 'error'>('error');
+  const canonical = (process.env.CANONICAL_HOST || '').toLowerCase();
 
   useEffect(() => {
     const verifyEmail = async () => {
@@ -93,7 +94,13 @@ function VerifyContent() {
       }
     };
 
-    verifyEmail();
+    // If token/email present, run normal verification
+    if (searchParams.get('token') && searchParams.get('email')) {
+      verifyEmail();
+      return;
+    }
+
+    // no dev-magic behavior
   }, [searchParams, router]);
 
   return (
@@ -107,6 +114,7 @@ function VerifyContent() {
           <p className="text-center mb-6" style={{ color: 'var(--foreground)' }}>
             <strong>Important:</strong> Be sure to check your spam or junk folder if you don't see the email in your inbox.
           </p>
+          {/* Dev-magic removed */}
           {toastMessage && (
             <Toast
               message={toastMessage}

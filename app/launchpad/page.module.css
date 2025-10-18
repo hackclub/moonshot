@@ -2,7 +2,7 @@
   width: 100%;
   min-height: 100vh;
   padding: 2rem;
-  background: var(--background);
+  background: transparent;
 }
 
 /* Applied only in Island Experience mode */
@@ -43,7 +43,7 @@
     padding-right: 1rem;
     padding-top: 0;
     padding-bottom: 0;
-    background: var(--background);
+    background: transparent;
   }
   .content {
     max-width: 100%;

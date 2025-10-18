@@ -2,7 +2,7 @@
   width: 100%;
   min-height: 100vh;
   padding: 2rem;
-  background: var(--background);
+  background: transparent;
 }
 
 .content {
@@ -21,7 +21,7 @@
   font-size: 2rem;
   font-weight: bold;
   text-align: center;
-  color: #1f2937;
+  color: #ffffff;
   margin-bottom: 1rem;
   margin-top: 0.625rem;
 }
@@ -35,7 +35,7 @@
 .description {
   font-size: 1.1rem;
   text-align: center;
-  color: #6b7280;
+  color: #ffffff;
   margin-bottom: 2rem;
   line-height: 1.6;
 }
@@ -44,7 +44,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 0.5rem;
   padding: 1.5rem;
-  background: rgba(17,24,39,1);
+  background: rgba(0,0,0,0.5);
   max-width: 42rem;
   margin: 0 auto;
 }
@@ -148,7 +148,7 @@
     padding-right: 1rem;
     padding-top: 0;
     padding-bottom: 0;
-    background: var(--background);
+    background: transparent;
   }
   
   .content {

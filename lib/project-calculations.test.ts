@@ -34,8 +34,8 @@ function getProjectApprovedHours(project: any): number {
 function calculateProgressMetrics(
   projects: any[], 
   purchasedProgressHours: number = 0,
-  totalShellsSpent: number = 0,
-  adminShellAdjustment: number = 0
+  totalCurrencySpent: number = 0,
+  adminCurrencyAdjustment: number = 0
 ) {
   if (!projects || !Array.isArray(projects)) {
     return {
@@ -45,7 +45,7 @@ function calculateProgressMetrics(
       totalHours: 0,
       totalPercentage: 0,
       rawHours: 0,
-      availableShells: Math.max(0, 0 - totalShellsSpent + adminShellAdjustment),
+      availablecurrency: Math.max(0, 0 - totalCurrencySpent + adminCurrencyAdjustment),
       purchasedProgressHours,
       totalProgressWithPurchased: purchasedProgressHours,
       totalPercentageWithPurchased: Math.min(purchasedProgressHours, 100)
@@ -56,7 +56,7 @@ function calculateProgressMetrics(
   let viralHours = 0;
   let otherHours = 0;
   let rawHours = 0;
-  let availableShells = 0;
+  let availablecurrency = 0;
 
   const allProjectsWithHours = projects
     .map(project => ({
@@ -91,10 +91,10 @@ function calculateProgressMetrics(
       if (approvedHours > 0) {
         if (top4ProjectIds.has(project.projectID)) {
           if (approvedHours > 15) {
-            availableShells += (approvedHours - 15) * (phi * 10);
+            availablecurrency += (approvedHours - 15) * (phi * 10);
           }
         } else {
-          availableShells += approvedHours * (phi * 10);
+          availablecurrency += approvedHours * (phi * 10);
         }
       }
     }
@@ -104,7 +104,7 @@ function calculateProgressMetrics(
   const totalPercentage = Math.min((totalHours / 60) * 100, 100);
   const totalProgressWithPurchased = Math.min(totalHours + (purchasedProgressHours * 0.6), 60);
   const totalPercentageWithPurchased = Math.min(totalPercentage + purchasedProgressHours, 100);
-  const finalAvailableShells = Math.max(0, Math.floor(availableShells) - totalShellsSpent + adminShellAdjustment);
+  const finalAvailablecurrency = Math.max(0, Math.floor(availablecurrency) - totalCurrencySpent + adminCurrencyAdjustment);
 
   return {
     shippedHours,
@@ -113,7 +113,7 @@ function calculateProgressMetrics(
     totalHours,
     totalPercentage,
     rawHours: rawHours,
-    availableShells: finalAvailableShells,
+    availablecurrency: finalAvailablecurrency,
     purchasedProgressHours,
     totalProgressWithPurchased,
     totalPercentageWithPurchased
@@ -201,7 +201,7 @@ describe('Project Calculations', () => {
       expect(result.shippedHours).toBe(0);
       expect(result.otherHours).toBe(0);
       expect(result.totalHours).toBe(0);
-      expect(result.availableShells).toBe(0);
+      expect(result.availablecurrency).toBe(0);
     });
 
     test('calculates basic progress for single projects', () => {
@@ -236,7 +236,7 @@ describe('Project Calculations', () => {
       expect(result.rawHours).toBe(20);
     });
 
-    test('calculates clamshells for excess approved hours', () => {
+    test('calculates clamcurrency for excess approved hours', () => {
       const phi = (1 + Math.sqrt(5)) / 2;
       const projects = [
         createMockProject({ 
@@ -246,8 +246,8 @@ describe('Project Calculations', () => {
         }),
       ];
       const result = calculateProgressMetrics(projects);
-      const expectedShells = Math.floor(5 * (phi * 10));
-      expect(result.availableShells).toBe(expectedShells);
+      const expectedcurrency = Math.floor(5 * (phi * 10));
+      expect(result.availablecurrency).toBe(expectedcurrency);
     });
 
     test('handles admin shell adjustments', () => {
@@ -260,16 +260,16 @@ describe('Project Calculations', () => {
       ];
 
       const phi = (1 + Math.sqrt(5)) / 2;
-      const expectedEarnedShells = Math.floor(5 * (phi * 10));
+      const expectedEarnedcurrency = Math.floor(5 * (phi * 10));
 
       const positiveResult = calculateProgressMetrics(projects, 0, 0, 25);
-      expect(positiveResult.availableShells).toBe(expectedEarnedShells + 25);
+      expect(positiveResult.availablecurrency).toBe(expectedEarnedcurrency + 25);
 
       const negativeResult = calculateProgressMetrics(projects, 0, 0, -10);
-      expect(negativeResult.availableShells).toBe(expectedEarnedShells - 10);
+      expect(negativeResult.availablecurrency).toBe(expectedEarnedcurrency - 10);
 
       const clampedResult = calculateProgressMetrics(projects, 0, 100, -50);
-      expect(clampedResult.availableShells).toBe(0);
+      expect(clampedResult.availablecurrency).toBe(0);
     });
 
     test('only projects with approved hours count toward shipped', () => {

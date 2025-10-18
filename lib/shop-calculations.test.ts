@@ -79,10 +79,10 @@ describe('Shop Calculations', () => {
       const dollarsPerHour = 5;
       const phi = (1 + Math.sqrt(5)) / 2;
       
-      const expectedShells = Math.round((usdCost / dollarsPerHour) * phi * 10);
-      const actualShells = calculateShellPrice(usdCost, dollarsPerHour);
+      const expectedcurrency = Math.round((usdCost / dollarsPerHour) * phi * 10);
+      const actualcurrency = calculateShellPrice(usdCost, dollarsPerHour);
       
-      expect(actualShells).toBe(expectedShells);
+      expect(actualcurrency).toBe(expectedcurrency);
     });
 
     test('returns 0 for zero or negative dollars per hour', () => {
@@ -94,20 +94,20 @@ describe('Shop Calculations', () => {
       const usdCost = 12.50;
       const dollarsPerHour = 2.5;
       
-      const shells = calculateShellPrice(usdCost, dollarsPerHour);
+      const currency = calculateShellPrice(usdCost, dollarsPerHour);
       
-      expect(shells).toBeGreaterThan(0);
-      expect(Number.isInteger(shells)).toBe(true);
+      expect(currency).toBeGreaterThan(0);
+      expect(Number.isInteger(currency)).toBe(true);
     });
 
     test('scales proportionally with USD cost', () => {
       const dollarsPerHour = 5;
       
-      const shells10 = calculateShellPrice(10, dollarsPerHour);
-      const shells20 = calculateShellPrice(20, dollarsPerHour);
+      const currency10 = calculateShellPrice(10, dollarsPerHour);
+      const currency20 = calculateShellPrice(20, dollarsPerHour);
       
-      expect(shells20).toBeGreaterThan(shells10);
-      expect(shells20 / shells10).toBeCloseTo(2, 1);
+      expect(currency20).toBeGreaterThan(currency10);
+      expect(currency20 / currency10).toBeCloseTo(2, 1);
     });
   });
 
@@ -194,10 +194,10 @@ describe('Shop Calculations', () => {
       const usdCost = 20;
       const dollarsPerHour = 4;
       
-      const shells1 = calculateShellPrice(usdCost, dollarsPerHour);
-      const shells2 = calculateShellPrice(usdCost, dollarsPerHour);
+      const currency1 = calculateShellPrice(usdCost, dollarsPerHour);
+      const currency2 = calculateShellPrice(usdCost, dollarsPerHour);
       
-      expect(shells1).toBe(shells2);
+      expect(currency1).toBe(currency2);
     });
 
     test('randomized price changes with different hours', () => {
@@ -218,15 +218,15 @@ describe('Shop Calculations', () => {
 
   describe('Edge Cases', () => {
     test('handles very large numbers', () => {
-      const shells = calculateShellPrice(1000000, 100);
-      expect(shells).toBeGreaterThan(0);
-      expect(Number.isFinite(shells)).toBe(true);
+      const currency = calculateShellPrice(1000000, 100);
+      expect(currency).toBeGreaterThan(0);
+      expect(Number.isFinite(currency)).toBe(true);
     });
 
     test('handles very small numbers', () => {
-      const shells = calculateShellPrice(0.01, 0.001);
-      expect(shells).toBeGreaterThan(0);
-      expect(Number.isInteger(shells)).toBe(true);
+      const currency = calculateShellPrice(0.01, 0.001);
+      expect(currency).toBeGreaterThan(0);
+      expect(Number.isInteger(currency)).toBe(true);
     });
 
     test('randomized price always returns at least 1', () => {

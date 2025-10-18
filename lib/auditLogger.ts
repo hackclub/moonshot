@@ -240,7 +240,7 @@ export async function logShellModification({
   previousBalance: number;
   newBalance: number;
 }) {
-  const description = `Admin ${adjustment > 0 ? 'added' : 'deducted'} ${Math.abs(adjustment)} shells. Previous balance: ${previousBalance}, New balance: ${newBalance}${reason ? `. Reason: ${reason}` : ''}`;
+  const description = `Admin ${adjustment > 0 ? 'added' : 'deducted'} ${Math.abs(adjustment)} currency. Previous balance: ${previousBalance}, New balance: ${newBalance}${reason ? `. Reason: ${reason}` : ''}`;
   
   console.log(`[SHELL-AUDIT-TRACE] Logging shell modification: ${description}`);
   

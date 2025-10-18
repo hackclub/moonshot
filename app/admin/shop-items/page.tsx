@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { calculateShellPrice } from '@/lib/shop-utils';
+import { calculateCurrencyPrice } from '@/lib/shop-utils';
 
 interface ShopItem {
   id: string;
@@ -126,17 +126,17 @@ export default function ShopItemsPage() {
 
         const itemDollarsPerHour = parseFloat(configObj.dollars_per_hour as string);
         const hours = usdCost / itemDollarsPerHour; // Convert USD to hours using item's rate
-        const shells = Math.round(hours * phi * 10);
-        if (formData.price !== shells.toString()) {
-          setFormData((prev) => ({ ...prev, price: shells.toString() }));
+        const currency = Math.round(hours * phi * 10);
+        if (formData.price !== currency.toString()) {
+          setFormData((prev) => ({ ...prev, price: currency.toString() }));
         }
       } else if (configObj.hours_equal_to_one_percent_progress) {
         // For island progress items with hours_equal_to_one_percent_progress
-        // Calculate shells directly from hours, not from USD cost
+        // Calculate currency directly from hours, not from USD cost
         const hours = configObj.hours_equal_to_one_percent_progress as number;
-        const shells = Math.round(hours * phi * 10);
-        if (formData.price !== shells.toString()) {
-          setFormData((prev) => ({ ...prev, price: shells.toString() }));
+        const currency = Math.round(hours * phi * 10);
+        if (formData.price !== currency.toString()) {
+          setFormData((prev) => ({ ...prev, price: currency.toString() }));
         }
       }
     }
@@ -326,7 +326,7 @@ export default function ShopItemsPage() {
       const dollarsPerHour = parseFloat(globalConfig.dollars_per_hour || '0');
 
       if (formData.costType !== 'config' && usdCost > 0 && dollarsPerHour > 0) {
-        finalPrice = calculateShellPrice(usdCost, dollarsPerHour);
+        finalPrice = calculateCurrencyPrice(usdCost, dollarsPerHour);
       }
 
       const payload = {
@@ -545,7 +545,7 @@ export default function ShopItemsPage() {
                 Item
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Shells
+                currency
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 USD Cost
@@ -754,9 +754,9 @@ export default function ShopItemsPage() {
                 {formData.costType !== 'config' && formData.usdCost && globalConfig.dollars_per_hour && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <p className="text-sm text-blue-800">
-                      <strong>Auto-calculated shell price:</strong> {calculateShellPrice(parseFloat(formData.usdCost), parseFloat(globalConfig.dollars_per_hour))} shells
+                      <strong>Auto-calculated shell price:</strong> {calculateCurrencyPrice(parseFloat(formData.usdCost), parseFloat(globalConfig.dollars_per_hour))} currency
                       <br />
-                      <span className="text-xs">Formula: (${parseFloat(formData.usdCost)} ÷ {parseFloat(globalConfig.dollars_per_hour)}) × φ × 10 = {calculateShellPrice(parseFloat(formData.usdCost), parseFloat(globalConfig.dollars_per_hour))} shells</span>
+                      <span className="text-xs">Formula: (${parseFloat(formData.usdCost)} ÷ {parseFloat(globalConfig.dollars_per_hour)}) × φ × 10 = {calculateCurrencyPrice(parseFloat(formData.usdCost), parseFloat(globalConfig.dollars_per_hour))} currency</span>
                     </p>
                   </div>
                 )}
@@ -769,13 +769,13 @@ export default function ShopItemsPage() {
                       const phi = (1 + Math.sqrt(5)) / 2;
                       const itemDollarsPerHour = parseFloat(configObj.dollars_per_hour as string);
                       const hours = usdCost / itemDollarsPerHour;
-                      const shells = Math.round(hours * phi * 10);
+                      const currency = Math.round(hours * phi * 10);
                       return (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                           <p className="text-sm text-green-800">
-                            <strong>Auto-calculated shell price (Travel Stipend):</strong> {shells} shells
+                            <strong>Auto-calculated shell price (Travel Stipend):</strong> {currency} currency
                             <br />
-                            <span className="text-xs">Auto-calculated: {shells} shells</span>
+                            <span className="text-xs">Auto-calculated: {currency} currency</span>
                           </p>
                         </div>
                       );
@@ -783,13 +783,13 @@ export default function ShopItemsPage() {
                     if (configObj.hours_equal_to_one_percent_progress && formData.usdCost) {
                       const hours = configObj.hours_equal_to_one_percent_progress as number;
                       const phi = (1 + Math.sqrt(5)) / 2;
-                      const shells = Math.round(hours * phi * 10);
+                      const currency = Math.round(hours * phi * 10);
                       return (
                         <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                           <p className="text-sm text-purple-800">
-                            <strong>Auto-calculated shell price (Island Progress):</strong> {shells} shells
+                            <strong>Auto-calculated shell price (Island Progress):</strong> {currency} currency
                             <br />
-                            <span className="text-xs">Formula: {hours} hours × φ × 10 = {(hours * phi * 10).toFixed(1)} → round = {shells} shells</span>
+                            <span className="text-xs">Formula: {hours} hours × φ × 10 = {(hours * phi * 10).toFixed(1)} → round = {currency} currency</span>
                           </p>
                         </div>
                       );

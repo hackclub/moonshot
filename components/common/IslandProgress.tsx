@@ -33,7 +33,7 @@ export default function IslandProgress({ className = "" }: IslandProgressProps) 
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const response = await fetch('/api/users/me/shells');
+        const response = await fetch('/api/users/me/currency');
         if (!response.ok) {
           throw new Error('Failed to fetch progress data');
         }

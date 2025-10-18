@@ -106,6 +106,14 @@ export default function Header({ session, status }: HeaderProps) {
         return pathname === '/admin' || pathname.startsWith('/admin/');
     };
 
+    // Ensure starry background is applied to body when Header mounts, removed when unmounts
+    useEffect(() => {
+        document.body.classList.add('starspace-bg');
+        return () => {
+            document.body.classList.remove('starspace-bg');
+        };
+    }, []);
+
     return (
         <nav className="w-full px-4 sm:px-6 py-4 bg-transparent flex items-center justify-between shadow-md" style={{ backgroundColor: 'var(--background)' }}>
             <div className="flex items-center relative min-w-0" ref={mobileMenuRef}>
@@ -142,8 +150,8 @@ export default function Header({ session, status }: HeaderProps) {
                                 Leaderboard
                             </Link>
                             <Link 
-                                href="/faq" 
-                                className={`transition-colors ${isActive('/faq') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                href="/launchpad/faq" 
+                                className={`transition-colors ${isActive('/launchpad/faq') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
                             >
                                 FAQ
                             </Link>
@@ -193,13 +201,13 @@ export default function Header({ session, status }: HeaderProps) {
                             </button>
                             
                             {adminMenuOpen && (
-                                <div className="absolute left-0 mt-2 bg-white rounded-lg shadow-lg p-2 z-20 w-40">
+                                <div className="absolute left-0 mt-2 bg-black text-white rounded-lg shadow-lg p-2 z-20 w-48 border border-white/10">
                                     <Link 
                                         href="/admin" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin') 
-                                                ? 'font-semibold text-[#47D1F6] bg-blue-50 border-l-4 border-[#47D1F6]' 
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-[#47D1F6] border-l-4 border-transparent'
+                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
+                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -209,8 +217,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin/users" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin/users') || pathname.startsWith('/admin/users/') 
-                                                ? 'font-semibold text-[#47D1F6] bg-blue-50 border-l-4 border-[#47D1F6]' 
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-[#47D1F6] border-l-4 border-transparent'
+                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
+                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -220,8 +228,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin/projects" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin/projects') || pathname.startsWith('/admin/projects/') 
-                                                ? 'font-semibold text-[#47D1F6] bg-blue-50 border-l-4 border-[#47D1F6]' 
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-[#47D1F6] border-l-4 border-transparent'
+                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
+                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -231,24 +239,14 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin/audit-logs" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin/audit-logs') || pathname.startsWith('/admin/audit-logs/') 
-                                                ? 'font-semibold text-[#47D1F6] bg-blue-50 border-l-4 border-[#47D1F6]' 
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-[#47D1F6] border-l-4 border-transparent'
+                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
+                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
                                         Audit Logs
                                     </Link>
-                                     <Link 
-                                        href="/admin/dashboards/referrals" 
-                                        className={`block px-3 py-2 rounded transition-colors ${
-                                            isActive('/admin/dashboards/referrals') || pathname.startsWith('/admin/dashboards/referrals') 
-                                                ? 'font-semibold text-[#47D1F6] bg-blue-50 border-l-4 border-[#47D1F6]' 
-                                                : 'text-gray-700 hover:bg-gray-100 hover:text-[#47D1F6] border-l-4 border-transparent'
-                                        }`}
-                                        onClick={() => setAdminMenuOpen(false)}
-                                    >
-                                        Referrals
-                                    </Link>
+                                    
                                     {isShopOrdersAdmin && (
                                         <Link 
                                             href="/admin/shop-orders" 
@@ -270,18 +268,18 @@ export default function Header({ session, status }: HeaderProps) {
                 
                 {/* Mobile menu dropdown */}
                 {mobileMenuOpen && (
-                    <div className="absolute left-0 top-full mt-2 bg-white rounded-lg shadow-lg p-4 w-48 z-20 md:hidden">
+                    <div className="absolute left-0 top-full mt-2 bg-black text-white rounded-lg shadow-lg p-4 w-48 z-20 md:hidden border border-white/10">
                         <div className="space-y-4">
                             <Link 
                                 href="/launchpad" 
-                                className={`block transition-colors ${isActive('/launchpad') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                className={`block transition-colors ${isActive('/launchpad') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 My Projects
                             </Link>
                             <Link 
                                 href="/gallery" 
-                                className={`block transition-colors ${isActive('/gallery') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                className={`block transition-colors ${isActive('/gallery') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 Gallery
@@ -290,28 +288,28 @@ export default function Header({ session, status }: HeaderProps) {
                                 <>
                                     <Link 
                                         href="/leaderboard" 
-                                        className={`block transition-colors ${isActive('/leaderboard') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block transition-colors ${isActive('/leaderboard') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Leaderboard
                                     </Link>
                                     <Link 
-                                        href="/faq" 
-                                        className={`block transition-colors ${isActive('/faq') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        href="/launchpad/faq" 
+                                        className={`block transition-colors ${isActive('/launchpad/faq') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         FAQ
                                     </Link>
                                     <Link 
                                         href="/launchpad/badge" 
-                                        className={`block transition-colors ${isActive('/launchpad/badge') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block transition-colors ${isActive('/launchpad/badge') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Badge
                                     </Link>
                                     <Link 
                                         href="/settings" 
-                                        className={`block transition-colors ${isActive('/settings') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block transition-colors ${isActive('/settings') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Settings
@@ -322,7 +320,7 @@ export default function Header({ session, status }: HeaderProps) {
                             {!isIslandMode && canAccessShop && (
                                 <Link 
                                     href="/launchpad/shop" 
-                                    className={`block transition-colors ${isActive('/launchpad/shop') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                    className={`block transition-colors ${isActive('/launchpad/shop') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     Shop
@@ -338,31 +336,31 @@ export default function Header({ session, status }: HeaderProps) {
                             {/* Admin section with submenu for mobile */}
                             {!isIslandMode && isUserAdmin && (
                                 <div className="space-y-2">
-                                    <div className="font-semibold text-gray-900">Admin</div>
+                                    <div className="font-semibold text-white">Admin</div>
                                     <Link 
                                         href="/admin" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block pl-4 transition-colors ${isActive('/admin') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Dashboard
                                     </Link>
                                     <Link 
                                         href="/admin/users" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin/users') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block pl-4 transition-colors ${isActive('/admin/users') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Users
                                     </Link>
                                     <Link 
                                         href="/admin/projects" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin/projects') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block pl-4 transition-colors ${isActive('/admin/projects') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Projects
                                     </Link>
                                     <Link 
                                         href="/admin/audit-logs" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin/audit-logs') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                        className={`block pl-4 transition-colors ${isActive('/admin/audit-logs') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Audit Logs
@@ -370,7 +368,7 @@ export default function Header({ session, status }: HeaderProps) {
                                     {isShopOrdersAdmin && (
                                         <Link 
                                             href="/admin/shop-orders" 
-                                            className={`block pl-4 transition-colors ${isActive('/admin/shop-orders') ? 'font-semibold text-[#47D1F6]' : 'text-gray-700 hover:text-[#47D1F6]'}`}
+                                            className={`block pl-4 transition-colors ${isActive('/admin/shop-orders') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             Shop Orders
@@ -391,13 +389,10 @@ export default function Header({ session, status }: HeaderProps) {
                 
                 {status === "authenticated" && (
                     <>
-                        <img
-                            src={session?.user.image ? session.user.image : createAvatar(thumbs, { seed: session?.user.id || 'default' }).toDataUri()}
-                            alt={session?.user.email || 'User avatar'}
-                            className="w-10 h-10 rounded-full border-2 border-white shadow"
-                        />
-
-                        <span className="text-white font-semibold hidden lg:inline text-sm xl:text-base">{session?.user.name ? session?.user?.name : session?.user.email?.slice(0, 13) + "..."}</span>
+                        <span className="text-white font-semibold hidden lg:inline text-sm xl:text-base flex items-center gap-2">
+                            <span aria-hidden className="text-2xl leading-none">🚀</span>
+                            {session?.user.name ? session?.user?.name : session?.user.email?.slice(0, 13) + "..."}
+                        </span>
                         
                         {/* Travel Stipend Piggy Bank */}
                         {travelStipends && travelStipends.totalAmount > 0 && (

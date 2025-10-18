@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Toaster } from 'sonner';
 import UserCategoryDisplay from '@/components/common/UserCategoryDisplay';
 import { calculateProgressMetrics, getProjectHackatimeHours, ProgressMetrics } from '@/lib/project-client';
+import { AppConfig } from '@/lib/config';
 import { ProjectType } from '@/app/api/projects/route';
 import { SessionProvider, useSession } from 'next-auth/react';
 import Header from '@/components/common/Header';
@@ -46,8 +47,8 @@ interface User {
   projects: ProjectType[],
   identityToken?: string;
   purchasedProgressHours?: number;
-  totalShellsSpent?: number;
-  adminShellAdjustment?: number;
+  totalCurrencySpent?: number;
+  adminCurrencyAdjustment?: number;
 }
 
 // Sorting types
@@ -191,7 +192,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
       }
 
       try {
-        const response = await fetch('/api/users/me/shells');
+        const response = await fetch('/api/users/me/currency');
         if (response.ok) {
           const data = await response.json();
           setProgressData(data.progress);
@@ -341,7 +342,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                     onClick={() => handleSort('in_review')}
                   >
                     <div className="flex items-center gap-1">
-                      clamshells
+                      {AppConfig.currencyName}
                     </div>
                   </th>
                 </tr>
@@ -409,9 +410,9 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                           {calculateProgressMetrics(
                             user.projects, 
                             user.purchasedProgressHours || 0,
-                            user.totalShellsSpent || 0,
-                            user.adminShellAdjustment || 0
-                          ).availableShells}
+                            user.totalCurrencySpent || 0,
+                            user.adminCurrencyAdjustment || 0
+                          ).availablecurrency}
                         </div>
                       </td>
                     </tr>
@@ -505,14 +506,14 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Clamshells</span>
+                          <span className="text-gray-500 block">{AppConfig.currencyName}</span>
                           <span className="text-gray-800">
                             {calculateProgressMetrics(
                               user.projects, 
                               user.purchasedProgressHours || 0,
-                              user.totalShellsSpent || 0,
-                              user.adminShellAdjustment || 0
-                            ).availableShells}
+                              user.totalCurrencySpent || 0,
+                              user.adminCurrencyAdjustment || 0
+                            ).availablecurrency}
                           </span>
                         </div>
                         <div>
@@ -576,7 +577,7 @@ export default function Users() {
   function PageShell() {
     const { data: session, status } = useSession();
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}>
         <Suspense fallback={<div className="w-full h-16" />}> 
           <Header session={session} status={status} />
         </Suspense>

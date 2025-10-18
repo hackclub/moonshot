@@ -319,11 +319,11 @@ function GalleryInner() {
   }
 
   return (
-    <div className={`min-h-screen ${isIslandMode ? styles.islandBackground : ''}`} style={{ backgroundColor: 'var(--background)' }}>
+    <div className={`min-h-screen ${isIslandMode ? styles.islandBackground : ''}`} style={{ backgroundColor: 'transparent' }}>
       <Header session={session} status={status} />
       <main className="container mx-auto px-4 py-8 text-white">
         {/* Filters and Search */}
-        <div className="rounded-lg shadow-sm p-6 mb-8 text-white" style={{ backgroundColor: 'rgba(17,24,39,1)' }}>
+        <div className="rounded-lg shadow-sm p-6 mb-8 text-white" style={{ backgroundColor: 'transparent' }}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Search */}
             <div className="lg:col-span-2">
@@ -393,7 +393,7 @@ function GalleryInner() {
                   />
                   <div className={`cursor-pointer px-1 py-2 text-xs font-medium rounded-lg text-center transition-colors whitespace-nowrap overflow-hidden ${
                     sortBy === 'upvotes'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-orange-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`} style={{ fontSize: '11px' }}>
                     Upvotes
@@ -410,7 +410,7 @@ function GalleryInner() {
                   />
                   <div className={`cursor-pointer px-1 py-2 text-xs font-medium rounded-lg text-center transition-colors whitespace-nowrap overflow-hidden ${
                     sortBy === 'hasImage'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-orange-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`} style={{ fontSize: '11px' }}>
                     Images
@@ -429,7 +429,7 @@ function GalleryInner() {
                     />
                     <div className={`cursor-pointer px-1 py-2 text-xs font-medium rounded-lg text-center transition-colors whitespace-nowrap overflow-hidden ${
                       sortBy === 'hours'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-orange-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`} style={{ fontSize: '11px' }}>
                       Hours
@@ -447,7 +447,7 @@ function GalleryInner() {
                   />
                   <div className={`cursor-pointer px-1 py-2 text-xs font-medium rounded-lg text-center transition-colors whitespace-nowrap overflow-hidden ${
                     sortBy === 'alphabetical'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-orange-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`} style={{ fontSize: '11px' }}>
                     A-Z
@@ -464,7 +464,7 @@ function GalleryInner() {
                   />
                   <div className={`cursor-pointer px-1 py-2 text-xs font-medium rounded-lg text-center transition-colors whitespace-nowrap overflow-hidden ${
                     sortBy === 'discussions'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-orange-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`} style={{ fontSize: '11px' }}>
                     Chats
@@ -481,7 +481,7 @@ function GalleryInner() {
                   />
                   <div className={`cursor-pointer px-1 py-2 text-xs font-medium rounded-lg text-center transition-colors whitespace-nowrap overflow-hidden ${
                     sortBy === 'recentChat'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-orange-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`} style={{ fontSize: '11px' }}>
                     New Chats
@@ -570,8 +570,7 @@ function GalleryInner() {
             {filteredAndSortedProjects.map((project) => (
               <div 
                 key={project.projectID} 
-                className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow text-white"
-                style={{ backgroundColor: 'rgba(17,24,39,1)' }}
+                className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow text-white bg-black/50"
               >
                 {/* Project Screenshot */}
                 <div className="relative h-48 w-full">
@@ -756,7 +755,7 @@ function GalleryInner() {
 
 export default function Gallery() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}><p>Loading...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}><p>Loading...</p></div>}>
       <GalleryInner />
     </Suspense>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { AppConfig } from '@/lib/config';
 
 interface ShopItem {
   id: string;
@@ -12,16 +13,16 @@ interface ShopItem {
 }
 
 interface ShellBalance {
-  shells: number;
-  earnedShells: number;
+  currency: number;
+  earnedcurrency: number;
   totalSpent: number;
-  availableShells: number;
+  availablecurrency: number;
 }
 
 export default function ShopPage() {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userShells, setUserShells] = useState<ShellBalance | null>(null);
+  const [usercurrency, setUsercurrency] = useState<ShellBalance | null>(null);
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -39,11 +40,11 @@ export default function ShopPage() {
           setItems(itemsData.items);
         }
 
-        // Fetch user shells
-        const shellsResponse = await fetch('/api/users/me/shells');
-        if (shellsResponse.ok) {
-          const shellsData = await shellsResponse.json();
-          setUserShells(shellsData);
+        // Fetch user currency
+        const currencyResponse = await fetch('/api/users/me/currency');
+        if (currencyResponse.ok) {
+          const currencyData = await currencyResponse.json();
+          setUsercurrency(currencyData);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -92,10 +93,10 @@ export default function ShopPage() {
       }, 3000);
       
       // Refresh shell balance
-      const shellsResponse = await fetch('/api/users/me/shells');
-      if (shellsResponse.ok) {
-        const shellsData = await shellsResponse.json();
-        setUserShells(shellsData);
+      const currencyResponse = await fetch('/api/users/me/currency');
+      if (currencyResponse.ok) {
+        const currencyData = await currencyResponse.json();
+        setUsercurrency(currencyData);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Purchase failed');
@@ -109,7 +110,7 @@ export default function ShopPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">Loading the Shell Shop...</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Loading the Moonshop</h2>
         </div>
       </div>
     );
@@ -149,17 +150,17 @@ export default function ShopPage() {
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
               <div className="w-12 h-12 mr-3 rounded-full border border-white/10" />
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Shell Shop</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">The Moonshop</h1>
             </div>
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              Exchanged your shells for some rewards. Prices are subject to change. 👀
+              Exchange {AppConfig.currencyName.toLowerCase()} for some rewards. Prices are subject to change.
             </p>
             
             {/* Shell Balance Display */}
-            {userShells !== null && (
+            {usercurrency !== null && (
               <div className="inline-flex items-center bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-full px-6 py-3 shadow-sm">
                 <div className="w-5 h-5 mr-2 rounded-full border border-white/10" />
-                <span className="text-xl font-bold text-blue-900">{userShells.shells}</span>
+                <span className="text-xl font-bold text-blue-900">{usercurrency.currency}</span>
                 <span className="ml-2 text-blue-700 font-medium">available</span>
               </div>
             )}
@@ -200,17 +201,17 @@ export default function ShopPage() {
                   <div className="flex items-center">
                     <div className="w-6 h-6 mr-2 rounded-full border border-white/10" />
                     <span className="text-2xl font-bold text-blue-600">{item.price}</span>
-                    <span className="text-gray-500 ml-1">shells</span>
+                    <span className="text-gray-500 ml-1">currency</span>
                   </div>
                   
                   {/* Check if user can afford */}
-                  {userShells !== null && (
+                  {usercurrency !== null && (
                     <div className={`text-sm px-2 py-1 rounded-full ${
-                      userShells.shells >= item.price 
+                      usercurrency.currency >= item.price 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-red-100 text-red-800'
                     }`}>
-                      {userShells.shells >= item.price ? 'Can afford' : 'Not enough shells'}
+                      {usercurrency.currency >= item.price ? 'Can afford' : 'Not enough currency'}
                     </div>
                   )}
                 </div>
@@ -218,14 +219,14 @@ export default function ShopPage() {
                 {/* Buy Button */}
                 <button
                   onClick={() => setSelectedItem(item)}
-                  disabled={userShells !== null && userShells.shells < item.price}
+                  disabled={usercurrency !== null && usercurrency.currency < item.price}
                   className={`w-full py-3 px-6 rounded-xl font-semibold text-white transition-all duration-200 ${
-                    userShells !== null && userShells.shells < item.price
+                    usercurrency !== null && usercurrency.currency < item.price
                       ? 'bg-gray-300 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 transform hover:scale-105'
                   }`}
                 >
-                  {userShells !== null && userShells.shells < item.price ? 'Not enough shells' : 'Buy Now'}
+                  {usercurrency !== null && usercurrency.currency < item.price ? 'Not enough currency' : 'Buy Now'}
                 </button>
               </div>
             </div>
@@ -252,7 +253,7 @@ export default function ShopPage() {
               <div className="flex items-center">
                 <span className="text-yellow-600 text-lg mr-2">⚠️</span>
                 <p className="text-yellow-800 text-sm">
-                  This is a one-way operation. Your shells will be deducted immediately.
+                  This is a one-way operation. Your currency will be deducted immediately.
                 </p>
               </div>
             </div>
@@ -275,7 +276,7 @@ export default function ShopPage() {
                 <div className="flex items-center">
                   <div className="w-5 h-5 mr-1 rounded-full border border-white/10" />
                   <span className="text-xl font-bold text-blue-600">{selectedItem.price * quantity}</span>
-                  <span className="text-gray-500 ml-1">shells</span>
+                  <span className="text-gray-500 ml-1">currency</span>
                 </div>
               </div>
             </div>
