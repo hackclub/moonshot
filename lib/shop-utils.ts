@@ -25,10 +25,10 @@ function createHourlyRandom(userId: string, itemId: string, hour: number): numbe
  * Final price is clamped between floor(basePrice * minPercent/100) and ceil(basePrice * maxPercent/100)
  * @param userId User ID for deterministic randomization
  * @param itemId Item ID for deterministic randomization  
- * @param basePrice Base price in shells
+ * @param basePrice Base price in currency
  * @param minPercent Minimum percentage (e.g., 90 for 10% off)
  * @param maxPercent Maximum percentage (e.g., 110 for 10% more)
- * @returns Randomized price in shells, clamped to percentage bounds
+ * @returns Randomized price in currency, clamped to percentage bounds
  */
 export function calculateRandomizedPrice(
   userId: string,
@@ -91,12 +91,12 @@ export function computeOrderUsdValue(item: ShopItem, order: ShopOrder): number {
 
 /**
  * Calculate shell price based on USD cost and global dollars per hour rate
- * Formula: shells = round((usdCost / dollarsPerHour) * phi * 10)
+ * Formula: currency = round((usdCost / dollarsPerHour) * phi * 10)
  * @param usdCost USD cost of the item
  * @param dollarsPerHour Global dollars per hour rate
  * @returns Shell price
  */
-export function calculateShellPrice(usdCost: number, dollarsPerHour: number): number {
+export function calculateCurrencyPrice(usdCost: number, dollarsPerHour: number): number {
   if (dollarsPerHour <= 0) return 0;
   const phi = (1 + Math.sqrt(5)) / 2;
   const hours = usdCost / dollarsPerHour;

@@ -22,8 +22,8 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         hackatimeId: true,
         identityToken: true,
         purchasedProgressHours: true,
-        totalShellsSpent: true,
-        adminShellAdjustment: true,
+        totalCurrencySpent: true,
+        adminCurrencyAdjustment: true,
         projects: {
           include: {
             hackatimeLinks: true,

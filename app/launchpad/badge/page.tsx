@@ -6,9 +6,29 @@ import { useRouter } from "next/navigation";
 import styles from "./badge.module.css";
 
 // Variables for easy swapping
-const CANONICAL_HOST = process.env.NEXT_PUBLIC_CANONICAL_HOST || 'moonshot.hackclub.com';
-const TARGET_LINK = `https://${CANONICAL_HOST}`;
-const BADGE_IMAGE_URL = "https://replace-me.doesnotexist.imsorry.com.png";
+const PUBLIC_CANONICAL = process.env.CANONICAL_HOST;
+
+function normalizeBaseFromHost(host: string): string {
+  const hasProtocol = host.startsWith('http://') || host.startsWith('https://');
+  if (hasProtocol) return host;
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+  if (isLocal) {
+    const hasPort = host.includes(':');
+    return `http://${hasPort ? host : `${host}:3000`}`;
+  }
+  return `https://${host}`;
+}
+
+const TARGET_LINK = (() => {
+  if (PUBLIC_CANONICAL && PUBLIC_CANONICAL.trim().length > 0) {
+    return normalizeBaseFromHost(PUBLIC_CANONICAL.trim());
+  }
+  if (typeof window !== 'undefined') {
+    return normalizeBaseFromHost(window.location.host);
+  }
+  return 'http://localhost:3000';
+})();
+const BADGE_IMAGE_URL = "https://hc-cdn.hel1.your-objectstorage.com/s/v3/35ad2be8c916670f3e1ac63c1df04d76a4b337d1_moonshot.png";
 
 export default function BadgeGenerator() {
   const { status } = useSession();
@@ -36,7 +56,7 @@ export default function BadgeGenerator() {
   <a href="${TARGET_LINK}" target="_blank">
     <img src="${BADGE_IMAGE_URL}" 
          alt="This project is part of Moonshot, a 4-day hackathon in Florida visiting Kennedy Space Center and Universal Studios!" 
-         style="width: 35%;">
+         style="width: 100%;">
   </a>
 </div>`;
 

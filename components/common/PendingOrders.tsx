@@ -67,7 +67,7 @@ export default function PendingOrders() {
               <div>
                 <div className="font-medium text-gray-900">{order.itemName}</div>
                 <div className="text-sm text-gray-600">
-                  Qty: {order.quantity} • {order.price} shells
+                  Qty: {order.quantity} • {order.price} currency
                 </div>
               </div>
               <div className="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">

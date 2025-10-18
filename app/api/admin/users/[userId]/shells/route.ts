@@ -34,10 +34,10 @@ export async function PATCH(
       );
     }
 
-    // Validate adjustment is within reasonable bounds (-1000 to 1000 shells)
+    // Validate adjustment is within reasonable bounds (-1000 to 1000 currency)
     if (Math.abs(adjustment) > 1000) {
       return NextResponse.json(
-        { error: 'Adjustment too large. Maximum adjustment is ±1000 shells.' },
+        { error: 'Adjustment too large. Maximum adjustment is ±1000 currency.' },
         { status: 400 }
       );
     }
@@ -70,15 +70,15 @@ export async function PATCH(
     const currentMetrics = calculateProgressMetrics(
       targetUser.projects,
       targetUser.purchasedProgressHours,
-      targetUser.totalShellsSpent,
-      targetUser.adminShellAdjustment
+      targetUser.totalCurrencySpent,
+      targetUser.adminCurrencyAdjustment
     );
 
     // Update the user's admin shell adjustment
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        adminShellAdjustment: {
+        adminCurrencyAdjustment: {
           increment: adjustment
         }
       }
@@ -88,8 +88,8 @@ export async function PATCH(
     const newMetrics = calculateProgressMetrics(
       targetUser.projects,
       targetUser.purchasedProgressHours,
-      updatedUser.totalShellsSpent,
-      updatedUser.adminShellAdjustment
+      updatedUser.totalCurrencySpent,
+      updatedUser.adminCurrencyAdjustment
     );
 
     // Log the shell modification
@@ -98,25 +98,25 @@ export async function PATCH(
       actorUserId: session.user.id!,
       adjustment,
       reason: reason?.trim(),
-      previousBalance: currentMetrics.availableShells,
-      newBalance: newMetrics.availableShells
+      previousBalance: currentMetrics.availablecurrency,
+      newBalance: newMetrics.availablecurrency
     });
 
     return NextResponse.json({
       success: true,
-      previousBalance: currentMetrics.availableShells,
-      newBalance: newMetrics.availableShells,
+      previousBalance: currentMetrics.availablecurrency,
+      newBalance: newMetrics.availablecurrency,
       adjustment,
-      adminShellAdjustment: updatedUser.adminShellAdjustment,
+      adminCurrencyAdjustment: updatedUser.adminCurrencyAdjustment,
       shellBreakdown: {
-        availableShells: newMetrics.availableShells
+        availablecurrency: newMetrics.availablecurrency
       }
     });
 
   } catch (error) {
-    console.error('Error modifying user shells:', error);
+    console.error('Error modifying user currency:', error);
     return NextResponse.json(
-      { error: 'Failed to modify user shells' },
+      { error: 'Failed to modify user currency' },
       { status: 500 }
     );
   }

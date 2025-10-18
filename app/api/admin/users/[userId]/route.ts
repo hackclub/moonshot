@@ -41,8 +41,8 @@ export async function GET(
         hackatimeId: true,
         slack: true,
         purchasedProgressHours: true,
-        totalShellsSpent: true,
-        adminShellAdjustment: true,
+        totalCurrencySpent: true,
+        adminCurrencyAdjustment: true,
         projects: {
           include: {
             hackatimeLinks: true,

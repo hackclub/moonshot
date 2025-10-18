@@ -21,9 +21,9 @@ export async function GET() {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { 
-        totalShellsSpent: true, 
+        totalCurrencySpent: true, 
         purchasedProgressHours: true,
-        adminShellAdjustment: true
+        adminCurrencyAdjustment: true
       }
     });
 
@@ -41,16 +41,16 @@ export async function GET() {
     const metrics = calculateProgressMetrics(
       projects,
       user.purchasedProgressHours,
-      user.totalShellsSpent,
-      user.adminShellAdjustment
+      user.totalCurrencySpent,
+      user.adminCurrencyAdjustment
     );
 
     return NextResponse.json({ 
-      shells: metrics.availableShells,
-      earnedShells: metrics.availableShells,
-      totalSpent: user.totalShellsSpent,
-      adminShellAdjustment: user.adminShellAdjustment,
-      availableShells: metrics.availableShells,
+      currency: metrics.availablecurrency,
+      earnedcurrency: metrics.availablecurrency,
+      totalSpent: user.totalCurrencySpent,
+      adminCurrencyAdjustment: user.adminCurrencyAdjustment,
+      availablecurrency: metrics.availablecurrency,
       progress: {
         earned: {
           totalHours: metrics.totalHours,
@@ -70,7 +70,7 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('Error fetching user shells:', error);
-    return NextResponse.json({ error: 'Failed to fetch user shells' }, { status: 500 });
+    console.error('Error fetching user currency:', error);
+    return NextResponse.json({ error: 'Failed to fetch user currency' }, { status: 500 });
   }
 } 

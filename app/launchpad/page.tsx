@@ -546,7 +546,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
         totalHours: 0,
         totalPercentage: 0,
         rawHours: 0,
-        availableShells: 0,
+        availablecurrency: 0,
         purchasedProgressHours: 0,
         totalProgressWithPurchased: 0,
         totalPercentageWithPurchased: 0
@@ -556,8 +556,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     const metrics = calculateProgressMetrics(
       projects, 
       user.purchasedProgressHours || 0,
-      user.totalShellsSpent || 0,
-      user.adminShellAdjustment || 0
+      user.totalCurrencySpent || 0,
+      user.adminCurrencyAdjustment || 0
     );
     
     console.log(`Bay: Calculated progress for ${projects.length} projects - Total: ${metrics.totalPercentage?.toFixed(1)}%`);
@@ -566,7 +566,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   }, [projects, user]);
   
   // Extract currency separately to avoid object reference issues
-  const currency = useMemo(() => progressMetrics.availableShells, [progressMetrics.availableShells]);
+  const currency = useMemo(() => progressMetrics.availablecurrency, [progressMetrics.availablecurrency]);
   
   // Extract percentage separately to avoid object reference issues
   const percentage = useMemo(() => progressMetrics.totalPercentage, [progressMetrics.totalPercentage]);
@@ -574,7 +574,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   const [shellBalanceLoading, setShellBalanceLoading] = useState(false);
 
   // Animation state for clamshell value and percentage
-  const [animatedClamshells, setAnimatedClamshells] = useState(0);
+  const [animatedClamcurrency, setAnimatedClamcurrency] = useState(0);
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
   const [isGlowing, setIsGlowing] = useState(false);
   const animationRef = useRef<number | null>(null);
@@ -620,7 +620,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
       
       // Only update state every 3 frames to prevent too many re-renders
       if (frameCount % 3 === 0 || progress >= 1) {
-        setAnimatedClamshells(currentCurrencyValue);
+        setAnimatedClamcurrency(currentCurrencyValue);
         setAnimatedPercentage(currentPercentageValue);
       }
 
@@ -645,7 +645,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           (currency > 0 || percentage > 0) && !isAnimatingRef.current) {
         startAnimation(currency, percentage);
       } else if (!isAnimatingRef.current) {
-        setAnimatedClamshells(currency);
+        setAnimatedClamcurrency(currency);
         setAnimatedPercentage(Math.round(percentage));
       }
 
@@ -1066,7 +1066,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             </div>
           </div>
           
-          {/* Progress + Clamshells Section */}
+          {/* Progress + Clamcurrency Section */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 mt-4">
             {/* Progress representation */}
             <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentageWithPurchased)}% of the way to Florida!!!`}>
@@ -1081,19 +1081,19 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             {/* Plus sign */}
             <div className={`text-2xl sm:text-3xl md:text-4xl font-bold text-gray-400 ${isGlowing ? 'percentage-animated' : ''}`}>+</div>
             
-            {/* Clamshells */}
-            <Tooltip content="Your current shell balance (earned shells minus spent shells). These can be used in the shop for rewards and opportunities!">
+            {/* Clamcurrency */}
+            <Tooltip content="Your current shell balance (earned currency minus spent currency). These can be used in the shop for rewards and opportunities!">
               <div className="relative flex items-center justify-center bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 w-24 sm:w-28 md:w-32 h-[90px] sm:h-[100px] md:h-[108px]" style={{overflow: 'hidden'}}>
                 <div className="relative w-full h-full flex items-center justify-center">
                                       <img 
                       src=""
                       alt="Clamshell"
-                      className={`w-full h-full object-contain ${isGlowing ? 'clamshell-animated' : ''}`}
+                      className={`w-full h-full object-contain`}
                       style={{transform: 'scale(1.6) translateX(-2px) translateY(-2px)'}}
                     />
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <span className="font-bold text-sm sm:text-base text-center text-black" style={{marginTop: '-2px'}}>
-                      {shellBalanceLoading ? '...' : animatedClamshells}
+                      {shellBalanceLoading ? '...' : animatedClamcurrency}
                     </span>
                   </div>
                 </div>
@@ -1204,9 +1204,9 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
               </div>
             )}
             
-            <div className="text-sm text-gray-500 mb-2">
+            <div className="text-sm text-white mb-2">
               <p className="hidden md:block">
-                Click a project to select it. Press <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded">Esc</kbd> to close.
+                Click a project to select it. Press <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-black">Esc</kbd> to close.
               </p>
               <p className="md:hidden">
                 Tap a project to view details.

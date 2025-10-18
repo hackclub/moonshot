@@ -8,6 +8,9 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const LOOPS_MOCK_KEY = (LOOPS_API_KEY || '').toLowerCase() === 'mock';
 const LOOPS_USE_MOCK = LOOPS_MOCK_KEY && !IS_PRODUCTION;
 
+// In-memory store for the most recent mocked sign-in URL (dev/testing only)
+let LAST_MOCK_SIGNIN_URL: string | null = null;
+
 if (IS_PRODUCTION && LOOPS_MOCK_KEY) {
     throw new Error("LOOPS_API_KEY cannot be set to 'mock' in production");
 }
@@ -30,6 +33,9 @@ async function sendEmailWithLoops(
             email: targetEmail,
             dataVariables: { ...emailParams }
         });
+        if (emailParams.signin) {
+            LAST_MOCK_SIGNIN_URL = emailParams.signin;
+        }
         return;
     }
     const response = await fetch("https://app.loops.so/api/v1/transactional", {
@@ -62,6 +68,11 @@ export async function sendAuthEmail(targetEmail: string, host: string, signin_ur
             "datetime": datetime
         }
     );
+}
+
+// Dev/testing helper to expose the last mocked sign-in URL
+export function getLastMockSignInUrl(): string | null {
+    return LAST_MOCK_SIGNIN_URL;
 }
 
 export async function sendNotificationEmail(targetEmail: string, name: string, date: string, content: string) {

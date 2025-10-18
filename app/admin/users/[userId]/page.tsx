@@ -63,8 +63,8 @@ interface User {
   slack: string | null;
   projects?: AdminProjectType[];
   userTags?: UserTag[];
-  totalShellsSpent?: number;
-  adminShellAdjustment?: number;
+  totalCurrencySpent?: number;
+  adminCurrencyAdjustment?: number;
   purchasedProgressHours?: number;
 }
 
@@ -165,8 +165,8 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
   const progressMetrics: ProgressMetrics = user?.projects ? calculateProgressMetrics(
     user.projects, 
     user.purchasedProgressHours || 0,
-    user.totalShellsSpent || 0,
-    user.adminShellAdjustment || 0
+    user.totalCurrencySpent || 0,
+    user.adminCurrencyAdjustment || 0
   ) : {
     shippedHours: 0,
     viralHours: 0,
@@ -174,7 +174,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
     totalHours: 0,
     totalPercentage: 0,
     rawHours: 0,
-    availableShells: 0,
+    availablecurrency: 0,
     purchasedProgressHours: 0,
     totalProgressWithPurchased: 0,
     totalPercentageWithPurchased: 0
@@ -539,42 +539,42 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
         </div>
       </div>
 
-      {/* Shell Management Section */}
+      {/* Currency Management Section */}
       <div className="bg-white rounded-lg shadow overflow-hidden mt-6">
         <div className="p-6">
           <h3 className="text-lg font-medium mb-4">Shell Balance Management</h3>
           
-          {/* Current Shell Balance Breakdown */}
+          {/* Current Currency Balance Breakdown */}
           <div className="bg-gradient-to-br from-yellow-50 to-orange-100 p-4 rounded-lg border border-yellow-200 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-yellow-600">
-                  {user?.projects ? calculateProgressMetrics(user.projects, user.purchasedProgressHours || 0).availableShells : 0}
+                  {user?.projects ? calculateProgressMetrics(user.projects, user.purchasedProgressHours || 0).availablecurrency : 0}
                 </div>
-                <div className="text-sm text-yellow-800">Earned Shells</div>
+                <div className="text-sm text-yellow-800">Earned currency</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-red-600">
-                  {(user?.totalShellsSpent || 0) > 0 ? `-${user.totalShellsSpent}` : '0'}
+                  {(user?.totalCurrencySpent || 0) > 0 ? `-${user.totalCurrencySpent}` : '0'}
                 </div>
-                <div className="text-sm text-red-800">Spent Shells</div>
+                <div className="text-sm text-red-800">Spent currency</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-600">
-                  {user?.adminShellAdjustment ? (user.adminShellAdjustment > 0 ? '+' : '') + user.adminShellAdjustment : '0'}
+                  {user?.adminCurrencyAdjustment ? (user.adminCurrencyAdjustment > 0 ? '+' : '') + user.adminCurrencyAdjustment : '0'}
                 </div>
                 <div className="text-sm text-blue-800">Admin Adjustment</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-green-600">
-                  {progressMetrics.availableShells}
+                  {progressMetrics.availablecurrency}
                 </div>
-                <div className="text-sm text-green-800">Available Shells</div>
+                <div className="text-sm text-green-800">Available currency</div>
               </div>
             </div>
           </div>
 
-          {/* Shell Modification Form */}
+          {/* Currency Modification Form */}
           <div className="border border-gray-200 rounded-lg p-4">
             <h4 className="text-md font-medium mb-3">Modify Shell Balance</h4>
             <form onSubmit={async (e) => {
@@ -589,7 +589,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
               }
 
               try {
-                const response = await fetch(`/api/admin/users/${user?.id}/shells`, {
+                const response = await fetch(`/api/admin/users/${user?.id}/currency`, {
                   method: 'PATCH',
                   headers: {
                     'Content-Type': 'application/json',
@@ -602,7 +602,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
 
                 if (!response.ok) {
                   const error = await response.json();
-                  throw new Error(error.error || 'Failed to modify shells');
+                  throw new Error(error.error || 'Failed to modify currency');
                 }
 
                 const result = await response.json();
@@ -614,8 +614,8 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                 // Reset form
                 (e.target as HTMLFormElement).reset();
               } catch (error) {
-                console.error('Error modifying shells:', error);
-                toast.error(error instanceof Error ? error.message : 'Failed to modify shells');
+                console.error('Error modifying currency:', error);
+                toast.error(error instanceof Error ? error.message : 'Failed to modify currency');
               }
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -634,7 +634,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                     required
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    Positive numbers add shells, negative numbers deduct shells. Range: -1000 to +1000
+                    Positive numbers add currency, negative numbers deduct currency. Range: -1000 to +1000
                   </p>
                 </div>
                 <div>

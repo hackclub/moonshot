@@ -24,7 +24,7 @@ export default function Error({
         <button
           onClick={reset}
           className="py-2 px-4 rounded-md border transition cursor-pointer"
-          style={{ backgroundColor: '#0b0f19', color: 'var(--foreground)', borderColor: 'rgba(255,255,255,0.2)' }}
+          style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)', borderColor: 'rgba(255,255,255,0.2)' }}
         >
           Try Again
         </button>

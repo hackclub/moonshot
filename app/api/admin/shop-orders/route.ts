@@ -77,7 +77,7 @@ export async function PATCH(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            totalShellsSpent: true,
+            totalCurrencySpent: true,
           },
         },
       },
@@ -119,13 +119,13 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    // If rejecting, reimburse the shells and progress
+    // If rejecting, reimburse the currency and progress
     if (status === 'rejected') {
       const updateData: {
-        totalShellsSpent: { decrement: number };
+        totalCurrencySpent: { decrement: number };
         purchasedProgressHours?: { decrement: number };
       } = {
-        totalShellsSpent: {
+        totalCurrencySpent: {
           decrement: existingOrder.price
         }
       };
@@ -143,13 +143,13 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
-    // If refunding, reimburse the shells and remove applied progress
+    // If refunding, reimburse the currency and remove applied progress
     if (status === 'refunded') {
       const updateData: {
-        totalShellsSpent: { decrement: number };
+        totalCurrencySpent: { decrement: number };
         purchasedProgressHours?: { decrement: number };
       } = {
-        totalShellsSpent: {
+        totalCurrencySpent: {
           decrement: existingOrder.price
         }
       };
@@ -178,10 +178,10 @@ export async function PATCH(request: NextRequest) {
         description = `Order for ${order.itemName} by ${userDisplay} marked as fulfilled and progress applied.`;
       } else if (status === 'rejected') {
         eventType = AuditLogEventType.ShopOrderRejected;
-        description = `Order for ${order.itemName} by ${userDisplay} rejected and ${existingOrder.price} shells reimbursed.`;
+        description = `Order for ${order.itemName} by ${userDisplay} rejected and ${existingOrder.price} currency reimbursed.`;
       } else { // status === 'refunded'
         eventType = AuditLogEventType.ShopOrderRejected; // Reusing rejected event type for refunds
-        description = `Order for ${order.itemName} by ${userDisplay} refunded and ${existingOrder.price} shells reimbursed.`;
+        description = `Order for ${order.itemName} by ${userDisplay} refunded and ${existingOrder.price} currency reimbursed.`;
       }
       
       await createAuditLog({
@@ -195,7 +195,7 @@ export async function PATCH(request: NextRequest) {
           itemName: order.itemName,
           price: existingOrder.price,
           quantity: order.quantity,
-          shellsReimbursed: (status === 'rejected' || status === 'refunded') ? existingOrder.price : 0,
+          currencyReimbursed: (status === 'rejected' || status === 'refunded') ? existingOrder.price : 0,
           progressApplied: status === 'fulfilled' ? (existingOrder.itemName.toLowerCase().includes('progress') ? existingOrder.quantity : 0) : 0,
           progressRemoved: status === 'refunded' ? (existingOrder.itemName.toLowerCase().includes('progress') ? existingOrder.quantity : 0) : 0,
         },
@@ -205,7 +205,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       order,
-      shellsReimbursed: (status === 'rejected' || status === 'refunded') ? existingOrder.price : 0,
+      currencyReimbursed: (status === 'rejected' || status === 'refunded') ? existingOrder.price : 0,
       progressApplied: status === 'fulfilled' ? (existingOrder.itemName.toLowerCase().includes('progress') ? existingOrder.quantity : 0) : 0,
       progressRemoved: status === 'refunded' ? (existingOrder.itemName.toLowerCase().includes('progress') ? existingOrder.quantity : 0) : 0
     });

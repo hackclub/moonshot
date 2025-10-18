@@ -254,7 +254,7 @@ export interface ProgressMetrics {
   totalHours: number;
   totalPercentage: number;
   rawHours: number;
-  availableShells: number;
+  availablecurrency: number;
   purchasedProgressHours: number;
   totalProgressWithPurchased: number;
   totalPercentageWithPurchased: number;
@@ -306,8 +306,8 @@ export function getProjectApprovedHours(project: any): number {
 export function calculateProgressMetrics(
   projects: any[], 
   purchasedProgressHours: number = 0,
-  totalShellsSpent: number = 0,
-  adminShellAdjustment: number = 0
+  totalCurrencySpent: number = 0,
+  adminCurrencyAdjustment: number = 0
 ): ProgressMetrics {
   if (!projects || !Array.isArray(projects)) {
     return {
@@ -317,7 +317,7 @@ export function calculateProgressMetrics(
       totalHours: 0,
       totalPercentage: 0,
       rawHours: 0,
-      availableShells: Math.max(0, 0 - totalShellsSpent + adminShellAdjustment), // Final available shells
+      availablecurrency: Math.max(0, 0 - totalCurrencySpent + adminCurrencyAdjustment), // Final available currency
       purchasedProgressHours,
       totalProgressWithPurchased: purchasedProgressHours,
       totalPercentageWithPurchased: Math.min(purchasedProgressHours, 100)
@@ -328,7 +328,7 @@ export function calculateProgressMetrics(
   let viralHours = 0;
   let otherHours = 0;
   let rawHours = 0;
-  let availableShells = 0;
+  let availablecurrency = 0;
 
   // Get all projects sorted by hours
   const allProjectsWithHours = projects
@@ -377,11 +377,11 @@ export function calculateProgressMetrics(
         if (top4ProjectIds.has(project.projectID)) {
           // Top 4 projects: beyond 15 hours
           if (approvedHours > 15) {
-            availableShells += (approvedHours - 15) * (phi * 10);
+            availablecurrency += (approvedHours - 15) * (phi * 10);
           }
         } else {
           // All other shipped projects
-          availableShells += approvedHours * (phi * 10);
+          availablecurrency += approvedHours * (phi * 10);
         }
       }
     }
@@ -398,8 +398,8 @@ export function calculateProgressMetrics(
   const totalProgressWithPurchased = Math.min(totalHours + (purchasedProgressHours * 0.6), 60);
   const totalPercentageWithPurchased = Math.min(totalPercentage + purchasedProgressHours, 100);
 
-  // availableShells now represents final available shells (earned - spent + admin adjustment)
-  const finalAvailableShells = Math.max(0, Math.floor(availableShells) - totalShellsSpent + adminShellAdjustment);
+  // availablecurrency now represents final available currency (earned - spent + admin adjustment)
+  const finalAvailablecurrency = Math.max(0, Math.floor(availablecurrency) - totalCurrencySpent + adminCurrencyAdjustment);
 
   return {
     shippedHours,
@@ -408,7 +408,7 @@ export function calculateProgressMetrics(
     totalHours,
     totalPercentage,
     rawHours: rawHours,
-    availableShells: finalAvailableShells,
+    availablecurrency: finalAvailablecurrency,
     purchasedProgressHours,
     totalProgressWithPurchased,
     totalPercentageWithPurchased

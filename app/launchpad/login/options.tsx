@@ -15,6 +15,12 @@ export default function LoginOptions() {
 
     // If no email is entered in the form, return prematurily
     if (!email) return;
+    try {
+      // Persist last email for dev-magic-link auto verification on the verify screen
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('lastAuthEmail', String(email));
+      }
+    } catch {}
 
     signIn("email", { email, callbackUrl: callback });
   }

@@ -142,7 +142,7 @@ function SettingsContent() {
 
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-gray-00 border border-gray-300 p-6 rounded-lg shadow text-white">
+      <div className="max-w-3xl mx-auto border p-6 rounded-lg shadow text-white" style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderColor: 'rgba(255,255,255,0.1)' }}>
         <h1 className="text-3xl font-bold mb-8 text-white">Settings</h1>
         
         <div className="space-y-8">

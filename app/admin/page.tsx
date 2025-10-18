@@ -234,14 +234,14 @@ function AuditLogTimeSeriesChart({ data, title }: { data: AuditLogDay[], title: 
 // Shop Analytics Widget Component
 interface ShopAnalytics {
   timeRange: string;
-  totalShells: number;
+  totalCurrency: number;
   totalUsd: number;
   payoutRate: number;
   orderCount: number;
   itemAnalytics: Array<{
     itemId: string;
     itemName: string;
-    shells: number;
+    currency: number;
     usd: number;
     count: number;
     payoutRate: number;
@@ -299,8 +299,8 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
       <h3 className="text-lg font-medium mb-4">Shop Analytics ({timeRange})</h3>
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="text-center">
-          <p className="text-sm text-gray-500">Total Shells</p>
-          <p className="text-2xl font-bold text-blue-600">{analytics.totalShells.toLocaleString()}</p>
+          <p className="text-sm text-gray-500">Total currency</p>
+          <p className="text-2xl font-bold text-blue-600">{analytics.totalCurrency.toLocaleString()}</p>
         </div>
         <div className="text-center">
           <p className="text-sm text-gray-500">Total USD</p>
@@ -324,7 +324,7 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
               <div key={item.itemId} className="flex justify-between text-sm">
                 <span className="text-gray-600">{item.itemName}</span>
                 <div className="flex space-x-4">
-                  <span className="text-blue-600">{item.shells} shells</span>
+                  <span className="text-blue-600">{item.currency} currency</span>
                   <span className="text-green-600">${item.usd.toFixed(2)}</span>
                   <span className="text-purple-600">${item.payoutRate.toFixed(2)}/hr</span>
                 </div>

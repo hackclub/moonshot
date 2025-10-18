@@ -277,20 +277,20 @@ export default function AuditLogsPage() {
   const endItem = Math.min(pagination.offset + pagination.limit, pagination.total);
 
   return (
-    <div>
+    <div className="min-h-screen p-4" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
       <Toaster position="top-right" />
       
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Audit Logs</h1>
-          <p className="text-gray-600">View system activity and changes across the platform</p>
+          <p className="text-white/70">View system activity and changes across the platform</p>
         </div>
         
         <div className="flex items-center gap-2">
           <button
             onClick={fetchAuditLogs}
             disabled={isLoading}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20 border border-white/10"
           >
             Refresh
           </button>
@@ -300,12 +300,12 @@ export default function AuditLogsPage() {
       {/* Filters */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label htmlFor="eventType" className="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+          <label htmlFor="eventType" className="block text-sm font-medium text-white mb-1">Event Type</label>
           <select
             id="eventType"
             value={filters.eventType}
             onChange={(e) => handleFilterChange('eventType', e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-black text-white border border-white/20"
           >
             <option value="">All Events</option>
             {Object.values(AuditLogEventType).map((type) => (
@@ -317,12 +317,12 @@ export default function AuditLogsPage() {
         </div>
         
         <div>
-          <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">User</label>
+          <label htmlFor="userId" className="block text-sm font-medium text-white mb-1">User</label>
           <select
             id="userId"
             value={filters.userId}
             onChange={(e) => handleFilterChange('userId', e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-black text-white border border-white/20"
           >
             <option value="">All Users</option>
             {users.map((user) => (
@@ -338,7 +338,7 @@ export default function AuditLogsPage() {
             onClick={() => {
               setFilters({ eventType: '', userId: '' });
             }}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20 border border-white/10"
           >
             Reset Filters
           </button>
@@ -352,47 +352,47 @@ export default function AuditLogsPage() {
       ) : (
         <>
           {/* Audit Logs Table */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-black rounded-lg shadow overflow-hidden border border-white/10">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-white/10 text-white">
+                <thead className="bg-white/5">
                   <tr>
-                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                       Event
                     </th>
-                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                       Description
                     </th>
-                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider hidden sm:table-cell">
                       Target User
                     </th>
-                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider hidden sm:table-cell">
                       Actor
                     </th>
-                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                    <th scope="col" className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider hidden sm:table-cell">
                       Timestamp
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-black divide-y divide-white/10">
                   {auditLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-2 sm:px-6 py-4 text-center text-gray-500">
+                      <td colSpan={5} className="px-2 sm:px-6 py-4 text-center text-white/70">
                         No audit logs found
                       </td>
                     </tr>
                   ) : (
                     auditLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-gray-50">
+                      <tr key={log.id} className="hover:bg-white/5">
                         <td className="px-2 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           {getEventTypeBadge(log.eventType)}
                         </td>
                         <td className="px-2 sm:px-6 py-3 sm:py-4 text-sm">
-                          <div className="text-sm text-gray-900">{log.description}</div>
+                          <div className="text-sm text-white">{log.description}</div>
                           
                           {/* Mobile-only: Show user info inline on mobile */}
                           <div className="sm:hidden mt-1">
-                            <div className="text-xs text-gray-600">
+                            <div className="text-xs text-white/70">
                               <div className="flex items-center mt-1">
                                 <span className="font-medium">User:</span>
                                 <span className="ml-1">
@@ -409,16 +409,16 @@ export default function AuditLogsPage() {
                                 </div>
                               )}
                               
-                              <div className="mt-1 text-xs text-gray-500">
+                              <div className="mt-1 text-xs text-white/60">
                                 {formatTimestamp(log.createdAt)}
                               </div>
                             </div>
                           </div>
                           
                           {log.project && (
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-white/60">
                               {log.eventType !== AuditLogEventType.ProjectCreated && (
-                                <div>Project: <Link href={`/admin/projects?projectId=${log.project.projectID}`} className="text-blue-600 hover:underline">{log.project.name}</Link></div>
+                                <div>Project: <Link href={`/admin/projects?projectId=${log.project.projectID}`} className="text-orange-400 hover:underline">{log.project.name}</Link></div>
                               )}
                               
                               {/* Show additional project details for ProjectCreated event */}
@@ -428,7 +428,7 @@ export default function AuditLogsPage() {
                                     {log.metadata.projectDetails.url && (
                                       <Link 
                                         href={log.metadata.projectDetails.url} 
-                                        className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs hover:bg-blue-100"
+                                        className="inline-flex items-center px-2 py-1 bg-white/10 text-white rounded text-xs hover:bg-white/20 border border-white/10"
                                         target="_blank"
                                       >
                                         View Project
@@ -437,7 +437,7 @@ export default function AuditLogsPage() {
                                     {log.metadata.projectDetails.codeUrl && (
                                       <Link 
                                         href={log.metadata.projectDetails.codeUrl} 
-                                        className="inline-flex items-center px-2 py-1 bg-gray-50 text-gray-700 rounded text-xs hover:bg-gray-100"
+                                        className="inline-flex items-center px-2 py-1 bg-white/10 text-white rounded text-xs hover:bg-white/20 border border-white/10"
                                         target="_blank"
                                       >
                                         Code
@@ -446,7 +446,7 @@ export default function AuditLogsPage() {
                                     {log.metadata.projectDetails.playableUrl && (
                                       <Link 
                                         href={log.metadata.projectDetails.playableUrl} 
-                                        className="inline-flex items-center px-2 py-1 bg-green-50 text-green-700 rounded text-xs hover:bg-green-100"
+                                        className="inline-flex items-center px-2 py-1 bg-white/10 text-white rounded text-xs hover:bg-white/20 border border-white/10"
                                         target="_blank"
                                       >
                                         Play
@@ -464,7 +464,7 @@ export default function AuditLogsPage() {
                         <td className="px-2 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
                           <UserDisplay user={log.actorUser} />
                         </td>
-                        <td className="px-2 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                        <td className="px-2 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-white/60 hidden sm:table-cell">
                           {formatTimestamp(log.createdAt)}
                         </td>
                       </tr>
@@ -478,7 +478,7 @@ export default function AuditLogsPage() {
           {/* Pagination */}
           {auditLogs.length > 0 && (
             <div className="mt-4 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-white/70">
                 Showing <span className="font-medium">{startItem}</span> to{' '}
                 <span className="font-medium">{endItem}</span> of{' '}
                 <span className="font-medium">{pagination.total}</span> results
@@ -490,8 +490,8 @@ export default function AuditLogsPage() {
                   disabled={pagination.offset === 0}
                   className={`px-3 py-1 border rounded ${
                     pagination.offset === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                      ? 'bg-white/10 text-white/40 cursor-not-allowed border-white/10'
+                      : 'bg-black text-white hover:bg-white/10 border-white/10'
                   }`}
                 >
                   Previous
@@ -502,8 +502,8 @@ export default function AuditLogsPage() {
                   disabled={endItem >= pagination.total}
                   className={`px-3 py-1 border rounded ${
                     endItem >= pagination.total
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                      ? 'bg-white/10 text-white/40 cursor-not-allowed border-white/10'
+                      : 'bg-black text-white hover:bg-white/10 border-white/10'
                   }`}
                 >
                   Next

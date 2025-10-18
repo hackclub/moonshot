@@ -11,8 +11,8 @@ async function getUserShellBalance(userId: string): Promise<number> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { 
-      totalShellsSpent: true,
-      adminShellAdjustment: true,
+      totalCurrencySpent: true,
+      adminCurrencyAdjustment: true,
       purchasedProgressHours: true
     }
   });
@@ -31,11 +31,11 @@ async function getUserShellBalance(userId: string): Promise<number> {
   const metrics = calculateProgressMetrics(
     projects,
     user.purchasedProgressHours,
-    user.totalShellsSpent,
-    user.adminShellAdjustment
+    user.totalCurrencySpent,
+    user.adminCurrencyAdjustment
   );
   
-  return metrics.availableShells; // This now includes admin adjustment!
+  return metrics.availablecurrency; // This now includes admin adjustment!
 }
 
 export async function POST(request: NextRequest) {
@@ -115,13 +115,13 @@ export async function POST(request: NextRequest) {
     }
     const totalPrice = unitPrice * quantity;
 
-    // Check if user has enough shells
-    const userShells = await getUserShellBalance(user.id);
-    if (userShells < totalPrice) {
+    // Check if user has enough currency
+    const usercurrency = await getUserShellBalance(user.id);
+    if (usercurrency < totalPrice) {
       return NextResponse.json({ 
-        error: 'Insufficient shells', 
-        currentShells: userShells,
-        requiredShells: totalPrice
+        error: 'Insufficient currency', 
+        currentcurrency: usercurrency,
+        requiredcurrency: totalPrice
       }, { status: 400 });
     }
 
@@ -157,11 +157,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Update user's total shells spent (progress will be applied when order is fulfilled)
+    // Update user's total currency spent (progress will be applied when order is fulfilled)
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        totalShellsSpent: {
+        totalCurrencySpent: {
           increment: totalPrice
         }
         // Note: purchasedProgressHours is NOT incremented here - it will be applied when the order is fulfilled
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
     // Log audit event
     await createAuditLog({
       eventType: AuditLogEventType.ShopOrderCreated,
-      description: `User purchased ${quantity}x ${item.name} for ${totalPrice} shells`,
+      description: `User purchased ${quantity}x ${item.name} for ${totalPrice} currency`,
       targetUserId: user.id,
       metadata: {
         orderId: order.id,
@@ -185,8 +185,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       orderId: order.id,
-      shellsSpent: totalPrice,
-      remainingShells: userShells - totalPrice
+      currencySpent: totalPrice,
+      remainingcurrency: usercurrency - totalPrice
     });
   } catch (error) {
     console.error('Purchase error:', error);

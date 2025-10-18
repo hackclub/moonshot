@@ -72,9 +72,9 @@ export async function GET(request: NextRequest) {
     const itemMap = new Map(shopItems.map(item => [item.id, item]));
 
     // Calculate analytics
-    let totalShells = 0;
+    let totalCurrency = 0;
     let totalUsd = 0;
-    const itemBreakdown: Record<string, { shells: number; usd: number; count: number }> = {};
+    const itemBreakdown: Record<string, { currency: number; usd: number; count: number }> = {};
 
     for (const order of orders) {
       const item = itemMap.get(order.itemId);
@@ -82,33 +82,33 @@ export async function GET(request: NextRequest) {
 
       const orderUsd = computeOrderUsdValue(item, order);
       
-      totalShells += order.price;
+      totalCurrency += order.price;
       totalUsd += orderUsd;
 
       // Item breakdown
       if (!itemBreakdown[order.itemId]) {
-        itemBreakdown[order.itemId] = { shells: 0, usd: 0, count: 0 };
+        itemBreakdown[order.itemId] = { currency: 0, usd: 0, count: 0 };
       }
-      itemBreakdown[order.itemId].shells += order.price;
+      itemBreakdown[order.itemId].currency += order.price;
       itemBreakdown[order.itemId].usd += orderUsd;
       itemBreakdown[order.itemId].count += 1;
     }
 
 
     const phi = (1 + Math.sqrt(5)) / 2; 
-    const shellsPerHour = phi * 10;
-    const payoutRatePerShell = totalShells > 0 ? totalUsd / totalShells : 0;
-    const payoutRate = payoutRatePerShell * shellsPerHour; // Convert to $ / hr
+    const currencyPerHour = phi * 10;
+    const payoutRatePerCurrency = totalCurrency > 0 ? totalUsd / totalCurrency : 0;
+    const payoutRate = payoutRatePerCurrency * currencyPerHour; // Convert to $ / hr
 
     // Get item details for breakdown
     const itemAnalytics = Object.entries(itemBreakdown).map(([itemId, data]) => {
       const item = itemMap.get(itemId);
-      const itemPayoutRatePerShell = data.shells > 0 ? data.usd / data.shells : 0;
-      const itemPayoutRate = itemPayoutRatePerShell * shellsPerHour; // Convert to $ / hr
+      const itemPayoutRatePerCurrency = data.currency > 0 ? data.usd / data.currency : 0;
+      const itemPayoutRate = itemPayoutRatePerCurrency * currencyPerHour; // Convert to $ / hr
       return {
         itemId,
         itemName: item?.name || 'Unknown Item',
-        shells: data.shells,
+        currency: data.currency,
         usd: data.usd,
         count: data.count,
         payoutRate: itemPayoutRate
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       timeRange,
-      totalShells,
+      totalCurrency,
       totalUsd,
       payoutRate,
       orderCount: orders.length,

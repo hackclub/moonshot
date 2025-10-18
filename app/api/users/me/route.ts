@@ -39,8 +39,8 @@ export async function GET() {
         slack: true,
         identityToken: true,
         purchasedProgressHours: true,
-        totalShellsSpent: true,
-        adminShellAdjustment: true,
+        totalCurrencySpent: true,
+        adminCurrencyAdjustment: true,
       },
     });
 
