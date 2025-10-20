@@ -179,23 +179,23 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
 
   return (
     <div 
-      className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+      className="bg-black/60 text-white border border-white/10 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
       <div className={`p-4 border-l-4 ${color === 'blue' ? 'border-l-blue-400' : color === 'purple' ? 'border-l-purple-400' : color === 'green' ? 'border-l-green-400' : 'border-l-gray-400'}`}>
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold truncate">{project.name}</h3>
           <span className={`text-xs ${
-            color === 'blue' ? 'bg-blue-100 text-blue-800' : 
-            color === 'purple' ? 'bg-purple-100 text-purple-800' : 
-            color === 'green' ? 'bg-green-100 text-green-800' : 
-            'bg-gray-100 text-gray-800'
+            color === 'blue' ? 'bg-blue-600/20 text-blue-300' : 
+            color === 'purple' ? 'bg-purple-600/20 text-purple-300' : 
+            color === 'green' ? 'bg-green-600/20 text-green-300' : 
+            'bg-white/10 text-white'
           } rounded-full px-2 py-1`}>
             {label}
           </span>
         </div>
         
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{project.description}</p>
+        <p className="text-sm text-white/80 mb-3 line-clamp-2">{project.description}</p>
         
         {/* Project Tags */}
         {project.projectTags && project.projectTags.length > 0 && (
@@ -233,13 +233,13 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
                 className="w-6 h-6 rounded-full mr-2"
               />
             ) : (
-              <div className="w-6 h-6 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
-                <span className="text-xs text-gray-600">
+              <div className="w-6 h-6 rounded-full bg-white/20 mr-2 flex items-center justify-center">
+                <span className="text-xs text-white/80">
                   {project.userName?.charAt(0) || '?'}
                 </span>
               </div>
             )}
-            <span className="text-xs text-gray-600">{project.userName}</span>
+            <span className="text-xs text-white/80">{project.userName}</span>
             {project.userHackatimeId && (
               <div className="ml-2">
                 <TrustStats 
@@ -252,7 +252,7 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
             )}
           </div>
           
-          <div className="flex items-center gap-3 text-xs text-gray-500">
+          <div className="flex items-center gap-3 text-xs text-white/70">
             {daysInReview !== null && (
               <div className="flex items-center gap-1">
                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
@@ -460,12 +460,12 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-      <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
+    <div className="bg-black/60 text-white border border-white/10 rounded-lg overflow-hidden">
+      <div className="flex justify-between items-center p-4 border-b border-white/10">
         <h2 className="text-xl font-bold">{project.name}</h2>
         <button 
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
+          className="text-white hover:opacity-80"
         >
           <span className="sr-only">Close</span>
           <Icon glyph="view-close" size={24} />
@@ -473,13 +473,13 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
       </div>
       
       <div className="p-4 space-y-4">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
-          <p className="text-base text-gray-900">{project.description || "No description provided."}</p>
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10">
+          <h3 className="text-sm font-medium text-white mb-2">Description</h3>
+          <p className="text-base text-white">{project.description || "No description provided."}</p>
         </div>
         
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Created By</h3>
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10">
+          <h3 className="text-sm font-medium text-white mb-2">Created By</h3>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               {project.userImage ? (
@@ -489,14 +489,14 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                   className="w-8 h-8 rounded-full mr-2"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
-                  <span className="text-sm text-gray-600">
+                <div className="w-8 h-8 rounded-full bg-white/20 mr-2 flex items-center justify-center">
+                  <span className="text-sm text-white/80">
                     {project.userName?.charAt(0) || '?'}
                   </span>
                 </div>
               )}
               <div className="flex flex-col">
-                <span className="text-sm">{project.userName}</span>
+                <span className="text-sm text-white">{project.userName}</span>
                 {project.userHackatimeId && (
                   <div className="mt-1">
                     <TrustStats 
@@ -519,7 +519,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
         </div>
         
         {/* Project Tags Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10">
           <TagManagement
             entityType="project"
             entityId={project.projectID}
@@ -530,7 +530,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
           />
         </div>
         
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10">
           <div className="text-center text-sm">
             <ProjectStatus 
               viral={projectFlags.viral} 
@@ -540,10 +540,10 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
             {daysInReview !== null && (
               <div className="mt-3 flex justify-center">
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  daysInReview <= 1 ? 'bg-green-100 text-green-800' :
-                  daysInReview <= 3 ? 'bg-yellow-100 text-yellow-800' :
-                  daysInReview <= 7 ? 'bg-orange-100 text-orange-800' :
-                  'bg-red-100 text-red-800'
+                  daysInReview <= 1 ? 'bg-green-600/20 text-green-300' :
+                  daysInReview <= 3 ? 'bg-yellow-600/20 text-yellow-300' :
+                  daysInReview <= 7 ? 'bg-orange-600/20 text-orange-300' :
+                  'bg-red-600/20 text-red-300'
                 }`}>
                   🕒 {daysInReview === 0 ? 'Submitted today' : 
                       daysInReview === 1 ? 'In review for 1 day' : 
@@ -553,7 +553,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
             )}
             {userHasHighHours && (
               <div className="mt-3 flex justify-center">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-600/20 text-yellow-300">
                   ⭐ Last project for this user
                 </span>
               </div>
@@ -565,7 +565,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                   alt="This is fine - many reviews" 
                   className="w-10 h-10"
                 />
-                <span className="text-sm text-orange-600 font-medium">
+                <span className="text-sm text-orange-400 font-medium">
                   {project.reviewCount} reviews on the review thread. Be cautious!
                 </span>
               </div>
@@ -574,15 +574,15 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
         </div>
         
         {(project.codeUrl || project.playableUrl || project.userHackatimeId) && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Links</h3>
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10">
+            <h3 className="text-sm font-medium text-white mb-3">Links</h3>
             <div className="flex flex-col gap-2">
               {project.codeUrl && (
                 <a 
                   href={project.codeUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline flex items-center gap-2"
+                  className="text-blue-400 hover:underline flex items-center gap-2"
                 >
                   <Icon glyph="github" size={16} />
                   View Code Repository
@@ -593,7 +593,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                   href={project.playableUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline flex items-center gap-2"
+                  className="text-blue-400 hover:underline flex items-center gap-2"
                 >
                   <Icon glyph="link" size={16} />
                   Try It Out
@@ -606,7 +606,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                     const hackatimeUrl = `https://hackatime.hackclub.com/admin/timeline?date=${today}&user_ids=${project.userHackatimeId}`;
                     window.open(hackatimeUrl, '_blank', 'noopener,noreferrer');
                   }}
-                  className="text-purple-600 hover:underline flex items-center gap-2 text-left"
+                  className="text-purple-300 hover:underline flex items-center gap-2 text-left"
                 >
                   <Icon glyph="analytics" size={16} />
                   View Hackatime Timeline
@@ -618,7 +618,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                     const impersonateButton = `https://hackatime.hackclub.com/impersonate/${project.userHackatimeId}`;
                     window.open(impersonateButton, '_blank', 'noopener,noreferrer');
                   }}
-                  className="text-purple-600 hover:underline flex items-center gap-2 text-left"
+                  className="text-purple-300 hover:underline flex items-center gap-2 text-left"
                 >
                   <Icon glyph="view" size={16} />
                   Impersonate User
@@ -630,31 +630,31 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
         
         {project.screenshot && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Screenshot</h3>
+            <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
             <img 
               src={project.screenshot} 
               alt={`Screenshot of ${project.name}`}
-              className="mt-2 rounded-lg max-w-full h-auto border border-gray-200"
+              className="mt-2 rounded-lg max-w-full h-auto border border-white/20"
             />
           </div>
         )}
         
         {/* Project Hours Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Project Hours</h3>
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10">
+          <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-white/80">
                   Raw Hours: <span className="font-semibold">{project.rawHours}h</span>
                 </div>
                 {project.hoursOverride !== undefined && project.hoursOverride !== null && (
-                  <div className="text-sm text-gray-600">
-                    Override: <span className="font-semibold text-blue-600">{project.hoursOverride}h</span>
+                  <div className="text-sm text-white/80">
+                    Override: <span className="font-semibold text-blue-400">{project.hoursOverride}h</span>
                   </div>
                 )}
                 {project.hackatimeLinks && project.hackatimeLinks.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-white/70 mt-1">
                     Total from {project.hackatimeLinks.length} Hackatime link(s)
                   </div>
                 )}
@@ -669,7 +669,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
         </div>
         
         {/* Project Reviews Section */}
-        <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10">
           <ReviewSection 
             projectID={project.projectID} 
             projectOwnerUserId={project.userId}
@@ -838,13 +838,13 @@ function ReviewPage() {
   
   // Authentication and access control is now handled by the layout
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen starspace-bg">
       <style dangerouslySetInnerHTML={{ __html: glowStyles }} />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Project Review Dashboard</h1>
-            <p className="text-gray-600">Review and provide feedback on submitted projects</p>
+            <h1 className="text-3xl font-bold text-white">Project Review Dashboard</h1>
+            <p className="text-white/80">Review and provide feedback on submitted projects</p>
           </div>
         </div>
 
@@ -1027,12 +1027,12 @@ function ReviewPage() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.length === 0 ? (
-              <div className="col-span-full bg-white p-6 rounded-lg shadow text-center">
+              <div className="col-span-full bg-black/60 text-white border border-white/10 p-6 rounded-lg shadow text-center">
                 <Icon glyph="checkmark" size={48} className="mx-auto text-green-500 mb-2" />
-                <h2 className="text-xl font-semibold text-gray-800 mb-1">
+                <h2 className="text-xl font-semibold text-white mb-1">
                   {projects.length === 0 ? "All caught up!" : "No matching projects"}
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-white/80">
                   {projects.length === 0 
                     ? "There are no projects waiting for review at the moment." 
                     : "Try a different filter to see more projects."}

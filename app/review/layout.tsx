@@ -31,7 +31,7 @@ function SessionWrapper({ children }: { children: ReactNode }) {
           session={session}
           status={status}
         />
-        <main className="flex-grow">
+        <main className="flex-grow pt-24">
           {children}
         </main>
       </div>

@@ -35,7 +35,7 @@ export default function DashboardClient({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 text-black">
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -60,7 +60,7 @@ export default function DashboardClient({
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-sm text-gray-500">
+              <span className="text-sm">
                 {session?.user?.email}
               </span>
             </div>

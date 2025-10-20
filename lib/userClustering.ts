@@ -143,21 +143,21 @@ function categorizeUsers(userMetrics: UserMetrics[]): {
   const shippedP75 = calculatePercentile(sortedShipped, 75);
   const shippedP50 = calculatePercentile(sortedShipped, 50);
 
-  // Whale criteria: Top 25% in at least 2 dimensions, and above median in all
+  // Astronaut criteria: Top 25% in at least 2 dimensions, and above median in all
   const whaleThresholds = {
     minHours: hoursP50,
     minProjects: projectsP50,
     minShipped: Math.max(1, shippedP50) // At least 1 shipped project
   };
 
-  // Newbie criteria: Bottom 25% in hours AND projects, and 0 shipped
+  // Stargazer criteria: Bottom 25% in hours AND projects, and 0 shipped
   const newbieThresholds = {
     maxHours: hoursP25,
     maxProjects: Math.max(1, projectsP25), // 0-1 projects
     maxShipped: 0 // No shipped projects
   };
 
-  // Shipper criteria: Everything in between
+  // Cadet criteria: Everything in between
   const shipperThresholds = {
     hourRange: [hoursP25, hoursP75] as [number, number],
     projectRange: [projectsP25, projectsP75] as [number, number],

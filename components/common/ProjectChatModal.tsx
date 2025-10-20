@@ -410,20 +410,20 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
 
   return (
     <div className="fixed inset-0 z-50 p-4 flex md:items-center md:justify-center items-end justify-center overscroll-contain">
-      <div className="bg-white rounded-t-2xl md:rounded-lg shadow-xl w-full max-w-[95vw] md:max-w-2xl md:h-[600px] h-[85dvh] max-h-[85dvh] flex flex-col border border-gray-200">
+      <div className="bg-black/90 text-white rounded-t-2xl md:rounded-lg shadow-xl w-full max-w-[95vw] md:max-w-2xl md:h-[600px] h-[85dvh] max-h-[85dvh] flex flex-col border border-white/10">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-white">
               Discussion: {project.name}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-white/70">
               {project.description}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-white/60 hover:text-white transition-colors"
           >
             <span className="text-xl">×</span>
           </button>
@@ -433,13 +433,13 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
         <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Loading messages...</p>
+              <p className="text-white/70">Loading messages...</p>
             </div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <div className="text-4xl text-gray-300 mb-2">💬</div>
-                <p className="text-gray-500">No messages yet. Start the conversation!</p>
+                <div className="text-4xl text-white/30 mb-2">💬</div>
+                <p className="text-white/70">No messages yet. Start the conversation!</p>
               </div>
             </div>
           ) : (
@@ -453,21 +453,21 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
                     {isIslandMode && message.userName ? message.userName : obfuscateUsername(message.userId)}
                   </span>
                   {!isIslandMode && message.isAuthor && (
-                    <span className="text-yellow-500 ml-1" title="Project Author">
+                    <span className="text-yellow-400 ml-1" title="Project Author">
                       ⭐
                     </span>
                   )}
-                  <span className="text-gray-900">: </span>
+                  <span className="text-white">: </span>
                   <div className="mt-1 whitespace-pre-wrap break-words">
                     {renderMessageBody(message.content)}
                   </div>
-                  <span className="text-xs text-gray-400 ml-2">
+                  <span className="text-xs text-white/60 ml-2">
                     {formatTime(message.createdAt)}
                   </span>
                   {canModerate && (
                     <button
                       onClick={() => handleDeleteMessage(message.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto text-gray-400 hover:text-red-600"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto text-white/60 hover:text-red-400"
                       title="Delete message"
                     >
                       🗑️
@@ -481,7 +481,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
         </div>
 
         {/* Message Input */}
-        <div className="border-t p-4 sticky bottom-0 bg-white" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 1rem)' }}>
+        <div className="border-t border-white/10 p-4 sticky bottom-0 bg-black/90" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 1rem)' }}>
           {/* In island mode, only the project owner can write */}
           {!(isIslandMode && session?.user?.id !== project.userId) ? (
           <form onSubmit={handleSendMessage} className="flex flex-col gap-2 w-full">
@@ -491,7 +491,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type your message..."
-                className="w-0 flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-0 flex-1 min-w-0 px-3 py-2 bg-black/60 text-white placeholder:text-white/60 border border-white/20 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 disabled={isSending || isUploading}
                 ref={messageInputRef}
                 maxLength={1000}
@@ -500,7 +500,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
                 type="button"
                 onClick={handlePickAndUploadImage}
                 disabled={isSending || isUploading}
-                className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                className="px-3 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                 title="Upload image"
               >
                 {isUploading ? '…' : '🖼️'}
@@ -508,7 +508,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
               <button
                 type="submit"
                 disabled={!newMessage.trim() || isSending || newMessage.length > 1000}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
               >
                 {isSending ? (
                   <span className="animate-spin">⟳</span>
@@ -521,17 +521,17 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
             <div className="flex justify-end">
               <span className={`text-xs ${
                 newMessage.length > 1000 
-                  ? 'text-red-500 font-semibold' 
+                  ? 'text-red-400 font-semibold' 
                   : newMessage.length > 900 
-                    ? 'text-amber-500' 
-                    : 'text-gray-400'
+                    ? 'text-amber-400' 
+                    : 'text-white/60'
               }`}>
                 {newMessage.length}/1000
               </span>
             </div>
           </form>
           ) : (
-            <div className="text-sm text-gray-500">Only the project owner can write the story for island projects.</div>
+            <div className="text-sm text-white/70">Only the project owner can write the story for island projects.</div>
           )}
         </div>
       </div>
