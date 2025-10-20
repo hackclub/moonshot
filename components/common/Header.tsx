@@ -38,6 +38,37 @@ export default function Header({ session, status }: HeaderProps) {
     const pathname = usePathname();
     const { isIslandMode } = useExperienceMode();
     
+    // Add CSS animation for gradient shift and glow effects
+    useEffect(() => {
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes gradientShift {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            @keyframes flashGlow {
+                0% { 
+                    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+                    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+                }
+                50% { 
+                    text-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+                    filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.9));
+                }
+                100% { 
+                    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+                    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        return () => {
+            document.head.removeChild(style);
+        };
+    }, []);
+    
     // Fetch isShopOrdersAdmin and travel stipends on mount
     useEffect(() => {
         if (status === 'authenticated') {
@@ -187,6 +218,24 @@ export default function Header({ session, status }: HeaderProps) {
                             Shop
                         </Link>
                     )}
+                    {/* Stardust Shop - Temporarily visible to all users for testing */}
+                    {!isIslandMode && (
+                        <Link 
+                            href="/launchpad/shop2" 
+                            className={`relative transition-all duration-300 ${isActive('/launchpad/shop2') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                            style={{
+                                background: 'linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6)',
+                                backgroundSize: '200% 200%',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                animation: 'gradientShift 3s ease-in-out infinite, flashGlow 2s ease-in-out infinite',
+                                textShadow: '0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)',
+                                filter: 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.6))'
+                            }}
+                        >
+                            ✨ Stardust Shop ✨
+                        </Link>
+                    )}
                     {/* Admin section with dropdown for admin users */}
                     {!isIslandMode && isUserAdmin && (
                         <div className="relative" ref={adminMenuRef}>
@@ -326,6 +375,25 @@ export default function Header({ session, status }: HeaderProps) {
                                     Shop
                                 </Link>
                             )}
+                            {/* Stardust Shop in mobile menu - Temporarily visible to all users for testing */}
+                            {!isIslandMode && (
+                                <Link 
+                                    href="/launchpad/shop2" 
+                                    className={`block transition-all duration-300 ${isActive('/launchpad/shop2') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                    style={{
+                                        background: 'linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6)',
+                                        backgroundSize: '200% 200%',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        animation: 'gradientShift 3s ease-in-out infinite, flashGlow 2s ease-in-out infinite',
+                                        textShadow: '0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3)',
+                                        filter: 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.6))'
+                                    }}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    ✨ Stardust Shop ✨
+                                </Link>
+                            )}
                             {/* Experience Toggle for attendees in mobile menu */}
                             {session?.user?.isAttendee && (
                                 <div className="pt-2 border-t border-gray-200">
@@ -389,7 +457,7 @@ export default function Header({ session, status }: HeaderProps) {
                 
                 {status === "authenticated" && (
                     <>
-                        <span className="text-white font-semibold hidden lg:inline text-sm xl:text-base flex items-center gap-2">
+                        <span className="text-white font-semibold hidden lg:inline text-sm xl:text-base items-center gap-2">
                             <span aria-hidden className="text-2xl leading-none">🚀</span>
                             {session?.user.name ? session?.user?.name : session?.user.email?.slice(0, 13) + "..."}
                         </span>
