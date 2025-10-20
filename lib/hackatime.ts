@@ -23,6 +23,25 @@ async function makeHackatimeRequest(uri: string) {
 export async function fetchHackatimeProjects(
   hackatimeUserId: string,
 ): Promise<Array<HackatimeProject>> {
+  if (HACKATIME_MOCK) {
+    // Return a diverse set of mock projects to exercise UI states
+    const MOCK_PROJECTS: HackatimeProject[] = [
+      { name: 'Arduino Rover', total_seconds: 3 * 3600 + 15 * 60, hours: 3.25, minutes: 15, text: '3 hrs 15 mins', digital: '3:15', percent: 12.3 },
+      { name: 'React Game Engine', total_seconds: 12 * 3600 + 45 * 60, hours: 12.75, minutes: 45, text: '12 hrs 45 mins', digital: '12:45', percent: 48.9 },
+      { name: 'Pixel Art Sprites', total_seconds: 55 * 60, hours: 0.92, minutes: 55, text: '55 mins', digital: '0:55', percent: 3.1 },
+      { name: '3D Printer Mods', total_seconds: 6 * 3600, hours: 6, minutes: 0, text: '6 hrs', digital: '6:00', percent: 21.0 },
+      { name: 'Music Visualizer', total_seconds: 95 * 60, hours: 1.58, minutes: 35, text: '1 hr 35 mins', digital: '1:35', percent: 6.7 },
+      { name: 'Rust CLI Tools', total_seconds: 14 * 3600 + 30 * 60, hours: 14.5, minutes: 30, text: '14 hrs 30 mins', digital: '14:30', percent: 54.2 },
+      { name: 'iOS Swift App', total_seconds: 2 * 3600 + 5 * 60, hours: 2.08, minutes: 5, text: '2 hrs 5 mins', digital: '2:05', percent: 8.4 },
+      { name: 'Blender Animation', total_seconds: 45 * 60, hours: 0.75, minutes: 45, text: '45 mins', digital: '0:45', percent: 2.6 },
+      { name: 'ESP32 Sensor Board', total_seconds: 9 * 3600 + 10 * 60, hours: 9.17, minutes: 10, text: '9 hrs 10 mins', digital: '9:10', percent: 33.5 },
+      { name: 'Website Redesign', total_seconds: 4 * 3600 + 20 * 60, hours: 4.33, minutes: 20, text: '4 hrs 20 mins', digital: '4:20', percent: 15.2 },
+      { name: 'Shader Experiments', total_seconds: 25 * 60, hours: 0.42, minutes: 25, text: '25 mins', digital: '0:25', percent: 1.1 },
+      { name: 'Node API Server', total_seconds: 7 * 3600 + 5 * 60, hours: 7.08, minutes: 5, text: '7 hrs 5 mins', digital: '7:05', percent: 26.8 },
+    ];
+    console.log('🧪 HACKATIME_MOCK enabled — returning mocked project list');
+    return MOCK_PROJECTS;
+  }
   console.log(`🎮 Fetching Hackatime projects for user ID: ${hackatimeUserId}`);
   
   const uri = `https://hackatime.hackclub.com/api/v1/users/${hackatimeUserId}/stats?features=projects&start_date=2025-04-22`;

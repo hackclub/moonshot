@@ -13,7 +13,7 @@
 }
 
 .modal {
-  background: white;
+  background: #000000;
   /* background-color: #47D1F6; */
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -29,19 +29,19 @@
 
 .header {
   padding: 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: transparent;
 }
 
 .title {
   margin: 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: "ohno-softie-variable", sans-serif;
-  color: #111827;
+  font-family: var(--font-kavoon), "Kavoon", cursive;
+  color: #ffffff;
 }
 
 .closeButton {
@@ -62,7 +62,7 @@
 .content {
   padding: 1rem; /* Reduced from 1.25rem */
   padding-bottom: 2rem;
-  color: #374151;
+  color: #ffffff;
   line-height: 1.5;
   flex-grow: 1;
   overflow-y: auto;
@@ -94,10 +94,10 @@
 
 .footer {
   padding: 1.25rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid rgba(255,255,255,0.1);
   display: flex;
   justify-content: flex-end;
-  background: white;
+  background: transparent;
 }
 
 .okButton {

@@ -1,7 +1,7 @@
 .container {
   width: 100%;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem 2rem; /* offset for fixed header */
   background: transparent;
 }
 

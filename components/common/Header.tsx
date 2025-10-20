@@ -115,7 +115,7 @@ export default function Header({ session, status }: HeaderProps) {
     }, []);
 
     return (
-        <nav className="w-full px-4 sm:px-6 py-4 bg-transparent flex items-center justify-between shadow-md" style={{ backgroundColor: 'var(--background)' }}>
+        <nav className="fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-6 py-4 bg-transparent flex items-center justify-between shadow-md" style={{ backgroundColor: 'var(--background)' }}>
             <div className="flex items-center relative min-w-0" ref={mobileMenuRef}>
                 {/* Mobile menu button */}
                 <button 
