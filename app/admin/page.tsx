@@ -9,17 +9,17 @@ import ReviewLeaderboard from '@/components/admin/ReviewLeaderboard';
 // Stat card component with consistent sizing
 function StatCard({ title, value, icon, linkTo, description = '' }: { title: string, value: number | string, icon: string, linkTo?: string, description?: string }) {
   const Card = (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow h-[180px] flex flex-col justify-between">
+    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow h-[180px] flex flex-col justify-between text-black">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
+          <p className="text-sm font-medium text-black">{title}</p>
           <p className="text-3xl font-bold mt-1">{value}</p>
         </div>
         <div className="bg-blue-100 p-3 rounded-full">
           <span className="text-blue-800 text-xl">{icon}</span>
         </div>
       </div>
-      {description && <p className="text-xs text-gray-400 mt-auto">{description}</p>}
+      {description && <p className="text-xs text-black mt-auto">{description}</p>}
     </div>
   );
 
@@ -32,24 +32,24 @@ function StatCard({ title, value, icon, linkTo, description = '' }: { title: str
 // Projects Per User stat card with both mean and median
 function ProjectsPerUserCard({ mean, median }: { mean: number, median: number }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow h-[180px] flex flex-col justify-between">
+    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow h-[180px] flex flex-col justify-between text-black">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-500">Projects Per User</p>
+        <p className="text-sm font-medium text-black">Projects Per User</p>
         <div className="bg-blue-100 p-3 rounded-full">
           <span className="text-blue-800 text-xl">📊</span>
         </div>
       </div>
       <div className="flex justify-between mt-2">
         <div>
-          <p className="text-xs text-gray-500">Mean</p>
+          <p className="text-xs text-black">Mean</p>
           <p className="text-2xl font-bold">{mean}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500">Median</p>
+          <p className="text-xs text-black">Median</p>
           <p className="text-2xl font-bold">{median}</p>
         </div>
       </div>
-      <p className="text-xs text-gray-400 mt-auto">Average and middle number of projects created per user</p>
+      <p className="text-xs text-black mt-auto">Average and middle number of projects created per user</p>
     </div>
   );
 }
@@ -60,7 +60,7 @@ const COLORS = ['#0088FE', '#FFBB28', '#00C49F', '#FF8042'];
 // Generic pie chart component with consistent sizing
 function StatPieChart({ data, title, unit }: { data: { name: string; value: number }[], title: string, unit?: string }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 h-[400px] flex flex-col">
+    <div className="bg-white rounded-lg shadow p-6 h-[400px] flex flex-col text-black">
       <h3 className="text-lg font-medium mb-2">{title}</h3>
       <div className="flex-grow">
         <ResponsiveContainer width="100%" height="100%">
@@ -167,7 +167,7 @@ function AuditLogTimeSeriesChart({ data, title }: { data: AuditLogDay[], title: 
   // Day range selector component
   const DayRangeSelector = () => (
     <div className="flex items-center justify-end mb-2">
-      <span className="text-xs text-gray-500 mr-2">Time Range:</span>
+      <span className="text-xs text-black mr-2">Time Range:</span>
       <div className="flex space-x-1">
         {[3, 7, 30].map(days => (
           <button
@@ -176,7 +176,7 @@ function AuditLogTimeSeriesChart({ data, title }: { data: AuditLogDay[], title: 
             className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               dayRange === days 
                 ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-gray-200 text-black hover:bg-gray-300'
             }`}
           >
             {days === 30 ? '30d' : days === 7 ? '7d' : '3d'}
@@ -187,7 +187,7 @@ function AuditLogTimeSeriesChart({ data, title }: { data: AuditLogDay[], title: 
   );
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 h-[500px] flex flex-col">
+    <div className="bg-white rounded-lg shadow p-6 h-[500px] flex flex-col text-black">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-medium">{title}</h3>
         <DayRangeSelector />
@@ -273,7 +273,7 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-6 text-black">
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
@@ -288,41 +288,41 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
 
   if (!analytics) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-500">No analytics data available</p>
+      <div className="bg-white rounded-lg shadow p-6 text-black">
+        <p className="text-black">No analytics data available</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6 text-black">
       <h3 className="text-lg font-medium mb-4">Shop Analytics ({timeRange})</h3>
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="text-center">
-          <p className="text-sm text-gray-500">Total currency</p>
+          <p className="text-sm text-black">Total currency</p>
           <p className="text-2xl font-bold text-blue-600">{analytics.totalCurrency.toLocaleString()}</p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-500">Total USD</p>
+          <p className="text-sm text-black">Total USD</p>
           <p className="text-2xl font-bold text-green-600">${analytics.totalUsd.toFixed(2)}</p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-500">Payout Rate</p>
+          <p className="text-sm text-black">Payout Rate</p>
           <p className="text-2xl font-bold text-purple-600">${analytics.payoutRate.toFixed(2)}/hr</p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-500">Orders</p>
+          <p className="text-sm text-black">Orders</p>
           <p className="text-2xl font-bold text-orange-600">{analytics.orderCount}</p>
         </div>
       </div>
       
       {analytics.itemAnalytics.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Item Breakdown</h4>
+          <h4 className="text-sm font-medium text-black mb-2">Item Breakdown</h4>
           <div className="space-y-2">
             {analytics.itemAnalytics.map((item) => (
               <div key={item.itemId} className="flex justify-between text-sm">
-                <span className="text-gray-600">{item.itemName}</span>
+                <span className="text-black">{item.itemName}</span>
                 <div className="flex space-x-4">
                   <span className="text-blue-600">{item.currency} currency</span>
                   <span className="text-green-600">${item.usd.toFixed(2)}</span>
@@ -416,10 +416,10 @@ export default function AdminDashboard() {
 
   if (status !== 'authenticated') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-black">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You need to be logged in to access the admin area.</p>
+          <p className="mb-6">You need to be logged in to access the admin area.</p>
           <Link 
             href="/api/auth/signin"
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -440,10 +440,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="pb-12">
+    <div className="pb-12 text-black">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Administrator Dashboard</h1>
-        <p className="text-gray-600">Welcome to the Moonshot admin area. Manage users, projects, and reviews.</p>
+        <p>Welcome to the Moonshot admin area. Manage users, projects, and reviews.</p>
       </div>
       
       <div className="mb-10">
@@ -479,7 +479,7 @@ export default function AdminDashboard() {
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Shop Analytics</h2>
           <div className="flex items-center space-x-4 mb-4">
-            <span className="text-sm text-gray-500">Time Range:</span>
+            <span className="text-sm text-black">Time Range:</span>
             <div className="flex space-x-2">
               {['1h', '24h', '7d', 'all'].map((range) => (
                 <button
@@ -488,7 +488,7 @@ export default function AdminDashboard() {
                   className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                     shopTimeRange === range 
                       ? 'bg-blue-500 text-white' 
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-200 text-black hover:bg-gray-300'
                   }`}
                 >
                   {range === 'all' ? 'All Time' : range}

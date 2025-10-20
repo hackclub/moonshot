@@ -107,10 +107,10 @@ export default function ShopPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 flex items-center justify-center">
+      <div className="min-h-screen starspace-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">Loading the Moonshop</h2>
+          <h2 className="text-xl font-semibold text-white">Loading the Moonshop</h2>
         </div>
       </div>
     );
@@ -118,9 +118,9 @@ export default function ShopPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 flex items-center justify-center">
+      <div className="min-h-screen starspace-bg flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-4">Error: {error}</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">Error: {error}</h2>
           <button 
             onClick={() => window.location.reload()} 
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
@@ -133,7 +133,7 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50">
+    <div className="min-h-screen starspace-bg pt-24">
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">

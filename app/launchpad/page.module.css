@@ -41,7 +41,7 @@
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
-    padding-top: 0;
+    padding-top: 6rem; /* offset fixed header on mobile */
     padding-bottom: 0;
     background: transparent;
   }

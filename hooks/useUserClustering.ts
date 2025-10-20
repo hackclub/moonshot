@@ -165,7 +165,7 @@ export function getUserCategoryStyle(category: UserClassification['category']) {
         color: 'text-purple-600',
         bgColor: 'bg-purple-50',
         borderColor: 'border-purple-200',
-        label: 'Whale',
+        label: 'Astronaut',
         emoji: '🐋',
         description: 'High-impact creator'
       };
@@ -174,7 +174,7 @@ export function getUserCategoryStyle(category: UserClassification['category']) {
         color: 'text-blue-600',
         bgColor: 'bg-blue-50',
         borderColor: 'border-blue-200',
-        label: 'Shipper',
+        label: 'Cadet',
         emoji: '🚢',
         description: 'Active contributor'
       };
@@ -183,7 +183,7 @@ export function getUserCategoryStyle(category: UserClassification['category']) {
         color: 'text-green-600',
         bgColor: 'bg-green-50',
         borderColor: 'border-green-200',
-        label: 'Newbie',
+        label: 'Stargazer',
         emoji: '🌱',
         description: 'Getting started'
       };

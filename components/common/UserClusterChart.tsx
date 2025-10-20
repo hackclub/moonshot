@@ -56,12 +56,12 @@ export default function UserClusterChart({ className = '' }: UserClusterChartPro
 
       {/* Cluster Distribution */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {/* Whales */}
+        {/* Astronauts */}
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🐋</span>
-              <h4 className="font-semibold text-purple-900">Whales</h4>
+              <h4 className="font-semibold text-purple-900">Astronauts</h4>
             </div>
             <span className="text-sm text-purple-600 font-medium">
               {clusters.whales.percentage.toFixed(1)}%
@@ -75,12 +75,12 @@ export default function UserClusterChart({ className = '' }: UserClusterChartPro
           </div>
         </div>
 
-        {/* Shippers */}
+        {/* Cadets */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🚢</span>
-              <h4 className="font-semibold text-blue-900">Shippers</h4>
+              <h4 className="font-semibold text-blue-900">Cadets</h4>
             </div>
             <span className="text-sm text-blue-600 font-medium">
               {clusters.shippers.percentage.toFixed(1)}%
@@ -94,12 +94,12 @@ export default function UserClusterChart({ className = '' }: UserClusterChartPro
           </div>
         </div>
 
-        {/* Newbies */}
+        {/* Stargazers */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🌱</span>
-              <h4 className="font-semibold text-green-900">Newbies</h4>
+              <h4 className="font-semibold text-green-900">Stargazers</h4>
             </div>
             <span className="text-sm text-green-600 font-medium">
               {clusters.newbies.percentage.toFixed(1)}%
@@ -121,21 +121,21 @@ export default function UserClusterChart({ className = '' }: UserClusterChartPro
           <div 
             className="bg-purple-400 flex items-center justify-center text-white text-sm font-medium"
             style={{ width: `${clusters.whales.percentage}%` }}
-            title={`Whales: ${clusters.whales.count} users (${clusters.whales.percentage.toFixed(1)}%)`}
+            title={`Astronauts: ${clusters.whales.count} users (${clusters.whales.percentage.toFixed(1)}%)`}
           >
             {clusters.whales.percentage > 10 ? '🐋' : ''}
           </div>
           <div 
             className="bg-blue-400 flex items-center justify-center text-white text-sm font-medium"
             style={{ width: `${clusters.shippers.percentage}%` }}
-            title={`Shippers: ${clusters.shippers.count} users (${clusters.shippers.percentage.toFixed(1)}%)`}
+            title={`Cadets: ${clusters.shippers.count} users (${clusters.shippers.percentage.toFixed(1)}%)`}
           >
             {clusters.shippers.percentage > 10 ? '🚢' : ''}
           </div>
           <div 
             className="bg-green-400 flex items-center justify-center text-white text-sm font-medium"
             style={{ width: `${clusters.newbies.percentage}%` }}
-            title={`Newbies: ${clusters.newbies.count} users (${clusters.newbies.percentage.toFixed(1)}%)`}
+            title={`Stargazers: ${clusters.newbies.count} users (${clusters.newbies.percentage.toFixed(1)}%)`}
           >
             {clusters.newbies.percentage > 10 ? '🌱' : ''}
           </div>
