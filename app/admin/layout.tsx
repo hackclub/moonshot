@@ -29,7 +29,7 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
           session={session}
           status={status}
         />
-        <main className="flex-grow container mx-auto p-6">
+        <main className="flex-grow container mx-auto p-6 pt-24">
           {children}
         </main>
       </div>
@@ -44,7 +44,7 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
           session={session}
           status={status}
         />
-        <main className="flex-grow container mx-auto p-6">
+        <main className="flex-grow container mx-auto p-6 pt-24">
           <div className="min-h-screen flex items-center justify-center">
             <div className="text-center max-w-md p-8 bg-white rounded-lg shadow-md">
               <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>

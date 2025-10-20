@@ -101,7 +101,7 @@ export default function ReferralsDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-center text-lg text-gray-600">Waiting for data...</div>;
+    return <div className="p-8 text-center text-lg text-black">Waiting for data...</div>;
   }
 
   if (error) {
@@ -143,7 +143,7 @@ export default function ReferralsDashboard() {
     });
 
     return (
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white p-4 rounded-lg shadow text-black">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
           {isTypeChart && (
@@ -152,7 +152,7 @@ export default function ReferralsDashboard() {
               className={`px-3 py-1 rounded text-sm font-medium ${
                 showDirect 
                   ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-black hover:bg-gray-200'
               }`}
             >
               {showDirect ? 'Hide Direct' : 'Show Direct'}
@@ -211,7 +211,7 @@ export default function ReferralsDashboard() {
       .slice(0, 50);
 
     return (
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white p-4 rounded-lg shadow text-black">
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
         <div className="w-full h-[300px] overflow-y-auto">
           <table className="w-full">
@@ -225,7 +225,7 @@ export default function ReferralsDashboard() {
             <tbody>
               {sortedReferrers.map((referrer, index) => (
                 <tr key={referrer.name} className="border-b hover:bg-gray-50">
-                  <td className="py-2 px-4 text-gray-500">{index + 1}</td>
+                  <td className="py-2 px-4">{index + 1}</td>
                   <td className="py-2 px-4 font-medium">{referrer.name}</td>
                   <td className="py-2 px-4 text-right">{referrer.value}</td>
                 </tr>

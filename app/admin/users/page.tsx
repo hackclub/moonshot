@@ -443,7 +443,7 @@ function AdminUsersContent() {
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black placeholder:text-gray-500"
           />
           <span className="absolute right-3 top-3 text-gray-400">
             🔍
@@ -454,7 +454,7 @@ function AdminUsersContent() {
       {/* Tag Filter */}
       <div className="mb-6">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">Filter by tags:</span>
+          <span className="text-sm font-medium text-white">Filter by tags:</span>
           {isLoadingTags ? (
             <div className="flex items-center text-sm text-gray-500">
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500 mr-2"></div>

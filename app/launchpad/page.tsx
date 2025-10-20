@@ -983,7 +983,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
               </div>
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
-                  <strong>Admin Mode:</strong> You are viewing {impersonationData.user.name || impersonationData.user.email || 'Unknown User'}'s bay page
+                  <strong>Admin Mode:</strong> You are viewing {impersonationData.user.name || impersonationData.user.email || 'Unknown User'}'s Launchpad page
                 </p>
               </div>
             </div>
@@ -1420,11 +1420,25 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                       <input type="checkbox" checked={!!initialEditState.shipped} readOnly disabled /> Shipped
                     </label>
                     <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
-                      <input type="checkbox" checked={!!initialEditState.viral} readOnly disabled /> Viral
-                    </label>
-                    <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
                       <input type="checkbox" checked={!!initialEditState.in_review} readOnly disabled /> In Review
                     </label>
+                  </div>
+
+                  {/* Discussion toggle - desktop edit */}
+                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                    <h3 className="text-sm font-medium text-white mb-3">Discussion</h3>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-white">Enable chat discussion</p>
+                        <p className="text-xs text-white/70">Allow others to discuss this project</p>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        name="chat_enabled"
+                        defaultChecked={!!initialEditState.chat_enabled}
+                        className="ml-3 toggle-checkbox w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                    </div>
                   </div>
                   
                   {/* Debug info */}
