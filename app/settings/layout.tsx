@@ -19,13 +19,10 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
   // Only show header when authenticated
   if (status === "authenticated") {
     return (
-      <>
-        <Header 
-          session={session}
-          status={status}
-        />
-        {children}
-      </>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'transparent' }}>
+        <Header session={session} status={status} />
+        <main className="flex-1 pt-24">{children}</main>
+      </div>
     );
   }
   

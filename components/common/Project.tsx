@@ -34,6 +34,7 @@ export function Project({ name, description, codeUrl, playableUrl, screenshot, h
                 viral: !!viral,
                 shipped: !!shipped,
                 in_review: !!in_review,
+                chat_enabled: false,
                 hoursOverride,
                 rawHours
             });
@@ -52,8 +53,12 @@ export function Project({ name, description, codeUrl, playableUrl, screenshot, h
         >
             <div className="flex items-center gap-2 min-w-0 w-full">
                 {/* Hide hours for island projects since they use blog/vlog tracking */}
-                {!islandProjectType && <span className="text-gray-600">{displayHours}h</span>}
-                <span className={`font-medium flex-shrink-0 sm:truncate sm:max-w-[12rem] ${selected ? 'text-blue-700' : ''}`}>
+                {!islandProjectType && (
+                    <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-black text-white text-xs font-bold">
+                        {displayHours} hours
+                    </span>
+                )}
+                <span className={`font-medium flex-shrink-0 sm:truncate sm:max-w-[12rem] ${selected ? 'text-orange-500' : 'text-black'}`}>
                     {islandProjectType && <span className="text-blue-600 font-semibold mr-2">[{islandProjectType}]</span>}
                     {name}
                     {in_review && <span className="ml-2 text-xs text-red-600 font-semibold">(IN REVIEW)</span>}

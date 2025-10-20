@@ -73,7 +73,8 @@ body {
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
-  background-position: center;
+  /* mimic FAQ vertical offset so the bright center sits lower under the header */
+  background-position: center 64px;
 }
 
 /* Space-dark reskin: toggled by adding `theme-reskin` class to a root element */

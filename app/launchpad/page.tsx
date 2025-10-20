@@ -216,11 +216,11 @@ function ProjectDetail({
   
   return (
     <div className={`${styles.editForm} max-h-screen overflow-y-scroll`}>
-      <div className="flex justify-between items-center mb-5 border-b pb-3 sticky top-0 bg-white z-10">
-        <h2 className="text-2xl font-bold">{project.name}</h2>
+      <div className="flex justify-between items-center mb-5 pb-3 sticky top-0 bg-transparent z-10">
+        <h2 className="text-2xl font-bold text-white">{project.name}</h2>
         {isEditingAllowed ? (
           <button
-            className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors"
             onClick={handleEdit}
             aria-label="Edit project"
           >
@@ -234,15 +234,15 @@ function ProjectDetail({
       </div>
       
       <div className="space-y-5 pb-8">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
-          <p className="text-base text-gray-900">{project.description || "No description provided."}</p>
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+          <h3 className="text-sm font-medium text-white mb-2">Description</h3>
+          <p className="text-base text-white">{project.description || "No description provided."}</p>
         </div>
         
         {/* Hours tracking sections - hidden for island projects since they use blog/vlog tracking */}
         {!project.isIslandProject && (
           <>
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
               <div className="text-center text-sm">
                 <p>This project contributes <strong>{projectHours}</strong> hour{projectHours !== 1 && 's'} (<strong>{contributionPercentage}%</strong>) toward your voyage</p>
                 <ProjectStatus 
@@ -254,20 +254,20 @@ function ProjectDetail({
             </div>
             
             {/* Project Hours Details Section */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Project Hours</h3>
+            <div className="bg-black/60 p-4 rounded-lg mb-4 border border-white/10 text-white">
+              <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm text-gray-500">Raw Hackatime Hours</span>
-                  <p className="text-lg font-semibold mt-1">
+                  <span className="text-sm text-white/70">Raw Hackatime Hours</span>
+                  <p className="text-lg font-semibold mt-1 text-white">
                     {project.hackatimeLinks && project.hackatimeLinks.length > 0 
                       ? `${project.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
                       : `${project.rawHours || 0}h`}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-gray-500">Approved Hackatime Hours</span>
-                  <p className="text-lg font-semibold mt-1">
+                  <span className="text-sm text-white/70">Approved Hackatime Hours</span>
+                  <p className="text-lg font-semibold mt-1 text-white">
                     {(() => {
                       if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
                         const totalApproved = project.hackatimeLinks.reduce((sum, link) => {
@@ -325,27 +325,27 @@ function ProjectDetail({
         
         {/* Hackatime Project Links Section */}
         {project.hackatimeLinks && project.hackatimeLinks.length > 0 && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+            <h3 className="text-sm font-medium text-white mb-3">
               Hackatime Project Links
             </h3>
-            <div className="bg-white rounded border">
+            <div className="bg-black rounded border border-white/10">
               {/* Table Header */}
-              <div className="grid grid-cols-3 gap-4 p-3 border-b bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="grid grid-cols-3 gap-4 p-3 border-b bg-black text-xs font-medium text-white/70 uppercase tracking-wider border-white/10">
                 <div>PROJECT</div>
                 <div className="text-center">RAW</div>
                 <div className="text-center">APPROVED</div>
               </div>
               {/* Table Rows */}
               {project.hackatimeLinks.map((link, index) => (
-                <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm">
-                  <div className="font-medium text-gray-900">{link.hackatimeName}</div>
-                  <div className="text-center text-gray-600">{link.rawHours}h</div>
+                <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
+                  <div className="font-medium text-white">{link.hackatimeName}</div>
+                  <div className="text-center text-white/80">{link.rawHours}h</div>
                   <div className="text-center">
                     {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
-                      <span className="text-blue-600 font-medium">{link.hoursOverride}h</span>
+                      <span className="text-orange-400 font-medium">{link.hoursOverride}h</span>
                     ) : (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-white/40">—</span>
                     )}
                   </div>
                 </div>
@@ -356,36 +356,29 @@ function ProjectDetail({
         
         {/* Project Status section - only visible when NOT in review mode */}
         {!isReviewMode && (
-          <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-3 col-span-2">Project Status</h3>
-            {/* Hide Viral status for island projects */}
-            {!project.isIslandProject && (
-              <div className="flex items-center">
-                <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.viral ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                <span className="text-sm text-gray-700">Viral</span>
-              </div>
-            )}
+          <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+            <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.shipped ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-              <span className="text-sm text-gray-700">Shipped</span>
+              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
+              <span className="text-sm text-white">Shipped</span>
             </div>
             <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.in_review ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-              <span className="text-sm text-gray-700">In Review</span>
+              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.in_review ? 'bg-green-500' : 'bg-white/30'}`}></div>
+              <span className="text-sm text-white">In Review</span>
             </div>
           </div>
         )}
         
         {(project.codeUrl || project.playableUrl) && (
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Links</h3>
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+            <h3 className="text-sm font-medium text-white mb-3">Links</h3>
             <div className="flex flex-col gap-2">
               {project.codeUrl && (
                 <a 
                   href={project.codeUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline flex items-center gap-2"
+                  className="text-blue-300 hover:underline flex items-center gap-2"
                 >
                   <Icon glyph="github" size={16} />
                   View Code Repository
@@ -396,7 +389,7 @@ function ProjectDetail({
                   href={project.playableUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline flex items-center gap-2"
+                  className="text-blue-300 hover:underline flex items-center gap-2"
                 >
                   <Icon glyph="link" size={16} />
                   Try It Out
@@ -684,23 +677,19 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
       return;
     }
 
-    // In mock mode, skip redirect to setup to avoid loops
-    if (process.env.NEXT_PUBLIC_HACKATIME_MOCK === 'true' || process.env.NEXT_PUBLIC_HACKATIME_MOCK === '1') {
-      setIsLoadingHackatime(false);
-      setLoadedForUserId(userId);
-      return;
-    }
+    const isHackatimeMock = process.env.NEXT_PUBLIC_HACKATIME_MOCK === 'true' || process.env.NEXT_PUBLIC_HACKATIME_MOCK === '1';
 
     // If session lacks hackatimeId, consult server status; only redirect if server says not set up
-    if (!hackatimeId) {
+    if (!hackatimeId && !isHackatimeMock) {
       (async () => {
         try {
           const resp = await fetch('/api/hackatime/status');
           if (resp.ok) {
             const status = await resp.json();
             if (status?.isSetup) {
-              setIsLoadingHackatime(false);
+              // Server reports Hackatime is set up (mock or real). Proceed to load projects.
               setLoadedForUserId(userId);
+              await loadHackatimeProjects();
               return;
             }
           }
@@ -713,8 +702,10 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     }
 
     async function loadHackatimeProjects() {
+      console.log('▶️ loadHackatimeProjects() invoked');
       try {
         const projectsData = await getHackatimeProjects();
+        console.log('✅ getHackatimeProjects() returned', { count: Array.isArray(projectsData) ? projectsData.length : 'non-array' });
         
         // Ensure we have an array of projects
         const projects = Array.isArray(projectsData) ? projectsData : [];
@@ -755,10 +746,12 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
         setHackatimeProjects({});
         setProjectHours({});
       } finally {
+        console.log('⏹️ loadHackatimeProjects() finally - finishing');
         setIsLoadingHackatime(false);
       }
     }
 
+    console.log('🚀 Reaching loadHackatimeProjects() call', { userId, isHackatimeMock, hasHackatimeId: !!hackatimeId });
     loadHackatimeProjects();
   }, [session?.user?.id, loadedForUserId, router, session?.user?.hackatimeId]);
 
@@ -1029,7 +1022,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
 
                 >
                   <img 
-                    src="/" 
+                    src="/rocket-with-trail.webp" 
                     alt="Ship" 
                     className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center"
 
@@ -1085,12 +1078,14 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             <Tooltip content="Your current shell balance (earned currency minus spent currency). These can be used in the shop for rewards and opportunities!">
               <div className="relative flex items-center justify-center bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 w-24 sm:w-28 md:w-32 h-[90px] sm:h-[100px] md:h-[108px]" style={{overflow: 'hidden'}}>
                 <div className="relative w-full h-full flex items-center justify-center">
-                                      <img 
-                      src=""
+                  {true && (
+                    <img 
+                      src="/orph.webp"
                       alt="Clamshell"
                       className={`w-full h-full object-contain`}
                       style={{transform: 'scale(1.6) translateX(-2px) translateY(-2px)'}}
                     />
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <span className="font-bold text-sm sm:text-base text-center text-black" style={{marginTop: '-2px'}}>
                       {shellBalanceLoading ? '...' : animatedClamcurrency}
@@ -1213,7 +1208,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
               </p>
             </div>
             
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-black/50 text-white rounded-lg shadow border border-white/10">
               {projects
                 .sort((a, b) => {
                   // Use hoursOverride if set, otherwise rawHours
@@ -1284,10 +1279,10 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             {isProjectEditModalOpen ? (
               // Edit Form
               <div className={`${styles.editForm} relative`}>
-                <div className="flex justify-between items-center border-b sticky pb-2 top-0 bg-white z-10">
-                  <h2 className="text-2xl font-bold">Edit Project</h2>
+                <div className="flex justify-between items-center border-b border-white/10 sticky pb-2 top-0 bg-transparent z-10">
+                  <h2 className="text-2xl font-bold text-white">Edit Project</h2>
                   <button
-                    className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-white hover:text-white/80 hover:bg-white/10 rounded-full transition-colors"
                     onClick={() => {
                       setIsProjectEditModalOpen(false);
                     }}
@@ -1331,7 +1326,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                       {""}
                     </FormInput>
                   </span>
-                  <div className="mb-5 bg-gray-50 p-4 rounded-lg">
+                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
                     <FormInput
                       fieldName='name'
                       placeholder='Project Name'
@@ -1368,8 +1363,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     </FormInput>
                   </div>
                   
-                  <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">Project URLs</h3>
+                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                    <h3 className="text-sm font-medium text-white mb-3">Project URLs</h3>
                     <FormInput
                       fieldName='codeUrl'
                       placeholder='Code URL'
@@ -1420,14 +1415,14 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     </FormInput>
                   </div>
                   
-                  <div className="mb-5 bg-gray-50 p-4 rounded-lg flex flex-wrap gap-2">
-                    <label className="flex items-center text-sm text-gray-600 mr-4 cursor-not-allowed">
+                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white flex flex-wrap gap-2">
+                    <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
                       <input type="checkbox" checked={!!initialEditState.shipped} readOnly disabled /> Shipped
                     </label>
-                    <label className="flex items-center text-sm text-gray-600 mr-4 cursor-not-allowed">
+                    <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
                       <input type="checkbox" checked={!!initialEditState.viral} readOnly disabled /> Viral
                     </label>
-                    <label className="flex items-center text-sm text-gray-600 mr-4 cursor-not-allowed">
+                    <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
                       <input type="checkbox" checked={!!initialEditState.in_review} readOnly disabled /> In Review
                     </label>
                   </div>
@@ -1443,10 +1438,10 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   </div>
                   
                   {/* Fixed position button that stays at the bottom */}
-                  <div className="sticky bottom-0 left-0 right-0 p-4 p-4 mt-4 bg-white border-t border-gray-200 z-20">
+                  <div className="sticky bottom-0 left-0 right-0 p-4 p-4 mt-4 bg-transparent border-t border-white/10 z-20">
                     <button
                       type="submit"
-                      className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2"
+                      className="w-full px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2"
                       disabled={projectEditPending || isLoadingHackatime}
                     >
                       Save Changes
@@ -1525,7 +1520,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
           formAction={projectCreateFormAction}
           state={projectCreateState}
           pending={projectCreatePending}
-          modalTitle='Create New Project!'
+          modalTitle='Create New Project'
           hackatimeProjects={hackatimeProjects}
           isLoadingHackatime={isLoadingHackatime}
           hideFooter={true}
@@ -1601,7 +1596,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             const contributionPercentage = Math.round((selectedProjectContribution / 60) * 100);
             
             return (
-              <div className="p-4">
+              <div className="p-4 starspace-bg rounded-lg">
                 {/* Review Mode Banner */}
                 {isReviewMode && (
                   <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded-r">
@@ -1619,18 +1614,18 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                 )}
                 
                 <div className="space-y-5 pb-8">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
-                    <p className="text-base text-gray-900">{selectedProject.description || "No description provided."}</p>
+                  <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                    <h3 className="text-sm font-medium text-white mb-2">Description</h3>
+                    <p className="text-base text-white">{selectedProject.description || "No description provided."}</p>
                   </div>
                   
                   {/* Hours tracking section - hidden for island projects since they use blog/vlog tracking */}
                   {!selectedProject.isIslandProject && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
                       <div className="text-center text-sm">
                         <p>This project contributes <strong>{selectedProjectContribution}</strong> hour{selectedProjectContribution !== 1 && 's'} (<strong>{contributionPercentage}%</strong>) toward your voyage</p>
                         <ProjectStatus 
-                          viral={selectedProject.viral} 
+                          viral={false} 
                           shipped={selectedProject.shipped}
                           in_review={selectedProject.in_review}
                         />
@@ -1640,10 +1635,10 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   
                   {/* Project status for island projects - without viral indicator */}
                   {selectedProject.isIslandProject && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
                       <div className="text-center text-sm">
                         <ProjectStatus 
-                          viral={selectedProject.viral} 
+                          viral={false} 
                           shipped={selectedProject.shipped}
                           in_review={selectedProject.in_review}
                           hideViral={true}
@@ -1654,20 +1649,20 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   
                   {/* Project Hours Details Section - hidden for island projects */}
                   {!selectedProject.isIslandProject && (
-                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3">Project Hours</h3>
+                    <div className="bg-black/60 p-4 rounded-lg mb-4 border border-white/10 text-white">
+                      <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-sm text-gray-500">Raw Hackatime Hours</span>
-                          <p className="text-lg font-semibold mt-1">
+                          <span className="text-sm text-white/70">Raw Hackatime Hours</span>
+                          <p className="text-lg font-semibold mt-1 text-white">
                             {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 
                               ? `${selectedProject.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
                               : `${selectedProject.rawHours || 0}h`}
                           </p>
                         </div>
                         <div>
-                          <span className="text-sm text-gray-500">Approved Hackatime Hours</span>
-                          <p className="text-lg font-semibold mt-1">
+                          <span className="text-sm text-white/70">Approved Hackatime Hours</span>
+                          <p className="text-lg font-semibold mt-1 text-white">
                             {(() => {
                               if (selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0) {
                                 const totalApproved = selectedProject.hackatimeLinks.reduce((sum, link) => {
@@ -1764,27 +1759,27 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   
                   {/* Hackatime Project Links Section for Mobile */}
                   {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
                       <h3 className="text-sm font-medium text-gray-700 mb-3">
                         Hackatime Project Links
                       </h3>
-                      <div className="bg-white rounded border">
+                      <div className="bg-black rounded border border-white/10">
                         {/* Table Header */}
-                        <div className="grid grid-cols-3 gap-4 p-3 border-b bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="grid grid-cols-3 gap-4 p-3 border-b bg-black text-xs font-medium text-white/70 uppercase tracking-wider border-white/10">
                           <div>PROJECT</div>
                           <div className="text-center">RAW</div>
                           <div className="text-center">APPROVED</div>
                         </div>
                         {/* Table Rows */}
                         {selectedProject.hackatimeLinks.map((link, index) => (
-                          <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm">
-                            <div className="font-medium text-gray-900">{link.hackatimeName}</div>
-                            <div className="text-center text-gray-600">{link.rawHours}h</div>
+                          <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
+                            <div className="font-medium text-white">{link.hackatimeName}</div>
+                            <div className="text-center text-white/80">{link.rawHours}h</div>
                             <div className="text-center">
                               {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
-                                <span className="text-blue-600 font-medium">{link.hoursOverride}h</span>
+                                <span className="text-orange-400 font-medium">{link.hoursOverride}h</span>
                               ) : (
-                                <span className="text-gray-400">—</span>
+                                <span className="text-white/40">—</span>
                               )}
                             </div>
                           </div>
@@ -1795,8 +1790,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   
                   {/* Project Status section - only visible when NOT in review mode */}
                   {!isReviewMode && (
-                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3 col-span-2">Project Status</h3>
+                    <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                      <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
                       {/* Hide Viral status for island projects */}
                       {!selectedProject.isIslandProject && (
                         <div className="flex items-center">
@@ -1805,12 +1800,12 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                         </div>
                       )}
                       <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.shipped ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                        <span className="text-sm text-gray-700">Shipped</span>
+                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
+                        <span className="text-sm text-white">Shipped</span>
                       </div>
                       <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.in_review ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                        <span className="text-sm text-gray-700">In Review</span>
+                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.in_review ? 'bg-green-500' : 'bg-white/30'}`}></div>
+                        <span className="text-sm text-white">In Review</span>
                       </div>
                     </div>
                   )}
@@ -1892,7 +1887,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     {isReviewMode || !selectedProject.in_review ? (
                       <button
                         type="button"
-                        className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2"
+                        className="w-full px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2"
                         onClick={impersonationData ? () => {
                           toast.error("Cannot edit projects while impersonating users");
                         } : () => {
@@ -1987,21 +1982,23 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             </div>
           </div>
         </Modal>
-        {/* Project Edit Modal - Desktop Only */}
-        <ProjectModal
-          isOpen={isProjectEditModalOpen}
-          setIsOpen={setIsProjectEditModalOpen}
-          formAction={projectEditFormAction}
-          state={projectEditState}
-          pending={projectEditPending}
-          modalTitle='Edit Project'
-          hackatimeProjects={hackatimeProjects}
-          isLoadingHackatime={isLoadingHackatime}
-          hideFooter={true}
-          existingProjects={projects}
-          isAdmin={isAdmin}
-          {...initialEditState}
-        />
+        {/* Project Edit Modal - Mobile Only */}
+        {isMobile && (
+          <ProjectModal
+            isOpen={isProjectEditModalOpen}
+            setIsOpen={setIsProjectEditModalOpen}
+            formAction={projectEditFormAction}
+            state={projectEditState}
+            pending={projectEditPending}
+            modalTitle='Edit Project'
+            hackatimeProjects={hackatimeProjects}
+            isLoadingHackatime={isLoadingHackatime}
+            hideFooter={true}
+            existingProjects={projects}
+            isAdmin={isAdmin}
+            {...initialEditState}
+          />
+        )}
       </div>
     </div>
   );
@@ -2028,6 +2025,8 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
   const [selectedHackatimeProjects, setSelectedHackatimeProjects] = useState<string[]>([]);
   const [islandProjectTypes, setIslandProjectTypes] = useState<{name: string, description: string}[]>([]);
   const [selectedIslandProjectType, setSelectedIslandProjectType] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Software');
+  const [selectedTimeTracking, setSelectedTimeTracking] = useState<string>('Hackatime');
   
   // Reset selected projects when modal opens for creation
   useEffect(() => {
@@ -2162,7 +2161,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
             </div>
           ) : null}
           
-          <div className="mb-5 bg-gray-50 p-4 rounded-lg">
+          <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
             <FormInput
               fieldName='name'
               placeholder='Project Name'
@@ -2170,9 +2169,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               required
               {...(props.name && { defaultValue: props.name})}
             >
-              <Tooltip content="The name of your project as it will appear in the gallery and throughout the platform. Choose something clear and memorable.">
-                Project Name
-              </Tooltip>
+              <span className="text-white">Project Name</span>
             </FormInput>
             <FormInput
               fieldName='description'
@@ -2181,16 +2178,51 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               {...(props.description && { defaultValue: props.description})}
               required
             >
-              <Tooltip content="A brief description of your project that will be shown to both project reviewers and visitors viewing your project in the gallery. Explain what your project does and what makes it interesting.">
-                Description
-              </Tooltip>
+              <span className="text-white">Description</span>
             </FormInput>
+            {/* Big Category Selector */}
+            <div className="mt-4">
+              <label className="block mb-2 text-white">Project Type</label>
+              <div className="grid grid-cols-2 gap-3 w-full">
+                {['Software','Hardware','Art','Other'].map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`w-full py-3 px-4 rounded-lg text-lg font-semibold border transition ${selectedCategory === cat ? 'bg-white text-black border-white' : 'bg-black text-white border-white/30 hover:border-white/60'}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" name="category" value={selectedCategory} />
+            </div>
+            {/* Time Tracking Selector */}
+            <div className="mt-6">
+              <label className="block mb-2 text-white">Time tracking</label>
+              <div className="grid grid-cols-2 gap-3 w-full">
+                {['Hackatime','Journal'].map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setSelectedTimeTracking(opt)}
+                    className={`w-full py-3 px-4 rounded-lg text-lg font-semibold border transition ${selectedTimeTracking === opt ? 'bg-white text-black border-white' : 'bg-black text-white border-white/30 hover:border-white/60'}`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" name="timeTracking" value={selectedTimeTracking} />
+              {selectedTimeTracking === 'Journal' ? (
+                <input type="hidden" name="noHackatime" value="true" />
+              ) : null}
+            </div>
           </div>
           
           {!isCreate && (
             <>
-              <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Project URLs</h3>
+              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                <h3 className="text-sm font-medium text-white mb-3">Project URLs</h3>
                 <FormInput
                   fieldName='codeUrl'
                   placeholder='Code URL'
@@ -2224,14 +2256,8 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               </div>
               
 
-              <div className="grid grid-cols-2 gap-4 mb-5 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3 col-span-2">Project Status</h3>
-                {/* Hide Viral status for island projects */}
-                {!props.isIslandProject && (
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={!!props.viral} readOnly disabled /> Viral
-                  </label>
-                )}
+              <div className="grid grid-cols-2 gap-4 mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" checked={!!props.shipped} readOnly disabled /> Shipped
                 </label>
@@ -2241,12 +2267,12 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               </div>
 
               {/* Chat Settings Section */}
-              <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Discussion</h3>
+              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                <h3 className="text-sm font-medium text-white mb-3">Discussion</h3>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-700">Enable chat discussion</p>
-                    <p className="text-xs text-gray-500">Allow others to discuss this project</p>
+                    <p className="text-sm text-white">Enable chat discussion</p>
+                    <p className="text-xs text-white/70">Allow others to discuss this project</p>
                   </div>
                   <input 
                     type="checkbox" 
@@ -2262,15 +2288,22 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
 
           
           {isCreate && !props.isIslandMode ? (
-            <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-              <HackatimeMultiSelect
-                availableProjects={availableHackatimeProjects}
-                selectedProjects={selectedHackatimeProjects}
-                onSelectionChange={setSelectedHackatimeProjects}
-                isLoading={props.isLoadingHackatime}
-                disabled={props.isLoadingHackatime || Object.keys(props.hackatimeProjects).length === 0}
-              />
-            </div>
+            selectedTimeTracking === 'Hackatime' ? (
+              <div className="mb-5 p-4 rounded-lg border border-white/10 bg-black text-white">
+                <HackatimeMultiSelect
+                  availableProjects={availableHackatimeProjects}
+                  selectedProjects={selectedHackatimeProjects}
+                  onSelectionChange={setSelectedHackatimeProjects}
+                  isLoading={props.isLoadingHackatime}
+                  disabled={props.isLoadingHackatime || Object.keys(props.hackatimeProjects).length === 0}
+                />
+              </div>
+            ) : (
+              <div className="mb-5 p-4 rounded-lg border border-white/10 bg-black text-white">
+                <p className="text-white/90 text-center">You will be required to upload evidence in picture and video form, and write journal entries detailing your project over time.</p>
+                <p className="mt-2 text-center text-red-500 font-extrabold tracking-wide animate-pulse">EXPECTATIONS WILL BE HIGH!!!</p>
+              </div>
+            )
           ) : null}
           
           {/* Explanatory text - moved from top to near button */}
@@ -2284,7 +2317,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
           
           {/* Fixed button at bottom of modal */}
           <div 
-            className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-white border-t border-gray-200 z-20"
+            className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-transparent border-t border-white/10 z-20"
             style={{ bottom: "-6%"}}
           >
             <button
@@ -2460,13 +2493,13 @@ function HackatimeMultiSelect({
               return (
                 <div
                   key={projectName}
-                  className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                  className="flex items-center gap-2 bg-white/10 text-white border border-white/20 px-3 py-1 rounded-full text-sm"
                 >
                   <span>{displayLabel}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveProject(projectName)}
-                    className="text-blue-600 hover:text-blue-800 font-bold"
+                    className="text-white/70 hover:text-white font-bold"
                     disabled={disabled}
                   >
                     ×
@@ -2486,9 +2519,9 @@ function HackatimeMultiSelect({
             type="button"
             onClick={handleToggleDropdown}
             disabled={disabled || isLoading}
-            className="w-full px-4 py-2 bg-gray-100 rounded outline-1 outline-gray-200 text-left flex justify-between items-center disabled:bg-gray-200"
+            className="w-full px-4 py-2 bg-black text-white rounded border border-white/10 text-left flex justify-between items-center disabled:opacity-50"
           >
-            <span className="text-gray-600">
+            <span className="text-white/80">
               {isLoading 
                 ? 'Loading projects...' 
                 : selectedProjects.length === 0 
@@ -2496,26 +2529,32 @@ function HackatimeMultiSelect({
                   : 'Add more projects...'
               }
             </span>
-            <span className="text-gray-400">▼</span>
+            <span className="text-white/60">▼</span>
           </button>
 
           {isOpen && !disabled && !isLoading && (
-            <div className={`absolute z-50 w-full bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto ${
+            <div className={`absolute z-50 w-full bg-black text-white border border-white/10 rounded shadow-lg max-h-60 overflow-y-auto ${
               dropdownDirection === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
             }`}>
-              {unselectedProjects.map(([displayLabel, projectName]) => (
-                <button
-                  key={projectName}
-                  type="button"
-                  onClick={() => {
-                    handleToggleProject(projectName);
-                    setIsOpen(false);
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                >
-                  {displayLabel}
-                </button>
-              ))}
+              {unselectedProjects.map(([displayLabel, projectName]) => {
+                const parts = displayLabel.split(' ');
+                const hoursLabel = parts.shift() || '';
+                const nameLabel = parts.join(' ');
+                return (
+                  <button
+                    key={projectName}
+                    type="button"
+                    onClick={() => {
+                      handleToggleProject(projectName);
+                      setIsOpen(false);
+                    }}
+                    className="w-full px-4 py-2 text-left hover:bg-orange-600/20 focus:bg-orange-600/20 focus:outline-none flex items-center"
+                  >
+                    <span className="inline-block bg-white text-black rounded px-2 py-0.5 text-xs font-bold mr-2 whitespace-nowrap">{hoursLabel}</span>
+                    <span className="truncate">{nameLabel}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -2533,7 +2572,7 @@ function HackatimeMultiSelect({
 
       {/* Validation message */}
       {selectedProjects.length === 0 && (
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-white/70 mt-1">
           Please select at least one Hackatime project
         </p>
       )}

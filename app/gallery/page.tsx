@@ -88,7 +88,6 @@ function GalleryInner() {
   
   // Filter and sort state
   const [searchQuery, setSearchQuery] = useState('');
-  const [showViral, setShowViral] = useState(false);
   const [showShipped, setShowShipped] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('upvotes');
   
@@ -118,8 +117,7 @@ function GalleryInner() {
   // Handle state cleanup when switching experience modes
   useEffect(() => {
     if (isIslandMode) {
-      // Reset viral filter and hours sort when entering island mode
-      setShowViral(false);
+      // Reset hours sort when entering island mode
       if (sortBy === 'hours') {
         setSortBy('upvotes'); // Default to upvotes sort in island mode
       }
@@ -204,28 +202,11 @@ function GalleryInner() {
 
       if (!matchesSearch) return false;
 
-      // Status filters - intersection logic (AND)
-      // If no filters are selected, show all projects
-      if (!showViral && !showShipped) {
+      // Status filter: shipped only
+      if (!showShipped) {
         return true;
       }
-
-      // If both filters are selected, project must be both viral AND shipped
-      if (showViral && showShipped) {
-        return project.viral && project.shipped;
-      }
-
-      // If only viral is selected, project must be viral
-      if (showViral && !showShipped) {
-        return project.viral;
-      }
-
-      // If only shipped is selected, project must be shipped
-      if (!showViral && showShipped) {
-        return project.shipped;
-      }
-
-      return false;
+      return project.shipped;
     });
 
     // Sort projects
@@ -257,7 +238,7 @@ function GalleryInner() {
     });
 
     return filtered;
-  }, [projects, searchQuery, showViral, showShipped, sortBy]);
+  }, [projects, searchQuery, showShipped, sortBy]);
 
   // Handle upvote/downvote
   const handleUpvote = async (projectID: string) => {
@@ -336,7 +317,7 @@ function GalleryInner() {
                   placeholder="Search by name, description, or author..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black placeholder:text-gray-500"
                 />
                 <Icon 
                   glyph="search" 
@@ -352,18 +333,6 @@ function GalleryInner() {
                 Filter by Status
               </label>
               <div className="flex gap-4 py-2">
-                {/* Hide viral filter in island mode since island projects don't use viral status */}
-                {!isIslandMode && (
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={showViral}
-                      onChange={(e) => setShowViral(e.target.checked)}
-                      className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
-                    />
-                    <span className="ml-2 text-sm text-white">Viral</span>
-                  </label>
-                )}
                 <label className="flex items-center">
                   <input
                     type="checkbox"

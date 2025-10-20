@@ -22,9 +22,14 @@ export async function GET(request: Request) {
 
         let hackatimeId = dbUser.hackatimeId;
 
-        // If we don't have a Hackatime ID, fail
-        if (!hackatimeId) {                
-            return Response.json({ error: 'Hackatime not set up yet' }, { status: 503 });
+        // If we don't have a Hackatime ID, fail unless we're mocking
+        if (!hackatimeId) {
+            if (process.env.HACKATIME_MOCK === 'true' || process.env.HACKATIME_MOCK === '1') {
+                console.log('🧪 HACKATIME_MOCK enabled — serving mock projects without hackatimeId');
+                hackatimeId = 'mock-user';
+            } else {
+                return Response.json({ error: 'Hackatime not set up yet' }, { status: 503 });
+            }
         }
         // console.log('✨ Found Hackatime ID:', dbUser.hackatimeId);
 

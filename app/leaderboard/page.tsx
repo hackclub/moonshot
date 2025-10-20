@@ -270,7 +270,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black placeholder:text-gray-500"
           />
           <span className="absolute right-3 top-3 text-gray-400">
             🔍
@@ -581,7 +581,7 @@ export default function Users() {
         <Suspense fallback={<div className="w-full h-16" />}> 
           <Header session={session} status={status} />
         </Suspense>
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 pt-24">
           <Suspense fallback={<div className="flex justify-center items-center h-64">Loading users...</div>}>
             <LeaderboardContent />
           </Suspense>

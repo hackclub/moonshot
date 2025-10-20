@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import ChunkReloadGuard from "@/app/ChunkReloadGuard";
 import { Kavoon } from "next/font/google";
 import "./globals.css";
-import "@/app/info/info.css";
 import "@/app/api/stats/init";
 import Script from "next/script";
 
