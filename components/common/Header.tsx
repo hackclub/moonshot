@@ -457,7 +457,7 @@ export default function Header({ session, status }: HeaderProps) {
                 
                 {status === "authenticated" && (
                     <>
-                        <span className="text-white font-semibold hidden lg:inline text-sm xl:text-base flex items-center gap-2">
+                        <span className="text-white font-semibold hidden lg:inline text-sm xl:text-base items-center gap-2">
                             <span aria-hidden className="text-2xl leading-none">🚀</span>
                             {session?.user.name ? session?.user?.name : session?.user.email?.slice(0, 13) + "..."}
                         </span>
