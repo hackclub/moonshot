@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     
     // Get experience mode and challenge tags from query params for server-side filtering
     const { searchParams } = new URL(request.url);
-    const isIslandMode = searchParams.get('isIslandMode') === 'true';
+  const isIslandMode = searchParams.get('isIslandMode') === 'true';
     const challengeTagsParam = searchParams.get('challengeTags');
     const selectedChallengeTags = challengeTagsParam ? challengeTagsParam.split(',').filter(tag => tag.trim()) : [];
     
@@ -28,17 +28,17 @@ export async function GET(request: Request) {
     let whereClause: any = {};
     
     // ALL USERS (including admins) get filtered based on experience mode in gallery
-    if (isIslandMode) {
-      // Island mode: only show projects with 'island-project' tag
-      whereClause = {
-        projectTags: {
-          some: {
-            tag: {
-              name: 'island-project'
-            }
+  if (isIslandMode) {
+    // Event mode: only show projects with 'event-project' tag
+    whereClause = {
+      projectTags: {
+        some: {
+          tag: {
+            name: 'event-project'
           }
         }
-      };
+      }
+    };
       
       // If specific challenge tags are selected, add that filter
       // Projects must have ALL selected tags (AND logic)
@@ -60,19 +60,19 @@ export async function GET(request: Request) {
           ]
         };
       }
-    } else {
-      // Voyage mode: only show projects WITHOUT 'island-project' tag
-      whereClause = {
-        NOT: {
-          projectTags: {
-            some: {
-              tag: {
-                name: 'island-project'
-              }
+  } else {
+    // Voyage mode: only show projects WITHOUT 'event-project' tag
+    whereClause = {
+      NOT: {
+        projectTags: {
+          some: {
+            tag: {
+              name: 'event-project'
             }
           }
         }
-      };
+      }
+    };
     }
     
     // Fetch all projects from all users with user info, hackatime links, and upvote data

@@ -67,6 +67,7 @@ export default function ShopItemsPage() {
   });
   const [dollarsPerHour, setDollarsPerHour] = useState<string>('');
   const [isShopAdmin, setIsShopAdmin] = useState(false);
+  const [isShopItemAdmin, setIsShopItemAdmin] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
@@ -103,10 +104,11 @@ export default function ShopItemsPage() {
   // Fetch shop admin status
   useEffect(() => {
     if (status === 'authenticated') {
-      fetch('/api/users/me').then(async (res) => {
+      fetch('/api/users/me', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
         if (res.ok) {
           const data = await res.json();
           setIsShopAdmin(!!data.isShopAdmin);
+          setIsShopItemAdmin(!!data.isShopItemAdmin);
         }
       });
     }
@@ -429,7 +431,7 @@ export default function ShopItemsPage() {
     }
   };
 
-  if (status === 'unauthenticated' || session?.user?.role !== 'Admin' || !isShopAdmin) {
+  if (status === 'unauthenticated' || session?.user?.role !== 'Admin' || !isShopItemAdmin) {
     return <div>Access denied. Only authorized shop administrators can access this page.</div>;
   }
 

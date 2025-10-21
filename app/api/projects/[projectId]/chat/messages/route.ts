@@ -51,7 +51,7 @@ export async function GET(
     }
 
     // Check if this is an island project
-    const isIslandProject = project.projectTags.some(pt => pt.tag.name === 'island-project');
+    const isIslandProject = project.projectTags.some(pt => pt.tag.name === 'event-project');
 
     // Get the chat room for this project
     const chatRoom = await prisma.chatRoom.findFirst({
@@ -182,7 +182,8 @@ export async function POST(
         }
 
         // Check if this is an island project
-        const isIslandProject = project.projectTags.some(pt => pt.tag.name === 'island-project');
+        const isIslandProject = project.projectTags.some(pt => pt.tag.name === 'event-project');
+        const isEventProject = project.projectTags.some(pt => pt.tag.name === 'event-project') || isIslandProject;
 
         // For island projects, only the project owner may post messages
         if (isIslandProject && session.user.id !== project.userId) {
