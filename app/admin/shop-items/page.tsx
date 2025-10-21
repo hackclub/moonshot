@@ -132,14 +132,6 @@ export default function ShopItemsPage() {
         if (formData.price !== currency.toString()) {
           setFormData((prev) => ({ ...prev, price: currency.toString() }));
         }
-      } else if (configObj.hours_equal_to_one_percent_progress) {
-        // For island progress items with hours_equal_to_one_percent_progress
-        // Calculate currency directly from hours, not from USD cost
-        const hours = configObj.hours_equal_to_one_percent_progress as number;
-        const currency = Math.round(hours * phi * 10);
-        if (formData.price !== currency.toString()) {
-          setFormData((prev) => ({ ...prev, price: currency.toString() }));
-        }
       }
     }
     // For other config types, do not auto-calculate
@@ -744,12 +736,11 @@ export default function ShopItemsPage() {
                       value={formData.config}
                       onChange={(e) => setFormData({ ...formData, config: e.target.value })}
                       rows={4}
-                      placeholder='{"hours_equal_to_one_percent_progress": 0.8} or {"dollars_per_hour": 10}'
+                      placeholder='{"dollars_per_hour": 10}'
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      For travel stipend: <code>{'{"dollars_per_hour": 10}'}</code> (custom hourly rate for this item)<br/>
-                      For island progress: <code>{'{"hours_equal_to_one_percent_progress": 0.6}'}</code> (hours per 1% progress, price = round(hours × φ × 10))
+                      For travel stipend: <code>{'{"dollars_per_hour": 10}'}</code> (custom hourly rate for this item)
                     </p>
                   </div>
                 )}
@@ -782,20 +773,7 @@ export default function ShopItemsPage() {
                         </div>
                       );
                     }
-                    if (configObj.hours_equal_to_one_percent_progress && formData.usdCost) {
-                      const hours = configObj.hours_equal_to_one_percent_progress as number;
-                      const phi = (1 + Math.sqrt(5)) / 2;
-                      const currency = Math.round(hours * phi * 10);
-                      return (
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                          <p className="text-sm text-purple-800">
-                            <strong>Auto-calculated shell price (Island Progress):</strong> {currency} currency
-                            <br />
-                            <span className="text-xs">Formula: {hours} hours × φ × 10 = {(hours * phi * 10).toFixed(1)} → round = {currency} currency</span>
-                          </p>
-                        </div>
-                      );
-                    }
+                    // No other special previews
                   } catch {
                     // Invalid JSON, don't show anything
                   }
