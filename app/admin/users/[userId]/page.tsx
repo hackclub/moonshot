@@ -341,22 +341,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                     return null;
                   })()}
                 </div>
-                <div className="mt-3">
-                  <Tooltip 
-                    content={`Progress Bar Colors: Green=Shipped, Gold=Viral, Blue=In-Progress${progressMetrics.purchasedProgressHours > 0 ? ', Pink=Purchased' : ''}, Gray=Remaining`}
-                    className="block w-full"
-                  >
-                    <MultiPartProgressBar 
-                      projects={user.projects}
-                      progressMetrics={progressMetrics}
-                      max={100}
-                      height={8}
-                      rounded={true}
-                      showLabels={false}
-                      tooltipPosition="top"
-                    />
-                  </Tooltip>
-                </div>
+                <div className="mt-3 text-xs text-gray-500">Progress hidden</div>
                 <div className="mt-2 flex justify-between text-xs text-gray-600">
                   <span>Shipped: {progressMetrics.shippedHours.toFixed(1)}h</span>
                   <span>Viral: {progressMetrics.viralHours.toFixed(1)}h</span>

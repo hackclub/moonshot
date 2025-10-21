@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 export type ExperienceMode = 'island' | 'voyage';
 

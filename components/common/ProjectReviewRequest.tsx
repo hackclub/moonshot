@@ -6,7 +6,7 @@ import { useReviewMode } from '@/app/contexts/ReviewModeContext';
 import ProjectMetadataWarning from './ProjectMetadataWarning';
 
 // Define review request types
-export type ReviewRequestType = 'ShippedApproval' | 'ViralApproval' | 'HoursApproval' | 'Other';
+export type ReviewRequestType = 'ShippedApproval' | 'HoursApproval' | 'HourReview' | 'Other';
 
 interface ProjectReviewRequestProps {
   projectID: string;
@@ -159,8 +159,8 @@ export default function ProjectReviewRequest({
     switch (reviewType) {
       case 'ShippedApproval':
         return "Explain why this project should be approved as 'shipped'. Include any relevant details about deployment and functionality.";
-      case 'ViralApproval':
-        return "Explain why this project should be considered 'viral'. Include links to social media that prove you have met one of the requirements on moonshot.hackclub.com/info/go-viral (if doing hacker news, link archive.org snapshot)";
+      case 'HourReview':
+        return "Request a review focused on hours evidence (journals, screenshots, links). List what evidence you'd like checked.";
       case 'HoursApproval':
         return "Provide details about the updates you've made to this project since it was approved as shipped. (ex. I implemented feature X, Y, & Z.) Please keep it short & use bullets for readability.";
       case 'Other':
@@ -171,19 +171,19 @@ export default function ProjectReviewRequest({
   };
   
   return (
-    <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
-      <h3 className="text-sm font-bold text-amber-800 mb-3">Submit for Review</h3>
+    <div className="p-4 rounded-lg border-l-4 border-amber-600 bg-amber-900/30 text-white">
+      <h3 className="text-sm font-bold text-white mb-3">Submit for Review</h3>
       
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label htmlFor="reviewType" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="reviewType" className="block text-sm font-medium text-white mb-1">
             What type of review do you need?*
           </label>
           <select
             id="reviewType"
             value={reviewType}
             onChange={(e) => setReviewType(e.target.value as ReviewRequestType)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-black/40 text-white border border-white/20"
             disabled={isSubmitting}
             required
           >
@@ -194,14 +194,12 @@ export default function ProjectReviewRequest({
               // Regular voyage projects have all options
               <>
                 {!isShipped && (
-                  <option value="ShippedApproval">I want this project approved as shipped</option>
-                )}
-                {!isViral && (
-                  <option value="ViralApproval">I want this project approved as viral</option>
+                  <option value="ShippedApproval">I want this project marked as shipped</option>
                 )}
                 {isShipped && (
                   <option value="HoursApproval">I want to ship an update to this project</option>
                 )}
+                <option value="HourReview">I need my hours reviewed and approved</option>
                 <option value="Other">Other</option>
               </>
             )}
@@ -209,7 +207,7 @@ export default function ProjectReviewRequest({
         </div>
         
         <div className="mb-3">
-          <label htmlFor="reviewComment" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="reviewComment" className="block text-sm font-medium text-white mb-1">
             Additional details*
           </label>
           <textarea
@@ -218,7 +216,7 @@ export default function ProjectReviewRequest({
             onChange={(e) => setComment(e.target.value)}
             placeholder={getPlaceholderText()}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 bg-black/40 text-white border border-white/20 placeholder-white/70"
             disabled={isSubmitting}
             required
           />
@@ -226,21 +224,21 @@ export default function ProjectReviewRequest({
 
         {/* Pre-submission Checklist */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white mb-2">
             Pre-submission Checklist*
           </label>
-          <div className="space-y-2 bg-white p-3 rounded border border-gray-200">
+          <div className="space-y-2 bg-black/40 p-3 rounded border border-white/10">
             <div className="flex items-start space-x-2">
               <input
                 type="checkbox"
                 id="codeComplete"
                 checked={checklist.codeComplete}
                 onChange={() => handleChecklistChange('codeComplete')}
-                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-white/30 rounded accent-amber-600"
                 disabled={isSubmitting}
               />
-              <label htmlFor="codeComplete" className="text-sm text-gray-700">
-                ✅ Code is complete and functional — Project runs as described after setup, with all core features working (e.g., login flow, interactivity).
+              <label htmlFor="codeComplete" className="text-sm text-white">
+                ✅ My project works!
               </label>
             </div>
             
@@ -250,11 +248,11 @@ export default function ProjectReviewRequest({
                 id="easyToRun"
                 checked={checklist.easyToRun}
                 onChange={() => handleChecklistChange('easyToRun')}
-                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-white/30 rounded accent-amber-600"
                 disabled={isSubmitting}
               />
-              <label htmlFor="easyToRun" className="text-sm text-gray-700">
-                📦 Easy to run locally — Clear, working setup instructions (&lt;2 min) with no need for guessing or extra troubleshooting beyond documented steps in the readme.
+              <label htmlFor="easyToRun" className="text-sm text-white">
+                📦 Easy to run
               </label>
             </div>
             
@@ -264,11 +262,11 @@ export default function ProjectReviewRequest({
                 id="experienceableBuild"
                 checked={checklist.experienceableBuild}
                 onChange={() => handleChecklistChange('experienceableBuild')}
-                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-white/30 rounded accent-amber-600"
                 disabled={isSubmitting}
               />
-              <label htmlFor="experienceableBuild" className="text-sm text-gray-700">
-              🌐 Experienceable build — Live site, working APK/App Store link for iOS (if it's not on the App Store, please check out <a href="http://moonshot.hackclub.com/AltStore.md" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">this guide</a>), or if any other runnable builds exist (videos alone are not acceptable unless explicitly approved).
+              <label htmlFor="experienceableBuild" className="text-sm text-white">
+              🌐 Experienceable build
               </label>
             </div>
             
@@ -278,11 +276,11 @@ export default function ProjectReviewRequest({
                 id="wellDocumented"
                 checked={checklist.wellDocumented}
                 onChange={() => handleChecklistChange('wellDocumented')}
-                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-white/30 rounded accent-amber-600"
                 disabled={isSubmitting}
               />
-              <label htmlFor="wellDocumented" className="text-sm text-gray-700">
-                📄 Well-documented — README clearly explains what the project does, how to run it, and includes working screenshots and links.
+              <label htmlFor="wellDocumented" className="text-sm text-white">
+                📄 Well-documented
               </label>
             </div>
             
@@ -292,11 +290,11 @@ export default function ProjectReviewRequest({
                 id="polished"
                 checked={checklist.polished}
                 onChange={() => handleChecklistChange('polished')}
-                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                className="mt-1 h-4 w-4 text-amber-600 focus:ring-amber-500 border-white/30 rounded accent-amber-600"
                 disabled={isSubmitting}
               />
-              <label htmlFor="polished" className="text-sm text-gray-700">
-                🧹 Polished and presentable — No major bugs or visual issues; looks intentional and ready for others to experience.
+              <label htmlFor="polished" className="text-sm text-white">
+                🧹 Polished and presentable
               </label>
             </div>
           </div>

@@ -969,17 +969,17 @@ function AdminProjectsContent() {
       </div>
       
       {/* Project Edit Panel - Desktop */}
-      <div className="hidden md:block md:w-1/2 lg:w-2/5 bg-white rounded-lg shadow-lg px-4 max-h-[calc(100vh-2rem)] sticky top-4 overflow-y-auto">
+      <div className="hidden md:block md:w-1/2 lg:w-2/5 bg-black/60 text-white rounded-lg shadow-lg px-4 max-h-[calc(100vh-2rem)] sticky top-4 overflow-y-auto border border-white/10">
         {selectedProject ? (
           <form onSubmit={handleFormSubmit} key={selectedProject.projectID}>
-            <div className="sticky top-0 bg-white z-10 pt-4 pb-1">
-              <h2 className="text-xl font-bold mb-4">Edit {selectedProject.name}</h2>
+            <div className="sticky top-0 bg-transparent z-10 pt-4 pb-1">
+              <h2 className="text-xl font-bold mb-4 text-white">Edit {selectedProject.name}</h2>
             </div>
             <input type="hidden" name="projectID" value={selectedProject.projectID} />
             
             {/* Project Owner Information */}
-            <div className="mb-5 bg-blue-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Project Owner</h3>
+            <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
+              <h3 className="text-sm font-medium text-white mb-3">Project Owner</h3>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   {selectedProject.user.image ? (
@@ -989,18 +989,18 @@ function AdminProjectsContent() {
                       className="w-8 h-8 rounded-full object-cover mr-3"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                      <span className="text-sm text-gray-600">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-sm text-white/80">
                         {(selectedProject.user.name || 'U').charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
                   
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-white">
                       {selectedProject.user.name || 'Unknown User'}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-white/70">
                       {selectedProject.user.email}
                     </p>
                   </div>
@@ -1009,7 +1009,7 @@ function AdminProjectsContent() {
                   href={`/launchpad/${selectedProject.userId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-1.5 border border-blue-300 shadow-sm text-xs font-medium rounded text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-3 py-1.5 border border-white/20 shadow-sm text-xs font-medium rounded text-white bg-black/30 hover:bg-black/40 focus:outline-none"
                 >
                   <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1020,7 +1020,7 @@ function AdminProjectsContent() {
               </div>
             </div>
             
-            <div className="mb-5 bg-gray-50 p-4 rounded-lg">
+            <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
               <FormInput
                 fieldName='name'
                 placeholder='Project Name'
@@ -1041,15 +1041,15 @@ function AdminProjectsContent() {
               </FormInput>
             </div>
             
-            <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Project URLs</h3>
+            <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+              <h3 className="text-sm font-medium text-white mb-3">Project URLs</h3>
               <FormInput
                 fieldName='codeUrl'
                 placeholder='Code URL'
                 state={formState}
                 defaultValue={selectedProject.codeUrl || ""}
               >
-                Code URL
+                <span className="text-white">Code URL</span>
               </FormInput>
               <FormInput
                 fieldName='playableUrl'
@@ -1057,7 +1057,7 @@ function AdminProjectsContent() {
                 state={formState}
                 defaultValue={selectedProject.playableUrl || ""}
               >
-                Playable URL
+                <span className="text-white">Playable URL</span>
               </FormInput>
               <FormInput
                 fieldName='screenshot'
@@ -1065,18 +1065,18 @@ function AdminProjectsContent() {
                 state={formState}
                 defaultValue={selectedProject.screenshot || ""}
               >
-                Screenshot URL
+                <span className="text-white">Screenshot URL</span>
               </FormInput>
             </div>
             
-            <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Project Hours</h3>
+            <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
+              <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
               
               {/* Hackatime Links Section */}
               {selectedProject?.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 ? (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-white/70">
                       This project is linked to {selectedProject.hackatimeLinks.length} Hackatime project{selectedProject.hackatimeLinks.length > 1 ? 's' : ''}. 
                       You can set approved hours for each individual link below.
                     </p>
@@ -1093,11 +1093,11 @@ function AdminProjectsContent() {
                   </div>
                   
                   {selectedProject.hackatimeLinks.map((link) => (
-                    <div key={link.id} className="border border-gray-200 p-3 rounded-md">
+                    <div key={link.id} className="border border-white/10 p-3 rounded-md bg-black/40">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium text-sm">{link.hackatimeName}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">
+                          <span className="text-xs bg-black/40 text-white px-2 py-1 rounded border border-white/20">
                             {typeof link.rawHours === 'number' ? `${link.rawHours}h` : '0h'} from Hackatime
                           </span>
                           <button
@@ -1107,7 +1107,7 @@ function AdminProjectsContent() {
                               hackatimeName: link.hackatimeName,
                               projectID: selectedProject.projectID
                             })}
-                            className="text-red-500 hover:text-red-700 text-xs"
+                            className="text-red-400 hover:text-red-300 text-xs"
                             aria-label={`Remove link to ${link.hackatimeName}`}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1118,37 +1118,37 @@ function AdminProjectsContent() {
                       </div>
                       
                       <div className="flex items-center">
-                        <label htmlFor={`linkOverride-${link.id}`} className="text-xs text-gray-600 mr-2">
+                        <label htmlFor={`linkOverride-${link.id}`} className="text-xs text-white/80 mr-2">
                           Approved:
                         </label>
                         <input
                           type="number"
                           id={`linkOverride-${link.id}`}
                           name={`linkOverride-${link.id}`}
-                          className="block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                          className="block w-24 rounded-md border-white/20 bg-black/40 text-white shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
                           placeholder="e.g. 10.5"
                           defaultValue={link.hoursOverride?.toString() || ''}
                           step="0.01"
                         />
-                        <span className="ml-2 text-xs text-gray-500">hours</span>
+                        <span className="ml-2 text-xs text-white/70">hours</span>
                       </div>
                     </div>
                   ))}
                   
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex justify-between text-sm">
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <div className="flex justify-between text-sm text-white">
                       <span className="font-medium">Total Approved Hours:</span>
                       <span>
                         {calculateApprovedHours(selectedProject.hackatimeLinks).toFixed(1)}h
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-white/70 mt-1">
                       Note: Individual approved hours will replace raw hours from Hackatime when calculating the project's total hours.
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+                <div className="bg-black/40 border-l-4 border-yellow-400 p-3 text-white">
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-yellow-700">
                       This project doesn't have any Hackatime links.
@@ -1168,8 +1168,8 @@ function AdminProjectsContent() {
               )}
             </div>
             
-            <div className="grid grid-cols-2 gap-4 mb-5 bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-3 col-span-2">Project Status</h3>
+            <div className="grid grid-cols-2 gap-4 mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+              <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
               <div className="flex items-center">
                 <input 
                   type="checkbox" 
@@ -1178,18 +1178,9 @@ function AdminProjectsContent() {
                   defaultChecked={selectedProject.shipped}
                   className="mr-2" 
                 />
-                <label htmlFor="shipped" className="text-sm text-gray-700">Shipped</label>
+                <label htmlFor="shipped" className="text-sm text-white">Shipped</label>
               </div>
-              <div className="flex items-center">
-                <input 
-                  type="checkbox" 
-                  id="viral" 
-                  name="viral" 
-                  defaultChecked={selectedProject.viral}
-                  className="mr-2" 
-                />
-                <label htmlFor="viral" className="text-sm text-gray-700">Viral</label>
-              </div>
+                {/* Viral option removed */}
               <div className="flex items-center">
                 <input 
                   type="checkbox" 
@@ -1198,15 +1189,15 @@ function AdminProjectsContent() {
                   defaultChecked={selectedProject.in_review}
                   className="mr-2" 
                 />
-                <label htmlFor="in_review" className="text-sm text-gray-700">In Review</label>
+                <label htmlFor="in_review" className="text-sm text-white">In Review</label>
               </div>
             </div>
             
-            <div className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-white border-t border-gray-200 z-20">
+            <div className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-transparent border-t border-white/10 z-20">
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  className="flex-grow px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors focus:outline-none"
+                  className="flex-grow px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded transition-colors focus:outline-none"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Saving..." : "Save Changes"}
@@ -1235,7 +1226,7 @@ function AdminProjectsContent() {
       {/* Mobile Modal Overlay */}
       {showMobileModal && selectedProject && (
         <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+          <div className="bg-black/80 text-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto relative border border-white/10">
             <button 
               onClick={handleCloseModal}
               className="absolute top-3 right-3 z-10 bg-white rounded-full p-1 shadow-md"
@@ -1246,10 +1237,10 @@ function AdminProjectsContent() {
               </svg>
             </button>
             <form onSubmit={handleFormSubmit} className="p-4" key={`mobile-${selectedProject.projectID}`}>
-              <h2 className="text-xl font-bold mb-4">Edit {selectedProject.name}</h2>
+              <h2 className="text-xl font-bold mb-4 text-white">Edit {selectedProject.name}</h2>
               <input type="hidden" name="projectID" value={selectedProject.projectID} />
               
-              <div className="mb-5 bg-gray-50 p-4 rounded-lg">
+              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
                 <FormInput
                   fieldName='name'
                   placeholder='Project Name'
@@ -1270,8 +1261,8 @@ function AdminProjectsContent() {
                 </FormInput>
               </div>
               
-              <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Project URLs</h3>
+              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
+                <h3 className="text-sm font-medium text-white mb-3">Project URLs</h3>
                 <FormInput
                   fieldName='codeUrl'
                   placeholder='Code URL'
@@ -1298,14 +1289,14 @@ function AdminProjectsContent() {
                 </FormInput>
               </div>
               
-              <div className="mb-5 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Project Hours</h3>
+              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
+                <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
                 
                 {/* Hackatime Links Section */}
                 {selectedProject?.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 ? (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-white/70">
                         This project is linked to {selectedProject.hackatimeLinks.length} Hackatime project{selectedProject.hackatimeLinks.length > 1 ? 's' : ''}. 
                         You can set approved hours for each individual link below.
                       </p>
@@ -1322,11 +1313,11 @@ function AdminProjectsContent() {
                     </div>
                     
                     {selectedProject.hackatimeLinks.map((link) => (
-                      <div key={`mobile-${link.id}`} className="border border-gray-200 p-3 rounded-md">
+                      <div key={`mobile-${link.id}`} className="border border-white/10 p-3 rounded-md bg-black/40">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-medium text-sm">{link.hackatimeName}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded">
+                            <span className="text-xs bg-black/40 text-white px-2 py-1 rounded border border-white/20">
                               {typeof link.rawHours === 'number' ? `${link.rawHours}h` : '0h'} from Hackatime
                             </span>
                             <button
@@ -1336,7 +1327,7 @@ function AdminProjectsContent() {
                                 hackatimeName: link.hackatimeName,
                                 projectID: selectedProject.projectID
                               })}
-                              className="text-red-500 hover:text-red-700 text-xs"
+                              className="text-red-400 hover:text-red-300 text-xs"
                               aria-label={`Remove link to ${link.hackatimeName}`}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1347,37 +1338,37 @@ function AdminProjectsContent() {
                         </div>
                         
                         <div className="flex items-center">
-                          <label htmlFor={`mobile-linkOverride-${link.id}`} className="text-xs text-gray-600 mr-2">
+                          <label htmlFor={`mobile-linkOverride-${link.id}`} className="text-xs text-white/80 mr-2">
                             Approved:
                           </label>
                           <input
                             type="number"
                             id={`mobile-linkOverride-${link.id}`}
                             name={`linkOverride-${link.id}`}
-                            className="block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                            className="block w-24 rounded-md border-white/20 bg-black/40 text-white shadow-sm focus:border-orange-500 focus:ring-orange-500 text-sm"
                             placeholder="e.g. 10.5"
                             defaultValue={link.hoursOverride?.toString() || ''}
                             step="0.01"
                           />
-                          <span className="ml-2 text-xs text-gray-500">hours</span>
+                          <span className="ml-2 text-xs text-white/70">hours</span>
                         </div>
                       </div>
                     ))}
                     
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="flex justify-between text-sm">
+                    <div className="mt-3 pt-3 border-t border-white/10">
+                      <div className="flex justify-between text-sm text-white">
                         <span className="font-medium">Total Approved Hours:</span>
                         <span>
                           {calculateApprovedHours(selectedProject.hackatimeLinks).toFixed(1)}h
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-white/70 mt-1">
                         Note: Individual approved hours will replace raw hours from Hackatime when calculating the project's total hours.
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+                  <div className="bg-black/40 border-l-4 border-yellow-400 p-3 text-white">
                     <div className="flex justify-between items-center">
                       <p className="text-sm text-yellow-700">
                         This project doesn't have any Hackatime links.
@@ -1397,8 +1388,8 @@ function AdminProjectsContent() {
                 )}
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mb-5 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-3 col-span-2">Project Status</h3>
+              <div className="grid grid-cols-2 gap-4 mb-5 bg-black/60 p-4 rounded-lg border border-white/10">
+                <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
                 <div className="flex items-center">
                   <input 
                     type="checkbox" 
@@ -1407,18 +1398,9 @@ function AdminProjectsContent() {
                     defaultChecked={selectedProject.shipped}
                     className="mr-2" 
                   />
-                  <label htmlFor="shipped-mobile" className="text-sm text-gray-700">Shipped</label>
+                  <label htmlFor="shipped-mobile" className="text-sm text-white">Shipped</label>
                 </div>
-                <div className="flex items-center">
-                  <input 
-                    type="checkbox" 
-                    id="viral-mobile" 
-                    name="viral" 
-                    defaultChecked={selectedProject.viral}
-                    className="mr-2" 
-                  />
-                  <label htmlFor="viral-mobile" className="text-sm text-gray-700">Viral</label>
-                </div>
+                {/* Viral option removed (mobile) */}
                 <div className="flex items-center">
                   <input 
                     type="checkbox" 
@@ -1427,15 +1409,15 @@ function AdminProjectsContent() {
                     defaultChecked={selectedProject.in_review}
                     className="mr-2" 
                   />
-                  <label htmlFor="in_review-mobile" className="text-sm text-gray-700">In Review</label>
+                  <label htmlFor="in_review-mobile" className="text-sm text-white">In Review</label>
                 </div>
               </div>
               
-              <div className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-white border-t border-gray-200 z-20">
+              <div className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-transparent border-t border-white/10 z-20">
                 <div className="flex space-x-2">
                   <button
                     type="submit"
-                    className="flex-grow px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded transition-colors focus:outline-none"
+                    className="flex-grow px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded transition-colors focus:outline-none"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Saving..." : "Save Changes"}

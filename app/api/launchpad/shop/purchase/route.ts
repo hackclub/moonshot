@@ -4,7 +4,7 @@ import { opts } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { createAuditLog, AuditLogEventType } from '@/lib/auditLogger';
 import { calculateProgressMetrics } from '@/lib/project-client';
-import { calculateRandomizedPrice, calculateShellPrice } from '@/lib/shop-utils';
+import { calculateRandomizedPrice, calculateCurrencyPrice } from '@/lib/shop-utils';
 
 async function getUserShellBalance(userId: string): Promise<number> {
   // Get user with all shell-related fields
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       item.config && typeof item.config === 'object' && 'dollars_per_hour' in item.config
     ) {
       const dollarsPerHour = parseFloat(String(item.config.dollars_per_hour)) || globalDollarsPerHour;
-      unitPrice = calculateShellPrice(item.usdCost, dollarsPerHour);
+      unitPrice = calculateCurrencyPrice(item.usdCost, dollarsPerHour);
     } else if (item.useRandomizedPricing) {
       unitPrice = calculateRandomizedPrice(user.id, item.id, item.price, minPercent, maxPercent);
     } else {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import ProgressBar from './ProgressBar';
+// ProgressBar removed from UI
 
 interface ProgressData {
   earned: {
@@ -74,13 +74,8 @@ export default function IslandProgress({ className = "" }: IslandProgressProps) 
   return (
     <div className={`bg-white rounded-lg p-6 shadow-sm ${className}`}>
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Progress to Island</h3>
-        <ProgressBar 
-          earnedProgress={progressData.earned.totalPercentage}
-          purchasedProgress={progressData.purchased.percentage}
-          totalProgress={progressData.total.percentage}
-          showLabels={false}
-        />
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Progress</h3>
+        <div className="text-xs text-gray-500">Progress hidden</div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">

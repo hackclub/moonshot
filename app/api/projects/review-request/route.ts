@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate reviewType
-    const validReviewTypes = ['ShippedApproval', 'ViralApproval', 'HoursApproval', 'Other'];
+    const validReviewTypes = ['ShippedApproval', 'HoursApproval', 'HourReview', 'Other'];
     if (!validReviewTypes.includes(body.reviewType)) {
       return NextResponse.json({ error: 'Invalid review type' }, { status: 400 });
     }
@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     // Format the review comment based on the review type
     const reviewTypeLabels: Record<string, string> = {
       ShippedApproval: '🚢 Shipped Approval',
-      ViralApproval: '🔥 Viral Approval',
       HoursApproval: '⏱️ Ship Updates',
+      HourReview: '🕒 Hour Review',
       Other: '❓ Other Request'
     };
 

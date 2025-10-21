@@ -24,7 +24,7 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
   // Only show admin content when authenticated AND user is admin
   if (isAuthenticated && isAdmin) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col starspace-bg">
         <Header 
           session={session}
           status={status}
@@ -39,7 +39,7 @@ function SessionWrapper({ children }: { children: React.ReactNode }) {
   // If authenticated but not admin, show access denied
   if (isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col starspace-bg">
         <Header 
           session={session}
           status={status}

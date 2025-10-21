@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { calculateShellPrice } from '@/lib/shop-utils';
+import { calculateCurrencyPrice } from '@/lib/shop-utils';
 import { createAuditLog, AuditLogEventType } from '@/lib/auditLogger';
 import { verifyShopItemAdminAccess } from '@/lib/shop-admin-auth';
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Recalculate and update each item's price
     for (const item of fixedItems) {
-      const newPrice = calculateShellPrice(item.usdCost, dollarsPerHour);
+      const newPrice = calculateCurrencyPrice(item.usdCost, dollarsPerHour);
       
       if (newPrice !== item.price) {
         const oldPrice = item.price;

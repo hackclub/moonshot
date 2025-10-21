@@ -9,8 +9,7 @@ import FormSelect from '@/components/form/FormSelect';
 import FormInput from '@/components/form/FormInput';
 import { useSession } from 'next-auth/react';
 import { Toaster, toast } from "sonner";
-import ProgressBar from '@/components/common/ProgressBar';
-import MultiPartProgressBar, { ProgressSegment } from '@/components/common/MultiPartProgressBar';
+// Progress bars removed from UI
 import type { ProjectType } from '../api/projects/route';
 import { useRouter } from 'next/navigation';
 import type { HackatimeProject } from "@/types/hackatime";
@@ -216,9 +215,8 @@ function ProjectDetail({
   
   return (
     <div className={`${styles.editForm} max-h-screen overflow-y-scroll`}>
-      <div className="flex justify-between items-center mb-5 pb-3 sticky top-0 bg-transparent z-10">
-        <h2 className="text-2xl font-bold text-white">{project.name}</h2>
-        {isEditingAllowed ? (
+      {isEditingAllowed && (
+        <div className="sticky top-0 z-10 flex justify-end">
           <button
             className="flex items-center gap-2 px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors"
             onClick={handleEdit}
@@ -226,7 +224,11 @@ function ProjectDetail({
           >
             <span>Edit</span>
           </button>
-        ) : (
+        </div>
+      )}
+      <div className="flex justify-between items-center mb-5 pb-3">
+        <h2 className="text-2xl font-bold text-white">{project.name}</h2>
+        {!isEditingAllowed && (
           <span className="text-sm text-gray-500 italic">
             Cannot edit while in review
           </span>
@@ -242,23 +244,12 @@ function ProjectDetail({
         {/* Hours tracking sections - hidden for island projects since they use blog/vlog tracking */}
         {!project.isIslandProject && (
           <>
-            <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-              <div className="text-center text-sm">
-                <p>This project contributes <strong>{projectHours}</strong> hour{projectHours !== 1 && 's'} (<strong>{contributionPercentage}%</strong>) toward your voyage</p>
-                <ProjectStatus 
-                  viral={projectFlags.viral} 
-                  shipped={projectFlags.shipped} 
-                  in_review={projectFlags.in_review}
-                />
-              </div>
-            </div>
-            
             {/* Project Hours Details Section */}
             <div className="bg-black/60 p-4 rounded-lg mb-4 border border-white/10 text-white">
               <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm text-white/70">Raw Hackatime Hours</span>
+                  <span className="text-sm text-white/70">Raw</span>
                   <p className="text-lg font-semibold mt-1 text-white">
                     {project.hackatimeLinks && project.hackatimeLinks.length > 0 
                       ? `${project.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
@@ -266,7 +257,7 @@ function ProjectDetail({
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm text-white/70">Approved Hackatime Hours</span>
+                  <span className="text-sm text-white/70">Approved</span>
                   <p className="text-lg font-semibold mt-1 text-white">
                     {(() => {
                       if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
@@ -401,7 +392,7 @@ function ProjectDetail({
         
         {project.screenshot && (
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Screenshot</h3>
+        <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
             <div className="relative mt-2 w-full h-64 rounded-lg border border-gray-200 overflow-hidden">
               <ImageWithFallback
                 src={project.screenshot}
@@ -466,7 +457,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   const [isProjectCreateModalOpen, setIsProjectCreateModalOpen] = useState<boolean>(false);
   const [isProjectEditModalOpen, setIsProjectEditModalOpen] = useState<boolean>(false);
   const [isProjectDetailModalOpen, setIsProjectDetailModalOpen] = useState<boolean>(false);
-  const [isProgressModalOpen, setIsProgressModalOpen] = useState<boolean>(false);
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState<boolean>(false); // deprecated
   const [projects, setProjects] = useState<ProjectType[]>([]);
   const [hackatimeProjects, setHackatimeProjects] = useState<Record<string, string>>({});
   const [projectHours, setProjectHours] = useState<Record<string, number>>({});
@@ -997,107 +988,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
         </div>
       )}
       
-      {!isIslandMode && (
-        <div 
-          className={styles.progressSection}
-        >
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4 mt-2.5 md:mt-1">
-          {impersonationData ? `${impersonationData.user.name ? `${impersonationData.user.name}'s Progress` : 'User Progress'}` : 'Your Progress'}
-        </h2>
-        
-        {/* Show pending orders for non-impersonation mode */}
-        {!impersonationData && <PendingOrders />}
-        <div 
-          className="border border-gray-300 rounded-lg p-3 sm:p-4 bg-white max-w-xl mx-auto"
-
-        >
-          <div className="flex items-center justify-between w-full py-1 md:py-2">
-            <div className="flex-grow px-2 sm:px-4 md:px-0">
-              <div 
-                className="flex items-center justify-center gap-2 sm:gap-3 min-w-0"
-
-              >
-                <Tooltip 
-                  content={`You've built ${projects.length} project${projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}
-
-                >
-                  <img 
-                    src="/rocket-with-trail.webp" 
-                    alt="Ship" 
-                    className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center"
-
-                    onMouseEnter={(e) => {
-                      // Mouse enter handled by tooltip
-                    }}
-                    onMouseLeave={(e) => {
-                      // Mouse leave handled by tooltip
-                    }}
-                  />
-                </Tooltip>
-                <div 
-                  className="flex-grow cursor-pointer min-w-0" 
-                  onClick={() => {
-                    setIsProgressModalOpen(true);
-                  }}
-                  title="When this progress bar reaches 100%, you're eligible for going to the island!"
-
-                >
-                  <MultiPartProgressBar 
-                    projects={projects}
-                    progressMetrics={progressMetrics}
-                    max={100}
-                    height={10}
-                    rounded={true}
-                    showLabels={false}
-                    tooltipPosition="top"
-                  />
-                </div>
-                <Tooltip content="Your prize - a fantastic island adventure with friends">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-          
-          {/* Progress + Clamcurrency Section */}
-          <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 mt-4">
-            {/* Progress representation */}
-            <Tooltip content={`Believe it or not, you are ${Math.round(progressMetrics.totalPercentageWithPurchased)}% of the way to Florida!!!`}>
-              <div className="flex flex-col items-center justify-center w-24 sm:w-28 md:w-32 bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 h-[90px] sm:h-[100px] md:h-[108px]">
-                <div className={`text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 ${isGlowing ? 'percentage-animated' : ''}`}>
-                  {Math.round(progressMetrics.totalPercentageWithPurchased)}%
-                </div>
-                <div className={`text-[10px] sm:text-xs text-gray-500 text-center ${isGlowing ? 'percentage-animated' : ''}`}>Progress</div>
-              </div>
-            </Tooltip>
-            
-            {/* Plus sign */}
-            <div className={`text-2xl sm:text-3xl md:text-4xl font-bold text-gray-400 ${isGlowing ? 'percentage-animated' : ''}`}>+</div>
-            
-            {/* Clamcurrency */}
-            <Tooltip content="Your current shell balance (earned currency minus spent currency). These can be used in the shop for rewards and opportunities!">
-              <div className="relative flex items-center justify-center bg-gray-100 rounded-lg p-2 sm:p-3 md:p-4 w-24 sm:w-28 md:w-32 h-[90px] sm:h-[100px] md:h-[108px]" style={{overflow: 'hidden'}}>
-                <div className="relative w-full h-full flex items-center justify-center">
-                  {true && (
-                    <img 
-                      src="/orph.webp"
-                      alt="Clamshell"
-                      className={`w-full h-full object-contain`}
-                      style={{transform: 'scale(1.6) translateX(-2px) translateY(-2px)'}}
-                    />
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="font-bold text-sm sm:text-base text-center text-black" style={{marginTop: '-2px'}}>
-                      {shellBalanceLoading ? '...' : animatedClamcurrency}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Tooltip>
-          </div>
-        </div>
-      </div>
-      )}
+      {/* Progress section removed by request */}
       
       {/* Island Experience Section - replaces voyage section when in Island mode */}
       {isIslandMode && (
@@ -1105,64 +996,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
         </div>
       )}
       
-      {/* Progress Information Modal */}
-      <Modal
-        isOpen={isProgressModalOpen}
-        onClose={() => setIsProgressModalOpen(false)}
-        title="Progress Information"
-        okText="Got it!"
-      >
-        <div className="p-4">
-          <h3 className="text-lg font-semibold mb-3">Your Journey</h3>
-          <p className="mb-4">
-            The progress bar shows your completion percentage towards the 60-hour goal required to qualify for Moonshot.
-          </p>
-          
-          <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h4 className="font-medium mb-2">Progress Bar Legend:</h4>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>
-                <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#10b981' }}></span>
-                <strong>Green:</strong> Hours from shipped projects (projects marked as "shipped")
-              </li>
-              <li>
-                <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#f59e0b' }}></span>
-                <strong>Gold:</strong> Hours from viral projects
-              </li>
-              <li>
-                <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#3b82f6' }}></span>
-                <strong>Blue:</strong> Hours from in-progress projects (not yet shipped or viral)
-              </li>
-              {progressMetrics.purchasedProgressHours > 0 && (
-                <li>
-                  <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#ec4899' }}></span>
-                  <strong>Pink:</strong> Hours purchased from the shop
-                </li>
-              )}
-              <li>
-                <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: '#e5e7eb' }}></span>
-                <strong>Gray:</strong> Remaining progress needed to reach 100%
-              </li>
-            </ul>
-            <p className="mt-3 text-sm text-gray-600">
-              Hover over each segment in the progress bar to see the exact hours contributed by each category.
-            </p>
-          </div>
-          
-          <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h4 className="font-medium mb-2">Requirements for Moonshot:</h4>
-            <ol className="list-decimal pl-5 space-y-2">
-              <li>
-                Complete at least 75 hours of development time.
-              </li>
-            </ol>
-          </div>
-          
-          <p>
-            Your current progress: <span className="font-bold">{Math.round(progressMetrics.totalPercentageWithPurchased)}%</span> toward the 75-hour requirement
-          </p>
-        </div>
-      </Modal>
+      {/* Progress Information Modal removed by request */}
       
       <div className={styles.content}>
         <div className={styles.projectList}>
@@ -1415,18 +1249,33 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     </FormInput>
                   </div>
                   
-                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white flex flex-wrap gap-2">
-                    <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
-                      <input type="checkbox" checked={!!initialEditState.shipped} readOnly disabled /> Shipped
-                    </label>
-                    <label className="flex items-center text-sm text-white/80 mr-4 cursor-not-allowed">
-                      <input type="checkbox" checked={!!initialEditState.in_review} readOnly disabled /> In Review
-                    </label>
+                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                    <div className="flex items-center gap-20 md:gap-28">
+                      <span className="inline-flex items-center gap-3 text-sm leading-none select-none text-white/90">
+                        <span className={`inline-flex items-center justify-center h-4 w-4 rounded-sm border border-white/80 ${initialEditState.shipped ? 'bg-orange-600' : 'bg-white'}`}>
+                          {initialEditState.shipped ? (
+                            <svg viewBox="0 0 24 24" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : null}
+                        </span>
+                        Shipped
+                      </span>
+                      <span className="inline-flex items-center gap-3 text-sm leading-none select-none text-white/90">
+                        <span className={`inline-flex items-center justify-center h-4 w-4 rounded-sm border border-white/80 ${initialEditState.in_review ? 'bg-orange-600' : 'bg-white'}`}>
+                          {initialEditState.in_review ? (
+                            <svg viewBox="0 0 24 24" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : null}
+                        </span>
+                        In Review
+                      </span>
+                    </div>
                   </div>
 
                   {/* Discussion toggle - desktop edit */}
                   <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                    <h3 className="text-sm font-medium text-white mb-3">Discussion</h3>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-white">Enable chat discussion</p>
@@ -1633,19 +1482,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     <p className="text-base text-white">{selectedProject.description || "No description provided."}</p>
                   </div>
                   
-                  {/* Hours tracking section - hidden for island projects since they use blog/vlog tracking */}
-                  {!selectedProject.isIslandProject && (
-                    <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                      <div className="text-center text-sm">
-                        <p>This project contributes <strong>{selectedProjectContribution}</strong> hour{selectedProjectContribution !== 1 && 's'} (<strong>{contributionPercentage}%</strong>) toward your voyage</p>
-                        <ProjectStatus 
-                          viral={false} 
-                          shipped={selectedProject.shipped}
-                          in_review={selectedProject.in_review}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  {/* Contribution summary removed */}
                   
                   {/* Project status for island projects - without viral indicator */}
                   {selectedProject.isIslandProject && (
@@ -1667,7 +1504,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                       <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="text-sm text-white/70">Raw Hackatime Hours</span>
+                          <span className="text-sm text-white/70">Raw</span>
                           <p className="text-lg font-semibold mt-1 text-white">
                             {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 
                               ? `${selectedProject.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
@@ -1675,7 +1512,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                           </p>
                         </div>
                         <div>
-                          <span className="text-sm text-white/70">Approved Hackatime Hours</span>
+                          <span className="text-sm text-white/70">Approved</span>
                           <p className="text-lg font-semibold mt-1 text-white">
                             {(() => {
                               if (selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0) {
@@ -1806,13 +1643,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   {!isReviewMode && (
                     <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
                       <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
-                      {/* Hide Viral status for island projects */}
-                      {!selectedProject.isIslandProject && (
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.viral ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                          <span className="text-sm text-gray-700">Viral</span>
-                        </div>
-                      )}
+                      {/* Viral removed from mobile details */}
                       <div className="flex items-center">
                         <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
                         <span className="text-sm text-white">Shipped</span>
@@ -1856,7 +1687,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   
                   {selectedProject.screenshot && (
                     <div className="mb-4">
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">Screenshot</h3>
+                      <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
                       <div className="relative mt-2 w-full h-64 rounded-lg border border-gray-200 overflow-hidden">
                         <ImageWithFallback
                           src={selectedProject.screenshot}
@@ -2194,7 +2025,8 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
             >
               <span className="text-white">Description</span>
             </FormInput>
-            {/* Big Category Selector */}
+            {/* Big Category Selector (Create-only) */}
+            {isCreate && (
             <div className="mt-4">
               <label className="block mb-2 text-white">Project Type</label>
               <div className="grid grid-cols-2 gap-3 w-full">
@@ -2211,7 +2043,9 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               </div>
               <input type="hidden" name="category" value={selectedCategory} />
             </div>
-            {/* Time Tracking Selector */}
+            )}
+            {/* Time Tracking Selector (Create-only) */}
+            {isCreate && (
             <div className="mt-6">
               <label className="block mb-2 text-white">Time tracking</label>
               <div className="grid grid-cols-2 gap-3 w-full">
@@ -2231,6 +2065,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
                 <input type="hidden" name="noHackatime" value="true" />
               ) : null}
             </div>
+            )}
           </div>
           
           {!isCreate && (
@@ -2270,19 +2105,34 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               </div>
               
 
-              <div className="grid grid-cols-2 gap-4 mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={!!props.shipped} readOnly disabled /> Shipped
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={!!props.in_review} readOnly disabled /> In Review
-                </label>
+              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                <h3 className="text-sm font-medium text-white mb-3">Project Status</h3>
+                <div className="flex items-center gap-20 md:gap-28">
+                  <span className="inline-flex items-center gap-3 text-sm leading-none select-none">
+                    <span className={`inline-flex items-center justify-center h-4 w-4 rounded-sm border border-white/80 ${props.shipped ? 'bg-orange-600' : 'bg-white'}`}>
+                      {props.shipped ? (
+                        <svg viewBox="0 0 24 24" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : null}
+                    </span>
+                    Shipped
+                  </span>
+                  <span className="inline-flex items-center gap-3 text-sm leading-none select-none">
+                    <span className={`inline-flex items-center justify-center h-4 w-4 rounded-sm border border-white/80 ${props.in_review ? 'bg-orange-600' : 'bg-white'}`}>
+                      {props.in_review ? (
+                        <svg viewBox="0 0 24 24" className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : null}
+                    </span>
+                    In Review
+                  </span>
+                </div>
               </div>
 
               {/* Chat Settings Section */}
               <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                <h3 className="text-sm font-medium text-white mb-3">Discussion</h3>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-white">Enable chat discussion</p>

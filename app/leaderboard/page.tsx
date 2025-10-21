@@ -9,7 +9,7 @@ import { AppConfig } from '@/lib/config';
 import { ProjectType } from '@/app/api/projects/route';
 import { SessionProvider, useSession } from 'next-auth/react';
 import Header from '@/components/common/Header';
-import MultiPartProgressBar, { ProgressSegment } from '@/components/common/MultiPartProgressBar';
+// MultiPartProgressBar removed from UI by request
 import Tooltip from '@/components/common/Tooltip';
 import Modal from '@/components/common/Modal';
 
@@ -62,8 +62,8 @@ function LeaderboardContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('default');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
-  const [progressData, setProgressData] = useState<Record<string, unknown>>({});
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false); // deprecated
+  const [progressData, setProgressData] = useState<Record<string, unknown>>({}); // deprecated
   const { data: session } = useSession();
   
   useEffect(() => {
@@ -213,35 +213,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
       const progressMetrics = calculateProgressMetrics(projects, purchasedProgressHours);
 
       return (
-        <div style={{ width: '150px' }}>
-          <div className="flex items-center justify-between w-full py-1 md:py-2">
-            <div className="flex-grow px-2 sm:px-4 md:px-0">
-              <div className="flex items-center justify-center gap-2 sm:gap-3 min-w-0">
-                <Tooltip content={`You've built ${projects != undefined ? projects.length : 0} project${projects != null && projects.length !== 1 ? 's' : ''}, and grinded ${progressMetrics.rawHours} hour${progressMetrics.rawHours !== 1 ? 's' : ''} thus far`}>
-                  <div className="h-12 sm:h-14 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
-                </Tooltip>
-                <div 
-                  className="flex-grow cursor-pointer min-w-0" 
-                  onClick={() => setIsProgressModalOpen(true)}
-                  title="When this progress bar reaches 100%, you're eligible for going to the island!"
-                >
-                  <MultiPartProgressBar 
-                    projects={projects}
-                    progressMetrics={progressMetrics}
-                    max={100}
-                    height={10}
-                    rounded={true}
-                    showLabels={false}
-                    tooltipPosition="top"
-                  />
-                </div>
-                <Tooltip content={`Your prize - a fantastic island adventure with friends`}>
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 flex items-center rounded-full border border-white/10" />
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="text-xs text-gray-500">Progress hidden</div>
       );
     } catch (error) {
       console.error('Error calculating progress metrics:', error);
@@ -306,16 +278,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
                     Joined
                   </th>
-                  <th 
-                    scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20 cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('progress')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Progress
-                      <span className="text-xs">{getSortIcon('progress')}</span>
-                    </div>
-                  </th>
+                  {/* Progress column removed */}
                   <th 
                     scope="col" 
                     className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
@@ -392,9 +355,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                           })}
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap">
-                        {getProgressBadge(user, user.projects)}
-                      </td>
+                      {/* Progress badge removed */}
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {user.projects.filter(project => project.shipped).length}
@@ -439,16 +400,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                 >
                   Name {sortField === 'name' && getSortIcon('name')}
                 </button>
-                <button
-                  onClick={() => handleSort('progress')}
-                  className={`px-3 py-1 text-xs rounded-full border ${
-                    sortField === 'progress' 
-                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
-                  }`}
-                >
-                  Progress {sortField === 'progress' && getSortIcon('progress')}
-                </button>
+                {/* Progress sort removed */}
                 
               </div>
             </div>
@@ -490,8 +442,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
 
                       <div className="grid grid-cols-2 gap-x-2 gap-y-3 mt-3 text-sm">
                         <div>
-                          <span className="text-gray-500 block">Progress</span>
-                          {getProgressBadge(user, user.projects)}
+                          {/* Progress hidden */}
                         </div>
                         <div>
                           <span className="text-gray-500 block"># Shipped</span>
