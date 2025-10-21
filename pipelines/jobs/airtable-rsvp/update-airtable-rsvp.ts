@@ -6,7 +6,8 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
 // Import calculation functions
-import { calculateProgressMetrics, getProjectHackatimeHours } from '@/lib/project';
+import { getProjectHackatimeHours } from '@/lib/project';
+import { calculateProgressMetrics } from '@/lib/project-client';
 
 // Load environment variables
 dotenv.config();

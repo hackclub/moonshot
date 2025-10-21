@@ -74,12 +74,11 @@ describe('Shop Calculations', () => {
   });
 
   describe('calculateCurrencyPrice', () => {
-    test('calculates currency price using phi formula', () => {
+    test('calculates currency price', () => {
       const usdCost = 10;
       const dollarsPerHour = 5;
-      const phi = (1 + Math.sqrt(5)) / 2;
       
-      const expectedcurrency = Math.round((usdCost / dollarsPerHour) * phi * 10);
+      const expectedcurrency = Math.round((usdCost / dollarsPerHour) * 256);
       const actualcurrency = calculateCurrencyPrice(usdCost, dollarsPerHour);
       
       expect(actualcurrency).toBe(expectedcurrency);

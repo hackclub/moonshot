@@ -91,14 +91,13 @@ export function computeOrderUsdValue(item: ShopItem, order: ShopOrder): number {
 
 /**
  * Calculate shell price based on USD cost and global dollars per hour rate
- * Formula: currency = round((usdCost / dollarsPerHour) * phi * 10)
+ * Formula: currency = round((usdCost / dollarsPerHour) * 256)
  * @param usdCost USD cost of the item
  * @param dollarsPerHour Global dollars per hour rate
  * @returns Shell price
  */
 export function calculateCurrencyPrice(usdCost: number, dollarsPerHour: number): number {
   if (dollarsPerHour <= 0) return 0;
-  const phi = (1 + Math.sqrt(5)) / 2;
   const hours = usdCost / dollarsPerHour;
-  return Math.round(hours * phi * 10);
+  return Math.round(hours * 256);
 } 

@@ -95,8 +95,7 @@ export async function GET(request: NextRequest) {
     }
 
 
-    const phi = (1 + Math.sqrt(5)) / 2; 
-    const currencyPerHour = phi * 10;
+    const currencyPerHour = 256;
     const payoutRatePerCurrency = totalCurrency > 0 ? totalUsd / totalCurrency : 0;
     const payoutRate = payoutRatePerCurrency * currencyPerHour; // Convert to $ / hr
 
