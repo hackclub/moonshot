@@ -122,13 +122,12 @@ export default function ShopItemsPage() {
         configObj = formData.config ? JSON.parse(formData.config) : {};
       } catch {}
       const usdCost = parseFloat(formData.usdCost);
-      const phi = (1 + Math.sqrt(5)) / 2;
       
       if (configObj.dollars_per_hour && !isNaN(usdCost)) {
 
         const itemDollarsPerHour = parseFloat(configObj.dollars_per_hour as string);
         const hours = usdCost / itemDollarsPerHour; // Convert USD to hours using item's rate
-        const currency = Math.round(hours * phi * 10);
+        const currency = Math.round(hours * 256);
         if (formData.price !== currency.toString()) {
           setFormData((prev) => ({ ...prev, price: currency.toString() }));
         }
@@ -759,10 +758,9 @@ export default function ShopItemsPage() {
                     
                     if (configObj.dollars_per_hour && formData.usdCost) {
                       const usdCost = parseFloat(formData.usdCost);
-                      const phi = (1 + Math.sqrt(5)) / 2;
                       const itemDollarsPerHour = parseFloat(configObj.dollars_per_hour as string);
                       const hours = usdCost / itemDollarsPerHour;
-                      const currency = Math.round(hours * phi * 10);
+                      const currency = Math.round(hours * 256);
                       return (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                           <p className="text-sm text-green-800">
