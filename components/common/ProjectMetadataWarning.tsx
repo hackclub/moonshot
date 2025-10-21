@@ -44,20 +44,20 @@ export default function ProjectMetadataWarning({
   if (!hasScreenshot) missingFields.push('Screenshot URL');
 
   return (
-    <div className="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-500">
+    <div className="bg-black/70 text-white p-4 rounded-lg border-l-4 border-amber-600">
       <div className="flex items-start">
         <div className="flex-shrink-0">
-          <Icon glyph="important" size={20} className="text-amber-600 mt-0.5" />
+          <Icon glyph="important" size={20} className="text-amber-400 mt-0.5" />
         </div>
         <div className="ml-3 flex-1">
-          <h3 className="text-sm font-bold text-amber-800 mb-2">
+          <h3 className="text-sm font-bold text-white mb-2">
             Complete Your Project Before Submitting for Review
           </h3>
-          <p className="text-sm text-amber-700 mb-3">
+          <p className="text-sm text-white/80 mb-3">
             Your project is missing some important information that reviewers need. 
             Please add the following before submitting for review:
           </p>
-          <ul className="text-sm text-amber-700 mb-4 list-disc list-inside space-y-1">
+          <ul className="text-sm text-white/80 mb-4 list-disc list-inside space-y-1">
             {missingFields.map((field) => (
               <li key={field}>{field}</li>
             ))}

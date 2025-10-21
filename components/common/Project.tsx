@@ -44,11 +44,11 @@ export function Project({ name, description, codeUrl, playableUrl, screenshot, h
     const displayHours = typeof hoursOverride === 'number' ? hoursOverride : (rawHours || 0);
     return (
         <div 
-            className={`flex items-center p-3 hover:bg-gray-50 border-b border-gray-200 cursor-pointer transition-colors ${
-                selected ? 'bg-blue-50 border-l-4 border-l-blue-500' : in_review ? 'bg-white border-l-4 border-l-red-400' : 'bg-white'
+            className={`flex items-center p-3 cursor-pointer transition-colors border-b border-white/10 ${
+                selected ? 'bg-orange-600/20 border-l-4 border-l-orange-500' : in_review ? 'bg-black/60 border-l-4 border-l-red-400' : 'bg-black/60'
             } ${
-                isMobile ? 'active:bg-gray-100' : ''
-            }`}
+                isMobile ? 'active:bg-white/10' : 'hover:bg-white/10'
+            } text-white`}
             onClick={handleRowClick}
         >
             <div className="flex items-center gap-2 min-w-0 w-full">
@@ -58,13 +58,13 @@ export function Project({ name, description, codeUrl, playableUrl, screenshot, h
                         {displayHours} hours
                     </span>
                 )}
-                <span className={`font-medium flex-shrink-0 sm:truncate sm:max-w-[12rem] ${selected ? 'text-orange-500' : 'text-black'}`}>
-                    {islandProjectType && <span className="text-blue-600 font-semibold mr-2">[{islandProjectType}]</span>}
+                <span className={`font-medium flex-shrink-0 sm:truncate sm:max-w-[12rem] ${selected ? 'text-orange-400' : 'text-white'}`}>
+                    {islandProjectType && <span className="text-blue-300 font-semibold mr-2">[{islandProjectType}]</span>}
                     {name}
-                    {in_review && <span className="ml-2 text-xs text-red-600 font-semibold">(IN REVIEW)</span>}
+                    {in_review && <span className="ml-2 text-xs text-red-400 font-semibold">(IN REVIEW)</span>}
                 </span>
                 {description && (
-                  <span className="text-gray-500 flex-grow truncate min-w-0 ml-2">{description}</span>
+                  <span className="text-white/70 flex-grow truncate min-w-0 ml-2">{description}</span>
                 )}
             </div>
         </div>
