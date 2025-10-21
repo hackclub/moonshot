@@ -106,7 +106,12 @@ export default function Header({ session, status }: HeaderProps) {
             fetch('/api/users/me/currency', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
                 if (res.ok) {
                     const data = await res.json();
-                    setStardust(Number(data?.progress?.availablecurrency ?? 0));
+                    // Prefer top-level availablecurrency; fall back to legacy keys
+                    const balance =
+                        typeof data?.availablecurrency === 'number' ? data.availablecurrency :
+                        typeof data?.currency === 'number' ? data.currency :
+                        typeof data?.progress?.availablecurrency === 'number' ? data.progress.availablecurrency : 0;
+                    setStardust(Number(balance));
                 }
             }).catch(() => {});
         }
@@ -250,10 +255,14 @@ export default function Header({ session, status }: HeaderProps) {
                     )}
                     {/* Admin section with dropdown for admin users */}
                     {!isIslandMode && isUserAdmin && (
-                        <div className="relative" ref={adminMenuRef}>
+                        <div className="relative group" ref={adminMenuRef}>
                             <button
                                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                                className={`flex items-center transition-colors ${isAdminActive() ? 'font-semibold underline underline-offset-4' : 'hover:text-orange-400'}`}
+                                className={`flex items-center transition-colors ${
+                                    isAdminActive()
+                                        ? 'font-semibold underline underline-offset-4'
+                                        : 'hover:text-orange-400 group-hover:text-orange-400'
+                                } ${adminMenuOpen ? 'text-orange-400' : ''}`}
                             >
                                 Admin
                                 <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

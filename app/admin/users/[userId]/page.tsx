@@ -221,20 +221,20 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
   }
 
   return (
-    <div>
+    <div className="text-white">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center">
           <Link 
             href="/admin/users"
-            className="text-blue-600 hover:text-blue-800 mr-3"
+            className="text-orange-400 hover:text-orange-300 mr-3"
           >
             ← Back to Users
           </Link>
-          <h1 className="text-2xl font-bold">User Details</h1>
+          <h1 className="text-2xl font-bold text-white">User Details</h1>
         </div>
         <Link 
           href={`/launchpad/${user.id}`}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors flex items-center gap-2 text-sm"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -244,7 +244,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
         </Link>
       </div>
       
-      <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+      <div className="bg-black/60 text-white rounded-lg shadow overflow-hidden mb-6 border border-white/10">
         <div className="p-6">
           <div className="flex items-center mb-6">
             {user.image ? (
@@ -254,25 +254,25 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                 className="w-20 h-20 rounded-full object-cover mr-4"
               />
             ) : (
-              <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mr-4">
-                <span className="text-gray-600 text-2xl font-bold">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mr-4">
+                <span className="text-white/80 text-2xl font-bold">
                   {(user.name || user.email || 'U').charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
             <div>
-              <h2 className="text-xl font-semibold">{user.name || 'Unknown'}</h2>
-              <p className="text-gray-600">{user.email}</p>
+              <h2 className="text-xl font-semibold text-white">{user.name || 'Unknown'}</h2>
+              <p className="text-white/70">{user.email}</p>
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-medium mb-2">Basic Information</h3>
+              <h3 className="text-lg font-medium mb-2 text-white">Basic Information</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Account Created</p>
-                  <p className="text-gray-700">
+                  <p className="text-sm font-medium text-white/60">Account Created</p>
+                  <p className="text-white/90">
                     {new Date(user.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -281,20 +281,20 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Email Verification</p>
+                  <p className="text-sm font-medium text-white/60">Email Verification</p>
                   <div className="flex items-center">
                     <span 
                       className={`inline-block w-3 h-3 rounded-full mr-2 ${
                         user.emailVerified ? 'bg-green-500' : 'bg-yellow-500'
                       }`}
                     ></span>
-                    <span>
+                    <span className="text-white/90">
                       {user.emailVerified ? 'Verified' : 'Not Verified'}
                     </span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">User Status</p>
+                  <p className="text-sm font-medium text-white/60">User Status</p>
                   <div className="flex items-center">
                     <span 
                       className={`inline-block w-3 h-3 rounded-full mr-2 ${
@@ -303,7 +303,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                         user.status === UserStatus.FraudSuspect ? 'bg-red-500' : 'bg-gray-400'
                       }`}
                     ></span>
-                    <span>
+                    <span className="text-white/90">
                       {user.status}
                     </span>
                   </div>
@@ -312,57 +312,21 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             </div>
             
             <div>
-              <h3 className="text-lg font-medium mb-2">Progress</h3>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 rounded-lg border border-blue-200">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">
-                    {Math.round(progressMetrics.totalPercentageWithPurchased)}%
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {user.projects?.length || 0} projects
-                  </div>
-                  {(() => {
-                    if (!user.projects) return null;
-                    const shippedProjects = user.projects.filter(project => project.shipped === true);
-                    const totalApprovedHours = shippedProjects.reduce((sum, project) => 
-                      sum + getProjectApprovedHours(project), 0
-                    );
-                    const meetsRequirements = shippedProjects.length >= 4 && totalApprovedHours >= 60;
-                    
-                    if (meetsRequirements) {
-                      return (
-                        <div className="mt-2">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            ✅ Island Eligible
-                          </span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
-                </div>
-                <div className="mt-3 text-xs text-gray-500">Progress hidden</div>
-                <div className="mt-2 flex justify-between text-xs text-gray-600">
-                  <span>Shipped: {progressMetrics.shippedHours.toFixed(1)}h</span>
-                  <span>Viral: {progressMetrics.viralHours.toFixed(1)}h</span>
-                  <span>Purchased: {progressMetrics.purchasedProgressHours.toFixed(1)}h</span>
-                  <span>Other: {progressMetrics.otherHours.toFixed(1)}h</span>
-                </div>
-              </div>
+              {/* Progress indicator removed per request */}
             </div>
 
             <div>
-              <h3 className="text-lg font-medium mb-2">Connection Information</h3>
+              <h3 className="text-lg font-medium mb-2 text-white">Connection Information</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Hackatime ID</p>
-                  <p className="text-gray-700">
+                  <p className="text-sm font-medium text-white/60">Hackatime ID</p>
+                  <p className="text-white/90">
                     {user.hackatimeId || 'Not connected'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Slack</p>
-                  <p className="text-gray-700">
+                  <p className="text-sm font-medium text-white/60">Slack</p>
+                  <p className="text-white/90">
                     {user.slack || 'Not connected'}
                   </p>
                 </div>
@@ -374,9 +338,9 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
 
       {/* Projects Section */}
       {user.projects && user.projects.length > 0 && (
-        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+        <div className="bg-black/60 text-white rounded-lg shadow overflow-hidden mb-6 border border-white/10">
           <div className="p-6">
-            <h3 className="text-lg font-medium mb-4">Projects ({user.projects.length})</h3>
+            <h3 className="text-lg font-medium mb-4 text-white">Projects ({user.projects.length})</h3>
             <div className="space-y-4">
               {user.projects.map((project) => {
                 const rawHours = getProjectHackatimeHours(project);
@@ -385,42 +349,42 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                 const approvedHours = getProjectApprovedHours(project);
                 
                 return (
-                  <div key={project.projectID} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div key={project.projectID} className="border border-white/10 rounded-lg p-4 hover:bg-white/5 transition-colors">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Link
                             href={`/admin/projects?projectId=${project.projectID}`}
-                            className="text-lg font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                            className="text-lg font-medium text-orange-400 hover:text-orange-300 hover:underline"
                           >
                             {project.name}
                           </Link>
                           <div className="flex gap-1">
                             {project.viral && (
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-600/20 text-yellow-300 border border-yellow-500/30">
                                 Viral
                               </span>
                             )}
                             {project.shipped && (
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
                                 Shipped
                               </span>
                             )}
                             {project.in_review && (
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/30">
                                 In Review
                               </span>
                             )}
                           </div>
                         </div>
-                        <p className="text-gray-600 text-sm mb-2">
+                        <p className="text-white/70 text-sm mb-2">
                           {project.description || 'No description provided'}
                         </p>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-4 text-xs text-white/60">
                           <span>
-                            <span className="font-medium text-blue-600">{approvedHours.toFixed(1)}h approved</span>
+                            <span className="font-medium text-orange-300">{approvedHours.toFixed(1)}h approved</span>
                             {Math.abs(rawHours - approvedHours) > 0.01 && (
-                              <span className="text-gray-400"> ({rawHours.toFixed(1)}h raw)</span>
+                              <span className="text-white/40"> ({rawHours.toFixed(1)}h raw)</span>
                             )}
                           </span>
                           {project.reviewCount > 0 && (
@@ -437,7 +401,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                             href={project.codeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-sm"
+                            className="text-white hover:text-orange-300 text-sm"
                           >
                             Code
                           </a>
@@ -447,7 +411,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                             href={project.playableUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-green-600 hover:text-green-800 text-sm"
+                            className="text-white hover:text-orange-300 text-sm"
                           >
                             Demo
                           </a>
@@ -463,50 +427,50 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
       )}
 
       {/* Permissions Section */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-black/60 text-white rounded-lg shadow overflow-hidden border border-white/10">
         <div className="p-6">
-          <h3 className="text-lg font-medium mb-4">Permissions</h3>
+          <h3 className="text-lg font-medium mb-4 text-white">Permissions</h3>
           
           <div className="mb-4">
-            <label htmlFor="userRole" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="userRole" className="block text-sm font-medium text-white/70 mb-1">
               User Role
             </label>
             <select
               id="userRole"
               value={userRole}
               onChange={(e) => setUserRole(e.target.value)}
-              className="mt-1 pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md w-50"
+              className="mt-1 pl-3 pr-10 py-2 text-base border-white/20 bg-black/40 text-white focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md w-50"
             >
               <option value={UserRole.User}>User</option>
               <option value={UserRole.Reviewer}>Reviewer</option>
               <option value={UserRole.Admin}>Admin</option>
             </select>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-white/60">
               This defines the user's access level. Reviewers can access the review page. Admins have full access to all platform features.
             </p>
           </div>
           
           <div className="mb-4">
-            <label htmlFor="userStatus" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="userStatus" className="block text-sm font-medium text-white/70 mb-1">
               User Status
             </label>
             <select
               id="userStatus"
               value={userStatus}
               onChange={(e) => setUserStatus(e.target.value as UserStatus)}
-              className="mt-1 pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md w-50"
+              className="mt-1 pl-3 pr-10 py-2 text-base border-white/20 bg-black/40 text-white focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md w-50"
             >
               <option value={UserStatus.Unknown}>Unknown</option>
               <option value={UserStatus.L1}>L1</option>
               <option value={UserStatus.L2}>L2</option>
               <option value={UserStatus.FraudSuspect}>Fraud Suspect</option>
             </select>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-white/60">
               This defines the user's grantability status.
             </p>
           </div>
           
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-white/60 mb-4">
             User roles determine access to different parts of the platform:
             <br />• <strong>User:</strong> Basic access to the platform
             <br />• <strong>Reviewer:</strong> Can access the review dashboard to evaluate projects
@@ -517,7 +481,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             type="button"
             onClick={updateUser}
             disabled={isUpdating}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors focus:outline-none disabled:bg-blue-300"
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors focus:outline-none disabled:bg-orange-300"
           >
             {isUpdating ? 'Updating...' : 'Save Changes'}
           </button>
@@ -525,43 +489,43 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
       </div>
 
       {/* Currency Management Section */}
-      <div className="bg-white rounded-lg shadow overflow-hidden mt-6">
+      <div className="bg-black/60 text-white rounded-lg shadow overflow-hidden mt-6 border border-white/10">
         <div className="p-6">
-          <h3 className="text-lg font-medium mb-4">Shell Balance Management</h3>
+          <h3 className="text-lg font-medium mb-4 text-white">Shell Balance Management</h3>
           
           {/* Current Currency Balance Breakdown */}
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-100 p-4 rounded-lg border border-yellow-200 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+          <div className="bg-black/40 p-4 rounded-lg border border-white/10 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center text-white">
               <div>
-                <div className="text-2xl font-bold text-yellow-600">
+                <div className="text-2xl font-bold text-white">
                   {user?.projects ? calculateProgressMetrics(user.projects, user.purchasedProgressHours || 0).availablecurrency : 0}
                 </div>
-                <div className="text-sm text-yellow-800">Earned currency</div>
+                <div className="text-sm text-white/70">Earned currency</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-2xl font-bold text-red-400">
                   {(user?.totalCurrencySpent || 0) > 0 ? `-${user.totalCurrencySpent}` : '0'}
                 </div>
-                <div className="text-sm text-red-800">Spent currency</div>
+                <div className="text-sm text-white/70">Spent currency</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-blue-300">
                   {user?.adminCurrencyAdjustment ? (user.adminCurrencyAdjustment > 0 ? '+' : '') + user.adminCurrencyAdjustment : '0'}
                 </div>
-                <div className="text-sm text-blue-800">Admin Adjustment</div>
+                <div className="text-sm text-white/70">Admin Adjustment</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-green-600">
+                <div className="text-3xl font-bold text-green-300">
                   {progressMetrics.availablecurrency}
                 </div>
-                <div className="text-sm text-green-800">Available currency</div>
+                <div className="text-sm text-white/70">Available currency</div>
               </div>
             </div>
           </div>
 
           {/* Currency Modification Form */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h4 className="text-md font-medium mb-3">Modify Shell Balance</h4>
+          <div className="border border-white/10 rounded-lg p-4">
+            <h4 className="text-md font-medium mb-3 text-white">Modify Shell Balance</h4>
             <form onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
@@ -605,7 +569,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="adjustment" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="adjustment" className="block text-sm font-medium text-white/70 mb-1">
                     Shell Adjustment
                   </label>
                   <input
@@ -613,17 +577,17 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                     id="adjustment"
                     name="adjustment"
                     placeholder="e.g., 50 to add, -25 to deduct"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-white/20 rounded-md bg-black/40 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     min="-1000"
                     max="1000"
                     required
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-white/60">
                     Positive numbers add currency, negative numbers deduct currency. Range: -1000 to +1000
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="reason" className="block text-sm font-medium text-white/70 mb-1">
                     Reason (Optional)
                   </label>
                   <input
@@ -631,10 +595,10 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
                     id="reason"
                     name="reason"
                     placeholder="e.g., Compensation for bug, Manual correction"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-white/20 rounded-md bg-black/40 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     maxLength={200}
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-white/60">
                     Optional reason that will be recorded in audit logs
                   </p>
                 </div>
@@ -642,7 +606,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
               <div className="mt-4">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                 >
                   Update Shell Balance
                 </button>
@@ -650,7 +614,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             </form>
           </div>
 
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-white/60">
             <p><strong>⚠️ Important:</strong> All shell modifications are logged in the audit system and cannot be undone.</p>
             <p>The user's available shell balance will be updated immediately and reflected across the platform.</p>
           </div>
@@ -658,7 +622,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
       </div>
 
       {/* Tags Section */}
-      <div className="bg-white rounded-lg shadow overflow-hidden mt-6">
+      <div className="bg-black/60 text-white rounded-lg shadow overflow-hidden mt-6 border border-white/10">
         <div className="p-6">
           <TagManagement
             entityType="user"

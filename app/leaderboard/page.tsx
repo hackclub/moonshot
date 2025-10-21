@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
 import UserCategoryDisplay from '@/components/common/UserCategoryDisplay';
-import { calculateProgressMetrics, getProjectHackatimeHours, ProgressMetrics } from '@/lib/project-client';
+import { calculateProgressMetrics, getProjectHackatimeHours, getProjectApprovedHours, ProgressMetrics } from '@/lib/project-client';
 import { AppConfig } from '@/lib/config';
 import { ProjectType } from '@/app/api/projects/route';
 import { SessionProvider, useSession } from 'next-auth/react';
@@ -192,7 +192,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
       }
 
       try {
-        const response = await fetch('/api/users/me/currency');
+        const response = await fetch('/api/users/me/currency', { credentials: 'include', cache: 'no-store' });
         if (response.ok) {
           const data = await response.json();
           setProgressData(data.progress);
@@ -361,7 +361,15 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {user.stats?.shippedHours || 0}
+                          {(() => {
+                            try {
+                              const projects = user.projects || [];
+                              const approved = projects.reduce((sum, p) => sum + getProjectApprovedHours(p), 0);
+                              return approved.toFixed(1);
+                            } catch {
+                              return '0.0';
+                            }
+                          })()}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">

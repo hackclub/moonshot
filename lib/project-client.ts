@@ -79,78 +79,37 @@ export function calculateProgressMetrics(
   let viralHours = 0;
   let otherHours = 0;
   let rawHours = 0;
-  let earnedcurrency = 0;
+  let earnedCurrency = 0;
 
-  // Get all projects sorted by hours
+  // Get all projects and their hours (for reporting only)
   const allProjectsWithHours = projects
-    .map(project => ({
-      project,
-      hours: getProjectHackatimeHours(project)
-    }))
+    .map(project => ({ project, hours: getProjectHackatimeHours(project) }))
     .sort((a, b) => b.hours - a.hours);
 
-  // Get top 4 projects
-  const top4Projects = allProjectsWithHours.slice(0, 4);
-  
-  // Calculate island percentage from only top 4 projects
-  top4Projects.forEach(({ project, hours }) => {
-    // Cap hours per project at 15
-    const cappedHours = Math.min(hours, 15);
-    const approvedHours = getProjectApprovedHours(project);
-    
-    if (project?.viral === true && approvedHours > 0) {
-      viralHours += cappedHours;
-    } 
-    // If it's shipped but not viral - only count if it has approved hours
-    else if (project?.shipped === true && approvedHours > 0) {
-      shippedHours += cappedHours;
-    } 
-    // Not shipped, not viral, or no approved hours
-    else {
-      // Cap non-shipped projects at 14.75 hours
-      otherHours += Math.min(cappedHours, 14.75);
-    }
-  });
 
-
-  const phi = (1 + Math.sqrt(5)) / 2;
-  const top4ProjectIds = new Set(top4Projects.map(({ project }) => project.projectID));
-  
-  allProjectsWithHours.forEach(({ project, hours }) => {
+  // Sum raw hours across all projects (for reporting only)
+  allProjectsWithHours.forEach(({ hours }) => {
     rawHours += hours;
-    
-  
-    if (project?.shipped === true) {
-      const approvedHours = getProjectApprovedHours(project);
-      
-  
-      if (approvedHours > 0) {
-        if (top4ProjectIds.has(project.projectID)) {
-          // Top 4 projects: beyond 15 hours
-          if (approvedHours > 15) {
-            earnedcurrency += (approvedHours - 15) * (phi * 10);
-          }
-        } else {
-          // All other shipped projects
-          earnedcurrency += approvedHours * (phi * 10);
-        }
-      }
-    }
   });
 
-  // Calculate total hours (capped at 60 for percentages)
-  const totalHours = Math.min(shippedHours + viralHours + otherHours, 60);
-  
-  // Total progress percentage (capped at 100%)
-  const totalPercentage = Math.min((totalHours / 60) * 100, 100);
+  // New simple currency model: currency = approvedHours * 2^8 (256)
+  // Only pay out for approved hours on shipped projects
+  const approvedHoursAcrossAllProjects = projects.reduce((sum, project) => {
+    if (project?.shipped === true) {
+      return sum + getProjectApprovedHours(project);
+    }
+    return sum;
+  }, 0);
+  earnedCurrency = approvedHoursAcrossAllProjects * 256;
 
-  // Calculate total progress including purchased progress  
-  // purchasedProgressHours now stores percentage directly (not hours)
-  const totalProgressWithPurchased = Math.min(totalHours + (purchasedProgressHours * 0.6), 60);
-  const totalPercentageWithPurchased = Math.min(totalPercentage + purchasedProgressHours, 100);
+  // Percentages and progress are no longer used
+  const totalHours = 0;
+  const totalPercentage = 0;
+  const totalProgressWithPurchased = 0;
+  const totalPercentageWithPurchased = 0;
 
   // availablecurrency now represents final available currency (earned - spent + admin adjustment)
-  const finalAvailablecurrency = Math.max(0, Math.floor(earnedcurrency) - totalCurrencySpent + adminCurrencyAdjustment);
+  const finalAvailablecurrency = Math.max(0, Math.floor(earnedCurrency) - totalCurrencySpent + adminCurrencyAdjustment);
 
   return {
     shippedHours,

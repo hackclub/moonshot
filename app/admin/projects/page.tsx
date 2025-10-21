@@ -1009,7 +1009,7 @@ function AdminProjectsContent() {
                   href={`/launchpad/${selectedProject.userId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-1.5 border border-white/20 shadow-sm text-xs font-medium rounded text-white bg-black/30 hover:bg-black/40 focus:outline-none"
+                  className="inline-flex items-center px-3 py-1.5 border border-white/20 shadow-sm text-[11px] font-medium rounded text-white bg-black/30 hover:bg-black/40 focus:outline-none"
                 >
                   <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
