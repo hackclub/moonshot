@@ -780,9 +780,23 @@ export async function PUT(request: Request) {
         ];
 
         // Define fields that should never be updated via the API
+        // Immutable after creation: project categorization and time tracking mode
         const nonUpdateableFields = [
-            "hackatimeName"
+            "hackatimeName",
+            "category",
+            "timeTracking",
+            "isIslandProject",
+            "islandProjectType"
         ];
+
+        // If any immutable fields are present, log and strip them out explicitly
+        const attemptedImmutable = Object.keys(updateFields).filter((k) => nonUpdateableFields.includes(k));
+        if (attemptedImmutable.length > 0) {
+            console.warn(`[PUT] Attempt to update immutable fields (${attemptedImmutable.join(', ')}) for project ${projectID} by user ${user.id}. These will be ignored.`);
+            for (const key of attemptedImmutable) {
+                delete updateFields[key as keyof typeof updateFields];
+            }
+        }
 
         // Check if user is admin
         const isAdmin = user.role === "Admin" || user.isAdmin === true;

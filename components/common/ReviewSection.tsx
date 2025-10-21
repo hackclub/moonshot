@@ -308,6 +308,13 @@ export default function ReviewSection({
     
     try {
       setIsLoading(true);
+      console.log('[Review] Begin submit', {
+        projectID,
+        reviewResult,
+        isChecklistComplete,
+        currentFlags,
+        originalFlags,
+      });
       
       // Store whether the project was in review before changes
       const wasInReview = originalFlags.in_review;
@@ -317,6 +324,7 @@ export default function ReviewSection({
         ...currentFlags,
         in_review: reviewResult === 'comment',
       };
+      console.log('[Review] Computed updatedFlags', updatedFlags);
       
       // Check if flags are different after setting in_review to false
       const hasChanges =
@@ -356,21 +364,26 @@ export default function ReviewSection({
           hackatimeLinkOverrides: updatedFlags.hackatimeLinkOverrides || {}
         };
         
-        console.log('Sending review update with payload:', requestBody);
+        console.log('[Review] Sending flags PATCH payload -> /api/projects/flags', requestBody);
         
         const flagsResponse = await fetch('/api/projects/flags', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(requestBody),
         });
         
+        console.log('[Review] Flags PATCH response', flagsResponse.status, flagsResponse.statusText);
         if (!flagsResponse.ok) {
+          const errText = await flagsResponse.text().catch(() => '');
+          console.error('[Review] Flags PATCH failed', { status: flagsResponse.status, text: errText });
           throw new Error('Failed to update project flags');
         }
         
         const updatedProject = await flagsResponse.json();
+        console.log('[Review] Flags PATCH succeeded, updatedProject:', updatedProject?.projectID);
         
         // Notify parent component of the flag updates
         if (onFlagsUpdated) {
@@ -382,10 +395,14 @@ export default function ReviewSection({
         setFlagsChanged(false);
       }
       
-      // Combine the checklist justification with the comment if approving
-      let finalComment = newComment.trim();
-      if (reviewResult === 'approve' && checklistJustification) {
-        finalComment = `Justification for approved hours: ${checklistJustification}\n\n${newComment.trim()}`.trim();
+      // Use only ONE source of text:
+      // - Approve: use justification only
+      // - Reject/Comment: use comment only
+      let finalComment = '';
+      if (reviewResult === 'approve') {
+        finalComment = checklistJustification ? `Justification for approved hours: ${checklistJustification}` : '';
+      } else {
+        finalComment = newComment.trim();
       }
       
       // Then submit the review with result and flag changes noted in the comment
@@ -401,6 +418,7 @@ export default function ReviewSection({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           projectID,
           comment: finalReviewComment,
@@ -410,11 +428,15 @@ export default function ReviewSection({
         }),
       });
       
+      console.log('[Review] /api/reviews POST response', reviewResponse.status, reviewResponse.statusText);
       if (!reviewResponse.ok) {
+        const errText = await reviewResponse.text().catch(() => '');
+        console.error('[Review] Review POST failed', { status: reviewResponse.status, text: errText });
         throw new Error('Failed to submit review');
       }
       
       const newReview = await reviewResponse.json();
+      console.log('[Review] Review POST succeeded id=', newReview?.id);
 
       console.log(reviews)
       
@@ -426,10 +448,11 @@ export default function ReviewSection({
       setShowChecklist(false); // Hide checklist
       toast.success('Review submitted successfully');
     } catch (error) {
-      console.error('Error submitting review:', error);
+      console.error('[Review] Error submitting review:', error);
       toast.error('Failed to submit review');
     } finally {
       setIsLoading(false);
+      console.log('[Review] Submit finished');
     }
   };
 
@@ -492,9 +515,9 @@ export default function ReviewSection({
   };
 
   return (
-    <div className="space-y-6 bg-white p-4 sm:p-6 rounded-lg mb-12 w-full max-w-full">
+    <div className="space-y-6 bg-black/60 text-white p-4 sm:p-6 rounded-lg mb-12 w-full max-w-full border border-white/10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-2">
-        <h3 className="text-lg font-semibold">Project Reviews</h3>
+        <h3 className="text-lg font-semibold text-white">Project Reviews</h3>
         {/* Hackatime Language Stats Dropdown - only visible in review mode */}
         {isReviewMode && (
           <div className="w-full sm:w-80">
@@ -529,7 +552,7 @@ export default function ReviewSection({
         <form onSubmit={handleSubmitReview} className="mb-6">
           {/* Review Result Selection */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-white mb-2">
               Review Result*
             </label>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -538,8 +561,8 @@ export default function ReviewSection({
                 onClick={() => handleReviewResultChange('approve')}
                 className={`flex-1 px-4 py-2 rounded-md border transition-colors flex items-center justify-center gap-2 ${
                   reviewResult === 'approve'
-                    ? 'bg-green-50 border-green-500 text-green-700'
-                    : 'border-gray-300 hover:bg-gray-50'
+                    ? 'bg-green-600/20 border-green-400 text-green-200'
+                    : 'border-white/20 hover:bg-white/10'
                 }`}
               >
                 <Icon glyph="checkmark" size={16} className={reviewResult === 'approve' ? 'text-green-600' : 'text-gray-500'} />
@@ -550,8 +573,8 @@ export default function ReviewSection({
                 onClick={() => handleReviewResultChange('reject')}
                 className={`flex-1 px-4 py-2 rounded-md border transition-colors flex items-center justify-center gap-2 ${
                   reviewResult === 'reject'
-                    ? 'bg-red-50 border-red-500 text-red-700'
-                    : 'border-gray-300 hover:bg-gray-50'
+                    ? 'bg-red-600/20 border-red-400 text-red-200'
+                    : 'border-white/20 hover:bg-white/10'
                 }`}
               >
                 <Icon glyph="important" size={16} className={reviewResult === 'reject' ? 'text-red-600' : 'text-gray-500'} />
@@ -562,8 +585,8 @@ export default function ReviewSection({
                 onClick={() => handleReviewResultChange('comment')}
                 className={`flex-1 px-4 py-2 rounded-md border transition-colors flex items-center justify-center gap-2 ${
                   reviewResult === 'comment'
-                    ? 'bg-gray-50 border-gray-500 text-gray-700'
-                    : 'border-gray-300 hover:bg-gray-50'
+                    ? 'bg-white/10 border-white/30 text-white'
+                    : 'border-white/20 hover:bg-white/10 text-white'
                 }`}
               >
                 <Icon glyph="message" size={16} className={reviewResult === 'reject' ? 'text-gray-600' : 'text-gray-500'} />
@@ -571,20 +594,20 @@ export default function ReviewSection({
               </button>
             </div>
             {reviewResult === 'reject' && (
-              <p className="mt-1 text-xs text-red-600">A comment explaining the rejection reason is required.</p>
+              <p className="mt-1 text-xs text-red-300">A comment explaining the rejection reason is required.</p>
             )}
             {reviewResult === 'comment' && (
-              <p className="mt-1 text-xs text-gray-600">A comment is required.</p>
+              <p className="mt-1 text-xs text-white/70">A comment is required.</p>
             )}
             {reviewResult === 'approve' && !isChecklistComplete && (
-              <p className="mt-1 text-xs text-green-600">✓ You will need to complete a review checklist before approval</p>
+              <p className="mt-1 text-xs text-green-300">✓ You will need to complete a review checklist before approval</p>
             )}
             {reviewResult === 'approve' && isChecklistComplete && (
-              <p className="mt-1 text-xs text-green-600">✓ Review checklist completed</p>
+              <p className="mt-1 text-xs text-green-300">✓ Review checklist completed</p>
             )}
 
-            {/* Checklist directly under review result */}
-            {showChecklist && (
+            {/* Checklist directly under review result (only for Approve) */}
+            {reviewResult === 'approve' && showChecklist && (
               <div className="mt-4">
                 <ReviewChecklist
                   isSubmitting={isLoading}
@@ -594,29 +617,28 @@ export default function ReviewSection({
             )}
           </div>
 
-          <div className="mb-3">
-            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
-              {(reviewResult === 'reject' || reviewResult === 'comment') ? 'Comment (required)' : 'Comment (optional)'}
-            </label>
-            <textarea
-              id="comment"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              rows={3}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                reviewResult === 'reject' && !newComment.trim()
-                  ? 'border-red-300 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-blue-500'
-              }`}
-              placeholder={reviewResult === 'reject' 
-                ? "Please explain why this project is being rejected and what changes are needed"
-                : (reviewResult === 'approve'
-                  ? "Add any comments about your approval (optional)"
-                  : "Add your comment here..."
-                )}
-              disabled={isLoading}
-            />
-          </div>
+          {reviewResult !== 'approve' && (
+            <div className="mb-3">
+              <label htmlFor="comment" className="block text-sm font-medium text-white mb-1">
+                {reviewResult === 'reject' || reviewResult === 'comment' ? 'Comment (required)' : 'Comment (optional)'}
+              </label>
+              <textarea
+                id="comment"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                rows={3}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 bg-black/40 text-white placeholder-white/70 ${
+                  reviewResult === 'reject' && !newComment.trim()
+                    ? 'border-red-400 focus:ring-red-500'
+                    : 'border-white/20 focus:ring-orange-500'
+                }`}
+                placeholder={reviewResult === 'reject' 
+                  ? "Please explain why this project is being rejected and what changes are needed"
+                  : "Add your comment here..."}
+                disabled={isLoading}
+              />
+            </div>
+          )}
           <button
             type="submit"
             disabled={
@@ -625,21 +647,20 @@ export default function ReviewSection({
               ((reviewResult === 'reject' || reviewResult === 'comment') && !newComment.trim()) ||
               (reviewResult === 'approve' && !isChecklistComplete)
             }
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? 'Submitting...' : (flagsChanged ? 'Submit Review with Flag Changes' : 'Submit Review')}
           </button>
           
           {/* Preview */}
-          <div className="mt-2 text-xs text-blue-600">
+          <div className="mt-2 text-xs text-orange-400">
             <p>Preview:</p>
-            <pre className="mt-1 p-2 bg-gray-50 rounded text-xs whitespace-pre-wrap">
+            <pre className="mt-1 p-2 bg-black/40 border border-white/10 rounded text-xs whitespace-pre-wrap text-white">
               {reviewResult === 'approve' ? '✅ Approved' : (reviewResult === 'reject' ? '❌ Rejected' : (reviewResult === 'comment' ? '💬 Commented' : ''))}
               {(() => {
-                let commentText = newComment.trim();
-                if (reviewResult === 'approve' && checklistJustification) {
-                  commentText = `Justification for approved hours: ${checklistJustification}\n\n${newComment.trim()}`.trim();
-                }
+                const commentText = reviewResult === 'approve'
+                  ? (checklistJustification ? `Justification for approved hours: ${checklistJustification}` : '')
+                  : newComment.trim();
                 return commentText ? '\n' + commentText : '';
               })()}
               
@@ -702,15 +723,15 @@ export default function ReviewSection({
       <div className="space-y-4">
         {isFetchingReviews ? (
           <div className="text-center py-4">
-            <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
-            <p className="mt-2 text-gray-600">Loading reviews...</p>
+            <div className="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-orange-500"></div>
+            <p className="mt-2 text-white/70">Loading reviews...</p>
           </div>
         ) : reviews.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No reviews yet. {isReviewMode ? 'Be the first to review this project!' : ''}</p>
+          <p className="text-white/70 text-center py-4">No reviews yet. {isReviewMode ? 'Be the first to review this project!' : ''}</p>
         ) : (
           <div className="space-y-4">
             {reviews.map((review) => (
-              <div key={review.id} className="bg-gray-50 p-4 rounded-lg shadow-sm">
+              <div key={review.id} className="bg-black/60 text-white p-4 rounded-lg shadow-sm border border-white/10">
                 <div className="flex items-start space-x-3">
                   {review.reviewer.image && (
                     <img
@@ -722,19 +743,19 @@ export default function ReviewSection({
                   <div className="flex-1">
                     <div className="flex justify-between items-center mb-1">
                       <div className="flex items-center">
-                        <h5 className="font-medium">{review.reviewer.name || review.reviewer.email}</h5>
+                        <h5 className="font-medium text-yellow-300">{review.reviewer.name || review.reviewer.email}</h5>
                         {review.result && (
                           <span className={`ml-2 px-2 py-0.5 text-xs font-medium rounded-full ${
                             review.result === 'approve' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
+                              ? 'bg-green-600/20 text-green-300' 
+                              : 'bg-red-600/20 text-red-300'
                           }`}>
                             {review.result === 'approve' ? 'Approved' : 'Rejected'}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">{formatDate(review.createdAt)}</span>
+                        <span className="text-xs text-white/60">{formatDate(review.createdAt)}</span>
                         
                         {/* Delete button - only visible in review mode and for the user's own reviews */}
                         {isReviewMode && isCurrentUserReviewer(review.reviewerId) && (
@@ -750,7 +771,7 @@ export default function ReviewSection({
                                 </button>
                                 <button
                                   onClick={() => setShowDeleteConfirm(null)}
-                                  className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400 transition-colors"
+                                  className="text-xs bg-white/20 text-white px-2 py-1 rounded hover:bg-white/30 transition-colors"
                                   disabled={isDeletingReview === review.id}
                                 >
                                   Cancel
@@ -759,7 +780,7 @@ export default function ReviewSection({
                             ) : (
                               <button
                                 onClick={() => setShowDeleteConfirm(review.id)}
-                                className="text-gray-400 hover:text-red-500 transition-colors"
+                                className="text-white/40 hover:text-red-500 transition-colors"
                                 title="Delete review"
                               >
                                 <Icon glyph="delete" size={16} />
@@ -769,7 +790,7 @@ export default function ReviewSection({
                         )}
                       </div>
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap">{review.comment}</p>
+                    <p className="text-white whitespace-pre-wrap">{review.comment}</p>
                   </div>
                 </div>
               </div>

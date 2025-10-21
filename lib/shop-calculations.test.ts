@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { calculateRandomizedPrice, calculateShellPrice, computeOrderUsdValue } from './shop-utils';
+import { calculateRandomizedPrice, calculateCurrencyPrice, computeOrderUsdValue } from './shop-utils';
 
 vi.mock('crypto', () => ({
   createHash: vi.fn(() => ({
@@ -73,28 +73,28 @@ describe('Shop Calculations', () => {
     });
   });
 
-  describe('calculateShellPrice', () => {
-    test('calculates shell price using phi formula', () => {
+  describe('calculateCurrencyPrice', () => {
+    test('calculates currency price using phi formula', () => {
       const usdCost = 10;
       const dollarsPerHour = 5;
       const phi = (1 + Math.sqrt(5)) / 2;
       
       const expectedcurrency = Math.round((usdCost / dollarsPerHour) * phi * 10);
-      const actualcurrency = calculateShellPrice(usdCost, dollarsPerHour);
+      const actualcurrency = calculateCurrencyPrice(usdCost, dollarsPerHour);
       
       expect(actualcurrency).toBe(expectedcurrency);
     });
 
     test('returns 0 for zero or negative dollars per hour', () => {
-      expect(calculateShellPrice(10, 0)).toBe(0);
-      expect(calculateShellPrice(10, -5)).toBe(0);
+      expect(calculateCurrencyPrice(10, 0)).toBe(0);
+      expect(calculateCurrencyPrice(10, -5)).toBe(0);
     });
 
     test('handles fractional USD costs', () => {
       const usdCost = 12.50;
       const dollarsPerHour = 2.5;
       
-      const currency = calculateShellPrice(usdCost, dollarsPerHour);
+      const currency = calculateCurrencyPrice(usdCost, dollarsPerHour);
       
       expect(currency).toBeGreaterThan(0);
       expect(Number.isInteger(currency)).toBe(true);
@@ -103,8 +103,8 @@ describe('Shop Calculations', () => {
     test('scales proportionally with USD cost', () => {
       const dollarsPerHour = 5;
       
-      const currency10 = calculateShellPrice(10, dollarsPerHour);
-      const currency20 = calculateShellPrice(20, dollarsPerHour);
+      const currency10 = calculateCurrencyPrice(10, dollarsPerHour);
+      const currency20 = calculateCurrencyPrice(20, dollarsPerHour);
       
       expect(currency20).toBeGreaterThan(currency10);
       expect(currency20 / currency10).toBeCloseTo(2, 1);
@@ -194,8 +194,8 @@ describe('Shop Calculations', () => {
       const usdCost = 20;
       const dollarsPerHour = 4;
       
-      const currency1 = calculateShellPrice(usdCost, dollarsPerHour);
-      const currency2 = calculateShellPrice(usdCost, dollarsPerHour);
+      const currency1 = calculateCurrencyPrice(usdCost, dollarsPerHour);
+      const currency2 = calculateCurrencyPrice(usdCost, dollarsPerHour);
       
       expect(currency1).toBe(currency2);
     });
@@ -218,13 +218,13 @@ describe('Shop Calculations', () => {
 
   describe('Edge Cases', () => {
     test('handles very large numbers', () => {
-      const currency = calculateShellPrice(1000000, 100);
+      const currency = calculateCurrencyPrice(1000000, 100);
       expect(currency).toBeGreaterThan(0);
       expect(Number.isFinite(currency)).toBe(true);
     });
 
     test('handles very small numbers', () => {
-      const currency = calculateShellPrice(0.01, 0.001);
+      const currency = calculateCurrencyPrice(0.01, 0.001);
       expect(currency).toBeGreaterThan(0);
       expect(Number.isInteger(currency)).toBe(true);
     });

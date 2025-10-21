@@ -6,6 +6,7 @@ import { createAvatar } from '@dicebear/core';
 import { thumbs } from '@dicebear/collection';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { AppConfig } from '@/lib/config';
 import ExperienceToggle from './ExperienceToggle';
 import { useExperienceMode } from '@/lib/useExperienceMode';
 
@@ -32,6 +33,7 @@ export default function Header({ session, status }: HeaderProps) {
     const [adminMenuOpen, setAdminMenuOpen] = useState(false);
     const [isShopOrdersAdmin, setIsShopOrdersAdmin] = useState(false);
     const [travelStipends, setTravelStipends] = useState<TravelStipend | null>(null);
+    const [stardust, setStardust] = useState<number | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
     const adminMenuRef = useRef<HTMLDivElement>(null);
@@ -69,11 +71,11 @@ export default function Header({ session, status }: HeaderProps) {
         };
     }, []);
     
-    // Fetch isShopOrdersAdmin and travel stipends on mount
+    // Fetch isShopOrdersAdmin, travel stipends, and stardust on mount
     useEffect(() => {
         if (status === 'authenticated') {
             // Fetch user data
-            fetch('/api/users/me').then(async (res) => {
+            fetch('/api/users/me', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
                 if (res.ok) {
                     const data = await res.json();
                     setIsShopOrdersAdmin(!!data.isShopOrdersAdmin);
@@ -81,7 +83,7 @@ export default function Header({ session, status }: HeaderProps) {
             });
 
             // Fetch travel stipends
-            fetch('/api/users/me/shop-orders').then(async (res) => {
+            fetch('/api/users/me/shop-orders', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
                 if (res.ok) {
                     const ordersData = await res.json();
                     
@@ -99,6 +101,14 @@ export default function Header({ session, status }: HeaderProps) {
                     });
                 }
             });
+
+            // Fetch stardust balance
+            fetch('/api/users/me/currency', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
+                if (res.ok) {
+                    const data = await res.json();
+                    setStardust(Number(data?.progress?.availablecurrency ?? 0));
+                }
+            }).catch(() => {});
         }
     }, [status]);
 
@@ -158,6 +168,8 @@ export default function Header({ session, status }: HeaderProps) {
                     </svg>
                 </button>
                 
+                {/* (removed) stardust display here - moved to right container */}
+
                 {/* Desktop menu */}
                 <div className="hidden md:flex space-x-3 lg:space-x-4 xl:space-x-6 text-white">
                     <Link 
@@ -241,7 +253,7 @@ export default function Header({ session, status }: HeaderProps) {
                         <div className="relative" ref={adminMenuRef}>
                             <button
                                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                                className={`flex items-center transition-colors ${isAdminActive() ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                className={`flex items-center transition-colors ${isAdminActive() ? 'font-semibold underline underline-offset-4' : 'hover:text-orange-400'}`}
                             >
                                 Admin
                                 <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -450,6 +462,17 @@ export default function Header({ session, status }: HeaderProps) {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 relative flex-shrink-0" ref={dropdownRef}>
+                {/* Stardust balance - top right, left of rocket/name */}
+                {status === 'authenticated' && (
+                    <div className="flex items-center text-white/90 text-sm mr-2" title={`${AppConfig.currencyName} available`}>
+                        <img 
+                            src="/stardust.png" 
+                            alt={AppConfig.currencyName} 
+                            className="h-6 sm:h-7 md:h-8 w-auto mr-2"
+                        />
+                        <span className="font-semibold tabular-nums whitespace-nowrap min-w-[10ch] text-lg">{stardust ?? 0}</span>
+                    </div>
+                )}
                 {/* Experience Toggle for attendees only */}
                 {status === "authenticated" && session?.user?.isAttendee && (
                     <ExperienceToggle className="hidden sm:inline-flex" />

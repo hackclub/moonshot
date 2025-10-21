@@ -440,7 +440,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="pb-12 text-black">
+    <div className="pb-12 text-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 md:px-10 lg:px-12 bg-black/70 rounded-xl shadow border border-white/10 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Administrator Dashboard</h1>
         <p>Welcome to the Moonshot admin area. Manage users, projects, and reviews.</p>
@@ -479,7 +480,7 @@ export default function AdminDashboard() {
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Shop Analytics</h2>
           <div className="flex items-center space-x-4 mb-4">
-            <span className="text-sm text-black">Time Range:</span>
+            <span className="text-sm text-white">Time Range:</span>
             <div className="flex space-x-2">
               {['1h', '24h', '7d', 'all'].map((range) => (
                 <button
@@ -525,7 +526,7 @@ export default function AdminDashboard() {
         <h2 className="text-xl font-semibold mb-4">Project Hours</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
-            title="Raw Hackatime Hours" 
+            title="Raw" 
             value={stats.hourStats.totalRawHours} 
             icon="⏱️" 
             description="Total hours logged in Hackatime before any overrides"
@@ -552,15 +553,10 @@ export default function AdminDashboard() {
 
       <div className="mb-10">
         <h2 className="text-xl font-semibold mb-4">Project Statistics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           <StatPieChart 
             title="Shipped Projects" 
             data={stats.projectStats.shippedPieData} 
-            unit="projects"
-          />
-          <StatPieChart 
-            title="Viral Projects" 
-            data={stats.projectStats.viralPieData} 
             unit="projects"
           />
           <StatPieChart 
@@ -609,6 +605,7 @@ export default function AdminDashboard() {
         <div className="w-full">
           <ReviewLeaderboard />
         </div>
+      </div>
       </div>
     </div>
   );

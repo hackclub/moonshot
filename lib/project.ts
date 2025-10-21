@@ -134,10 +134,11 @@ export async function createProject(data: ProjectInput) {
             // If hackatime projects are provided, create links to them
             if (hackatimeProjects.length > 0) {
                 console.log('[createProject-TRACE] 11. Creating Hackatime project links for:', hackatimeProjects);
-                const linkPromises = [];
+                const linkPromises = [] as Promise<unknown>[];
                 
                 for (const projectName of hackatimeProjects) {
                     try {
+                        console.log(`[createProject-TRACE] 11.1 Attempting to link Hackatime project: "${projectName}"`);
                         linkPromises.push(addHackatimeProjectLink(creationResult.projectID, projectName));
                     } catch (linkError) {
                         console.error(`[createProject-TRACE] 11.2 Error creating Hackatime project link for ${projectName}:`, linkError);
@@ -146,10 +147,12 @@ export async function createProject(data: ProjectInput) {
                 }
                 
                 try {
-                    await Promise.allSettled(linkPromises);
-                    console.log(`[createProject-TRACE] 11.1 Successfully created ${linkPromises.length} Hackatime project links`);
+                    const results = await Promise.allSettled(linkPromises);
+                    const fulfilled = results.filter(r => r.status === 'fulfilled').length;
+                    const rejected = results.filter(r => r.status === 'rejected').length;
+                    console.log(`[createProject-TRACE] 11.3 Link creation results -> fulfilled: ${fulfilled}, rejected: ${rejected}`);
                 } catch (error) {
-                    console.error('[createProject-TRACE] 11.3 Error waiting for link creations:', error);
+                    console.error('[createProject-TRACE] 11.4 Error waiting for link creations:', error);
                     // Continue even if link creation fails
                 }
             }

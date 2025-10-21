@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { opts } from '@/app/api/auth/[...nextauth]/route';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { calculateRandomizedPrice, calculateShellPrice } from '@/lib/shop-utils';
+import { calculateRandomizedPrice, calculateCurrencyPrice } from '@/lib/shop-utils';
 
 export async function GET() {
   const session = await getServerSession(opts);
@@ -58,7 +58,7 @@ export async function GET() {
           name: item.name,
           description: item.description,
           image: item.image,
-          price: calculateShellPrice(item.usdCost, dollarsPerHour),
+          price: calculateCurrencyPrice(item.usdCost, dollarsPerHour),
         };
       }
       // Check if randomized pricing is enabled for this item

@@ -346,33 +346,33 @@ function AIAnalysisSection({ project }: { project: Project }) {
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg overflow-hidden">
+    <div className="bg-black/60 text-white rounded-lg overflow-hidden border border-white/10">
       <button
         onClick={handleToggle}
-        className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
+        className="w-full p-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors"
       >
         <div className="flex items-center gap-2">
           <Icon glyph="analytics" size={16} />
-          <h3 className="text-sm font-medium text-gray-700">AI Project Analysis</h3>
+          <h3 className="text-sm font-medium text-white">AI Project Analysis</h3>
         </div>
         <Icon 
           glyph={isExpanded ? "view-close" : "view-forward"} 
           size={16} 
-          className="text-gray-500" 
+          className="text-white/50" 
         />
       </button>
       
       {isExpanded && (
         <div className="px-4 pb-4">
           {isLoading && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+            <div className="flex items-center gap-2 text-white/70">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
               <span className="text-sm">Analyzing project...</span>
             </div>
           )}
           
           {analysisData?.error && (
-            <div className="text-red-600 text-sm bg-red-50 p-3 rounded">
+            <div className="text-red-300 text-sm bg-red-900/30 p-3 rounded border border-red-700/40">
               Error: {analysisData.error}
             </div>
           )}
@@ -380,10 +380,10 @@ function AIAnalysisSection({ project }: { project: Project }) {
           {analysisData && !analysisData.error && (
             <div className="space-y-4">
               {/* AI Warning */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+              <div className="bg-orange-900/30 border border-orange-700/40 rounded p-3">
                 <div className="flex items-center gap-2">
-                  <Icon glyph="important" size={16} className="text-yellow-600" />
-                  <span className="text-sm text-yellow-800 font-medium">
+                  <Icon glyph="important" size={16} className="text-orange-400" />
+                  <span className="text-sm text-orange-300 font-medium">
                     This content was AI generated. AI is occasionally wrong.
                   </span>
                 </div>
@@ -391,8 +391,8 @@ function AIAnalysisSection({ project }: { project: Project }) {
               
               {analysisData.summary && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Project Summary</h4>
-                  <div className="bg-white p-3 rounded border prose prose-sm max-w-none ai-analysis-content">
+                  <h4 className="text-sm font-medium text-white mb-2">Project Summary</h4>
+                  <div className="bg-black/40 p-3 rounded border border-white/10 prose prose-sm max-w-none ai-analysis-content text-white">
                     <ReactMarkdown>{analysisData.summary}</ReactMarkdown>
                   </div>
                 </div>
@@ -400,8 +400,8 @@ function AIAnalysisSection({ project }: { project: Project }) {
               
               {analysisData.setupInstructions && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Setup Instructions</h4>
-                  <div className="bg-white p-3 rounded border prose prose-sm max-w-none ai-analysis-content">
+                  <h4 className="text-sm font-medium text-white mb-2">Setup Instructions</h4>
+                  <div className="bg-black/40 p-3 rounded border border-white/10 prose prose-sm max-w-none ai-analysis-content text-white">
                     <ReactMarkdown>{analysisData.setupInstructions}</ReactMarkdown>
                   </div>
                 </div>
@@ -850,8 +850,12 @@ function ReviewPage() {
 
         {/* Analytics Charts */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-          <ProjectHistogramChart />
-          <UserClusterChart />
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+            <ProjectHistogramChart />
+          </div>
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+            <UserClusterChart />
+          </div>
         </div>
         
         {error && (
@@ -939,7 +943,7 @@ function ReviewPage() {
         {!isLoading && projects.length > 0 && availableTags.length > 0 && (
           <div className="mb-6">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-gray-700 mr-2">Filter by tags:</span>
+              <span className="text-sm font-medium text-white mr-2">Filter by tags:</span>
               {availableTags.map((tag) => {
                 const tagProjectCount = projects.filter(project =>
                   project.projectTags?.some(projectTag => projectTag.tag.id === tag.id)
@@ -1012,9 +1016,9 @@ function ReviewPage() {
               placeholder="Search project reviews..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-black/60 text-white placeholder-white/70 border border-white/10"
             />
-            <span className="absolute right-3 top-3 text-gray-400">
+            <span className="absolute right-3 top-3 text-white/60">
               🔍
             </span>
         </div>
@@ -1052,16 +1056,16 @@ function ReviewPage() {
         
         {/* Project Detail Modal */}
         {selectedProject && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 w-[100vw]">
+          <div className="fixed inset-0 starspace-bg bg-black/60 flex items-start justify-center p-4 pt-20 md:pt-24 z-50 w-[100vw]">
             <div className="max-w-8xl h-full overflow-auto md:m-5">
               <div className="flex flex-col md:flex-row gap-4 h-full">
                 {/* Guidelines panel from MDX file */}
-                <div className="bg-white shadow-lg rounded-lg overflow-hidden w-full md:w-1/2 h-1/3 md:h-full flex flex-col">
-                  <div className="p-4 bg-gray-50 border-b flex-shrink-0">
-                    <h2 className="text-xl font-bold">Review Guidelines</h2>
+                <div className="bg-black/60 text-white border border-white/10 shadow-lg rounded-lg overflow-hidden w-full md:w-1/2 h-1/3 md:h-full flex flex-col">
+                  <div className="p-4 bg-transparent border-b border-white/10 flex-shrink-0">
+                    <h2 className="text-xl font-bold text-orange-400">Review Guidelines</h2>
                   </div>
                   <div className="p-4 flex-grow overflow-hidden">
-                    <div className="prose prose-sm max-w-none overflow-y-auto h-full">
+                    <div className="prose prose-invert prose-sm max-w-none overflow-y-auto h-full">
                       <Suspense fallback={<div>Loading guidelines...</div>}>
                         {selectedProject.latestReview?.reviewType == 'ShippedApproval' && <MDXShippedApproval components={components} />}
                         {selectedProject.latestReview?.reviewType == 'HoursApproval' && <MDXShipUpdateApproval components={components} />}

@@ -43,7 +43,7 @@ export default function CompleteReviewForm({
       // Combine the checklist justification with the comment if approving
       let finalComment = comment.trim();
       if (isApproved && checklistJustification) {
-        finalComment = `Justification for approved hours: ${checklistJustification}\n\n${comment.trim()}`.trim();
+        finalComment = `Justification for approval: ${checklistJustification}\n\n${comment.trim()}`.trim();
       }
       
       const response = await fetch('/api/projects/complete-review', {

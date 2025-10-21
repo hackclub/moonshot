@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { fetchHackatimeProjects } from "@/lib/hackatime";
 import { HackatimeProject } from "@/types/hackatime";
 
+// Allow more permissive behavior in mock mode
+const HACKATIME_MOCK = process.env.HACKATIME_MOCK === 'true' || process.env.HACKATIME_MOCK === '1';
+
 /**
  * Add a new Hackatime project link to a Bay project
  */
@@ -40,31 +43,47 @@ export async function addHackatimeProjectLink(
       select: { hackatimeId: true }
     });
 
-    if (!user?.hackatimeId) {
-      throw new Error("User does not have a Hackatime account connected");
+    let resolvedHours = 0;
+    if (HACKATIME_MOCK) {
+      // In mock mode, be permissive: use mock list if available, otherwise generate hours
+      try {
+        const mockList = await fetchHackatimeProjects((user?.hackatimeId as string) || 'mock-user');
+        const found = mockList.find((hp: HackatimeProject) => hp.name === hackatimeName);
+        if (found) {
+          resolvedHours = found.hours || Math.round((found.total_seconds / 3600) * 100) / 100 || 0;
+          console.log(`[MOCK] Using hours from mock project "${hackatimeName}":`, resolvedHours);
+        } else {
+          // Random between 0.25h and 15h, 2 decimals
+          resolvedHours = Math.round(((Math.random() * 14.75) + 0.25) * 100) / 100;
+          console.log(`[MOCK] Project name "${hackatimeName}" not in mock list. Generating hours:`, resolvedHours);
+        }
+      } catch (e) {
+        resolvedHours = Math.round(((Math.random() * 14.75) + 0.25) * 100) / 100;
+        console.log(`[MOCK] Failed to pull mock list, generating hours for "${hackatimeName}":`, resolvedHours);
+      }
+    } else {
+      if (!user?.hackatimeId) {
+        throw new Error("User does not have a Hackatime account connected");
+      }
+      const hackatimeProjects = await fetchHackatimeProjects(user.hackatimeId);
+      // Find the matching Hackatime project
+      const hackatimeProject = hackatimeProjects.find(hp => hp.name === hackatimeName);
+      if (!hackatimeProject) {
+        throw new Error(`Hackatime project "${hackatimeName}" not found in user's projects`);
+      }
+      // Use precise hours from API
+      resolvedHours = hackatimeProject.hours || Math.round((hackatimeProject.total_seconds / 3600) * 100) / 100 || 0;
+      console.log(`Found Hackatime project "${hackatimeName}" with hours:`, {
+        hours: resolvedHours
+      });
     }
-
-    const hackatimeProjects = await fetchHackatimeProjects(user.hackatimeId);
-    
-    // Find the matching Hackatime project
-    const hackatimeProject = hackatimeProjects.find(hp => hp.name === hackatimeName);
-    
-    if (!hackatimeProject) {
-      throw new Error(`Hackatime project "${hackatimeName}" not found in user's projects`);
-    }
-
-    // Log the hours from the Hackatime project
-    console.log(`Found Hackatime project "${hackatimeName}" with hours:`, {
-      hours: hackatimeProject.hours,
-      total_seconds: hackatimeProject.total_seconds
-    });
 
     // Create the link
     const link = await prisma.hackatimeProjectLink.create({
       data: {
         projectID,
         hackatimeName,
-        rawHours: hackatimeProject.hours || 0
+        rawHours: resolvedHours
       }
     });
 

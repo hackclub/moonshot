@@ -36,7 +36,7 @@ export default function ProjectFlagsEditor({
 }: ProjectFlagsEditorProps) {
   const { isReviewMode } = useReviewMode();
   const [shipped, setShipped] = useState(initialShipped);
-  const [viral, setViral] = useState(initialViral);
+  const [viral, setViral] = useState(false);
   const [inReview, setInReview] = useState(initialInReview);
   const [linkOverrides, setLinkOverrides] = useState<Record<string, number | undefined>>({});
   
@@ -125,14 +125,9 @@ export default function ProjectFlagsEditor({
         setShipped(value);
         break;
       case 'viral':
-        updatedViral = value;
-        setViral(value);
-        
-        // If viral is being enabled, automatically enable shipped as well
-        if (value === true) {
-          updatedShipped = true;
-          setShipped(true);
-        }
+        // Viral flag removed from UI; force to false
+        updatedViral = false;
+        setViral(false);
         break;
     }
     
@@ -263,8 +258,8 @@ export default function ProjectFlagsEditor({
   );
 
   return (
-    <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
-      <h3 className="text-xs sm:text-sm font-bold text-blue-800 mb-2 sm:mb-3">Review Mode: Project Status Flags</h3>
+    <div className="bg-black/60 text-white p-3 sm:p-4 rounded-lg border border-white/10">
+      <h3 className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3">Review Mode: Project Status Flags</h3>
       
       <div className="grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-2 sm:gap-y-3">
         <div className="flex items-center space-x-2">
@@ -273,52 +268,43 @@ export default function ProjectFlagsEditor({
             id="shipped"
             checked={shipped}
             onChange={() => handleFlagChange('shipped', !shipped)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
+            className="h-4 w-4 text-orange-600 focus:ring-orange-500 rounded"
           />
-          <label htmlFor="shipped" className="text-xs sm:text-sm font-medium text-gray-700">Shipped</label>
+          <label htmlFor="shipped" className="text-xs sm:text-sm font-medium text-white">Shipped</label>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="viral"
-            checked={viral}
-            onChange={() => handleFlagChange('viral', !viral)}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
-          />
-          <label htmlFor="viral" className="text-xs sm:text-sm font-medium text-gray-700">Viral</label>
-        </div>
+        {/* Viral option removed */}
       </div>
       
       {/* Hackatime Hours Override Section */}
       {hackatimeLinks && hackatimeLinks.length > 0 && (
         <div className="mt-4 sm:mt-6">
-          <h4 className="text-xs sm:text-sm font-bold text-blue-800 mb-2 sm:mb-3">Hackatime Hours Approved</h4>
+          <h4 className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3">Hackatime Hours Approved</h4>
           
-          <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="bg-black/40 rounded-lg border border-white/10 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
+            <table className="min-w-full divide-y divide-white/10">
+              <thead className="bg-black/60">
                 <tr>
-                  <th className="px-2 py-2 sm:px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/2">
+                  <th className="px-2 py-2 sm:px-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider w-1/2">
                     Project
                   </th>
-                  <th className="px-2 py-2 sm:px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                  <th className="px-2 py-2 sm:px-3 text-center text-xs font-medium text-white/70 uppercase tracking-wider w-1/4">
                     <span className="hidden sm:inline">Raw Hours</span>
                     <span className="sm:hidden">Raw</span>
                   </th>
-                  <th className="px-2 py-2 sm:px-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                  <th className="px-2 py-2 sm:px-3 text-center text-xs font-medium text-white/70 uppercase tracking-wider w-1/4">
                     <span className="hidden sm:inline">APPROVED</span>
                     <span className="sm:hidden">Apprv</span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-transparent divide-y divide-white/10">
                 {hackatimeLinks.map((link) => (
                   <tr key={link.id}>
-                    <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-gray-900 max-w-[120px] sm:max-w-none truncate">
+                    <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-white max-w-[120px] sm:max-w-none truncate">
                       {link.hackatimeName}
                     </td>
-                    <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 text-center">
+                    <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-white/80 text-center">
                       {link.rawHours !== null && typeof link.rawHours === 'number' ? `${link.rawHours}h` : '—'}
                     </td>
                     <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm">
@@ -330,21 +316,21 @@ export default function ProjectFlagsEditor({
                           onChange={(e) => handleInputChange(link.id, e.target.value)}
                           onBlur={(e) => handleInputBlur(link.id, e.target.value)}
                           placeholder="none"
-                          className="block w-12 sm:w-20 py-1 px-1 sm:px-2 text-center border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs sm:text-sm"
+                          className="block w-12 sm:w-20 py-1 px-1 sm:px-2 text-center border-white/20 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 text-xs sm:text-sm bg-black/40 text-white placeholder-white/50"
                         />
-                        <span className="ml-0.5 sm:ml-1 text-gray-500">h</span>
+                        <span className="ml-0.5 sm:ml-1 text-white/60">h</span>
                       </div>
                     </td>
                   </tr>
                 ))}
-                <tr className="bg-gray-50">
-                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">
+                <tr className="bg-black/60">
+                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-white">
                     Total
                   </td>
-                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 text-center">
+                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-white text-center">
                     {totalRawHours.toFixed(1)}h
                   </td>
-                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-blue-600 text-center">
+                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-orange-400 text-center">
                     {totalEffectiveHours.toFixed(1)}h
                   </td>
                 </tr>
@@ -352,7 +338,7 @@ export default function ProjectFlagsEditor({
             </table>
           </div>
           
-          <div className="text-xs text-gray-500 mt-2">
+          <div className="text-xs text-white/70 mt-2">
             <p>Enter hour values to approve the raw hours from Hackatime. Leave blank for no approval.</p>
           </div>
         </div>
