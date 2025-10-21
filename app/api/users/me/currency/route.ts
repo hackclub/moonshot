@@ -37,7 +37,7 @@ export async function GET() {
       include: { hackatimeLinks: true }
     });
 
-    // Calculate comprehensive shell balance using the enhanced function
+    // Calculate comprehensive currency balance using the enhanced function
     const metrics = calculateProgressMetrics(
       projects,
       user.purchasedProgressHours,
@@ -73,4 +73,4 @@ export async function GET() {
     console.error('Error fetching user currency:', error);
     return NextResponse.json({ error: 'Failed to fetch user currency' }, { status: 500 });
   }
-} 
+}

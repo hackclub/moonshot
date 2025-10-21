@@ -134,13 +134,6 @@ export async function POST(request: NextRequest) {
       if (item.name.toLowerCase().includes('travel stipend')) {
         // For travel stipend, store hours (default to quantity)
         orderConfig = { ...safeConfigObject(item.config as unknown), hours: quantity };
-      } else if (item.name.toLowerCase().includes('progress')) {
-        // For island progress, store percent (quantity * hours_equal_to_one_percent_progress)
-        const configObj = safeConfigObject(item.config as unknown) as Record<string, unknown>;
-        const hoursEqualToOnePercentRaw = configObj.hours_equal_to_one_percent_progress;
-        const hoursEqualToOnePercent = typeof hoursEqualToOnePercentRaw === 'number' ? hoursEqualToOnePercentRaw : 0;
-        const percent = quantity * hoursEqualToOnePercent;
-        orderConfig = { ...configObj, percent };
       }
       // Add more dynamic item types as needed
     }

@@ -291,12 +291,10 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   </th>
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('in_review')}
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30"
                   >
                     <div className="flex items-center gap-1">
-                      # In Review
-                      <span className="text-xs">{getSortIcon('in_review')}</span>
+                      Approved hours
                     </div>
                   </th>
                   <th 
@@ -363,7 +361,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {user.projects.filter(project => project.in_review).length}
+                          {user.stats?.shippedHours || 0}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">

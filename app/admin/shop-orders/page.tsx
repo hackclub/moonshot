@@ -12,7 +12,6 @@ interface ShopOrder {
   status: string;
   createdAt: string;
   config?: {
-    hours_equal_to_one_percent_progress?: number;
     dollars_per_hour?: number;
     percent?: number;
     hours?: number;
