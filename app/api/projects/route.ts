@@ -86,17 +86,17 @@ export async function GET(request: Request) {
             whereClause.projectTags = {
                 some: {
                     tag: {
-                        name: 'island-project'
+                        name: 'event-project'
                     }
                 }
             };
         } else {
-            // Voyage mode: only show projects WITHOUT 'island-project' tag
+            // Voyage mode: only show projects WITHOUT event tag
             whereClause.NOT = {
                 projectTags: {
                     some: {
                         tag: {
-                            name: 'island-project'
+                            name: 'event-project'
                         }
                     }
                 }
@@ -133,26 +133,28 @@ export async function GET(request: Request) {
                 0
             );
             
-            // Compute isIslandProject without exposing tag data
-            const islandProjectTag = await prisma.projectTag.findFirst({
+            // Compute isEventProject
+            const eventProjectTag = await prisma.projectTag.findFirst({
                 where: {
                     projectID: project.projectID,
                     tag: {
-                        name: 'island-project'
+                        name: 'event-project'
                     }
                 }
             });
-            const isIslandProject = !!islandProjectTag;
+            const isIslandProject = !!eventProjectTag; // legacy field kept for compatibility
+            const isEventProject = isIslandProject;
             
-            // Get island project type if it's an island project
+            // Get event project type (non-core tag) if it's an event project
             let islandProjectType = null;
-            if (isIslandProject) {
+            let eventProjectType = null;
+            if (isEventProject) {
                 const typeTag = await prisma.projectTag.findFirst({
                     where: {
                         projectID: project.projectID,
                         tag: {
                             name: {
-                                not: 'island-project'
+                                not: 'event-project'
                             }
                         }
                     },
@@ -165,6 +167,7 @@ export async function GET(request: Request) {
                     }
                 });
                 islandProjectType = typeTag?.tag.name || null;
+                eventProjectType = islandProjectType;
             }
             
             console.log(`[GET] Project ${project.projectID} (${project.name}): calculated rawHours = ${rawHours}, isIslandProject = ${isIslandProject}`);
@@ -175,7 +178,10 @@ export async function GET(request: Request) {
                 hackatimeName,
                 rawHours,
                 isIslandProject,
-                islandProjectType
+                islandProjectType,
+                // New aliases for abstraction
+                isEventProject,
+                eventProjectType
             };
         }));
         
@@ -431,26 +437,26 @@ export async function POST(request: Request) {
                 console.error('[POST-TRACE] 12.1 Failed to create audit log:', logError);
             }
             
-            // Auto-tag island projects
+            // Auto-tag event projects
             if (projectData.isIslandProject) {
-                console.log('[POST-TRACE] 13. Adding island project tags');
+                console.log('[POST-TRACE] 13. Adding event project tags');
                 try {
-                    // Find or create the 'island-project' tag
+                    // Find or create the 'event-project' tag
                     let islandTag = await prisma.tag.findUnique({
-                        where: { name: 'island-project' }
+                        where: { name: 'event-project' }
                     });
                     
                     if (!islandTag) {
                         islandTag = await prisma.tag.create({
                             data: {
-                                name: 'island-project',
-                                description: 'Projects created in Island Experience mode',
+                                name: 'event-project',
+                                description: 'Projects created in Event Experience mode',
                                 color: '#3B82F6'
                             }
                         });
                     }
                     
-                    // Add the general island-project tag
+                    // Add the general event-project tag
                     await prisma.projectTag.create({
                         data: {
                             projectID: createdProject.projectID,
@@ -458,7 +464,7 @@ export async function POST(request: Request) {
                         }
                     });
                     
-                    console.log('[POST-TRACE] 13.1 Island project tag added successfully');
+                    console.log('[POST-TRACE] 13.1 Event project tag added successfully');
                     
                     // Add the specific project type tag if provided
                     if (projectData.islandProjectType) {
@@ -472,7 +478,7 @@ export async function POST(request: Request) {
                             projectTypeTag = await prisma.tag.create({
                                 data: {
                                     name: projectData.islandProjectType.toLowerCase(),
-                                    description: `Island project type: ${projectData.islandProjectType}`,
+                                    description: `Event project type: ${projectData.islandProjectType}`,
                                     color: '#10B981' // Green color for project types
                                 }
                             });
@@ -529,7 +535,7 @@ export async function POST(request: Request) {
                 const islandProjectTag = await prisma.projectTag.findFirst({
                     where: {
                         projectID: completeProject.projectID,
-                        tag: { name: 'island-project' }
+                        tag: { name: 'event-project' }
                     }
                 });
                 const isIslandProject = !!islandProjectTag;
@@ -539,7 +545,7 @@ export async function POST(request: Request) {
                     const typeTag = await prisma.projectTag.findFirst({
                         where: {
                             projectID: completeProject.projectID,
-                            tag: { name: { not: 'island-project' } }
+                            tag: { name: { not: 'event-project' } }
                         },
                         include: { tag: { select: { name: true } } }
                     });
@@ -1005,7 +1011,7 @@ export async function PUT(request: Request) {
                 const islandProjectTag = await prisma.projectTag.findFirst({
                     where: {
                         projectID: finalProject.projectID,
-                        tag: { name: 'island-project' }
+                        tag: { name: 'event-project' }
                     }
                 });
                 const isIslandProject = !!islandProjectTag;
@@ -1015,7 +1021,7 @@ export async function PUT(request: Request) {
                     const typeTag = await prisma.projectTag.findFirst({
                         where: {
                             projectID: finalProject.projectID,
-                            tag: { name: { not: 'island-project' } }
+                            tag: { name: { not: 'event-project' } }
                         },
                         include: { tag: { select: { name: true } } }
                     });

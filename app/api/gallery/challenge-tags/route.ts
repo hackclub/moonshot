@@ -24,7 +24,7 @@ export async function GET() {
               projectTags: {
                 some: {
                   tag: {
-                    name: 'island-project'
+                    name: 'event-project'
                   }
                 }
               }
@@ -45,7 +45,7 @@ export async function GET() {
                   projectTags: {
                     some: {
                       tag: {
-                        name: 'island-project'
+                        name: 'event-project'
                       }
                     }
                   }
