@@ -230,16 +230,7 @@ export default function Header({ session, status }: HeaderProps) {
                     {!isIslandMode && canAccessShop && (
                         <Link 
                             href="/launchpad/shop" 
-                            className={`transition-colors ${isActive('/launchpad/shop') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
-                        >
-                            Shop
-                        </Link>
-                    )}
-                    {/* Stardust Shop - Temporarily visible to all users for testing */}
-                    {!isIslandMode && (
-                        <Link 
-                            href="/launchpad/shop2" 
-                            className={`relative transition-all duration-300 ${isActive('/launchpad/shop2') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                            className={`relative transition-all duration-300 ${isActive('/launchpad/shop') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
                             style={{
                                 background: 'linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6)',
                                 backgroundSize: '200% 200%',
@@ -250,7 +241,7 @@ export default function Header({ session, status }: HeaderProps) {
                                 filter: 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.6))'
                             }}
                         >
-                            ✨ Stardust Shop ✨
+                            ✨ Shop ✨
                         </Link>
                     )}
                     {/* Admin section with dropdown for admin users */}
@@ -390,17 +381,7 @@ export default function Header({ session, status }: HeaderProps) {
                             {!isIslandMode && canAccessShop && (
                                 <Link 
                                     href="/launchpad/shop" 
-                                    className={`block transition-colors ${isActive('/launchpad/shop') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                >
-                                    Shop
-                                </Link>
-                            )}
-                            {/* Stardust Shop in mobile menu - Temporarily visible to all users for testing */}
-                            {!isIslandMode && (
-                                <Link 
-                                    href="/launchpad/shop2" 
-                                    className={`block transition-all duration-300 ${isActive('/launchpad/shop2') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                    className={`block transition-all duration-300 ${isActive('/launchpad/shop') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
                                     style={{
                                         background: 'linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6)',
                                         backgroundSize: '200% 200%',
@@ -412,7 +393,7 @@ export default function Header({ session, status }: HeaderProps) {
                                     }}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    ✨ Stardust Shop ✨
+                                    ✨ Shop ✨
                                 </Link>
                             )}
                             {/* Experience Toggle for attendees in mobile menu */}

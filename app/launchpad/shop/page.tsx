@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AppConfig } from '@/lib/config';
+import styles from './shop.module.css';
 
 interface ShopItem {
   id: string;
@@ -107,10 +108,10 @@ export default function ShopPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen starspace-bg flex items-center justify-center">
+      <div className={`min-h-screen ${styles.stardustBackground} flex items-center justify-center`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-white">Loading the Moonshop</h2>
+          <div className={`${styles.stardustSpinner} h-16 w-16 mx-auto mb-4`}></div>
+          <h2 className="text-xl font-semibold text-white">Loading the Stardust Shop</h2>
         </div>
       </div>
     );
@@ -118,12 +119,12 @@ export default function ShopPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen starspace-bg flex items-center justify-center">
+      <div className={`min-h-screen ${styles.stardustBackground} flex items-center justify-center`}>
         <div className="text-center">
           <h2 className="text-xl font-semibold text-white mb-4">Error: {error}</h2>
           <button 
             onClick={() => window.location.reload()} 
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            className={`${styles.stardustBuyButton} px-6 py-2`}
           >
             Retry
           </button>
@@ -133,157 +134,200 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="min-h-screen starspace-bg pt-24">
+    <div className={`${styles.stardustBackground} pt-24`} style={{ minHeight: '100vh' }}>
+      {/* HACK CLUB banner in top left corner */}
+      <img 
+        src="/HC.png" 
+        alt="HACK CLUB" 
+        className={styles.hackClubBanner}
+      />
+      
+      {/* Animated starfield background */}
+      <div className={styles.stardustStarfield}></div>
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
-          <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
-            <span className="text-xl">✅</span>
+          <div className={`${styles.stardustToast} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3`}>
+            <span className="text-xl">✨</span>
             <span className="font-medium">{successMessage}</span>
           </div>
         </div>
       )}
 
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-3">
-              <div className="w-12 h-12 mr-3 rounded-full border border-white/10" />
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">The Moonshop</h1>
-            </div>
-            <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              Exchange {AppConfig.currencyName.toLowerCase()} for some rewards. Prices are subject to change.
-            </p>
-            
-            {/* Shell Balance Display */}
-            {usercurrency !== null && (
-              <div className="inline-flex items-center bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-full px-6 py-3 shadow-sm">
-                <div className="w-5 h-5 mr-2 rounded-full border border-white/10" />
-                <span className="text-xl font-bold text-blue-900">{usercurrency.currency}</span>
-                <span className="ml-2 text-blue-700 font-medium">available</span>
-              </div>
-            )}
+      <div className={`${styles.stardustHeader} relative z-10`}>
+        <div className="text-center">
+          <h1 className={styles.stardustTitle}>
+            <img 
+              src="/stardust-bag.png" 
+              alt="Stardust Bag" 
+              className={styles.stardustTitleCat}
+            />
+            <img 
+              src="/shop_title.png" 
+              alt="Stardust Shop" 
+              className={styles.stardustTitleImage}
+            />
+          </h1>
+          <div className={styles.stardustSubtitle}>
+            <img 
+              src="/shop_subtitle.png" 
+              alt="Use your project hours to redeem very cool stuff. enjoy :)" 
+              className={styles.stardustSubtitleImage}
+            />
           </div>
+          
+          {/* Shop Opening Soon Warning */}
+          <div className={`${styles.stardustWarning} mb-6 max-w-2xl mx-auto`}>
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-purple-300 text-2xl">⚠️</span>
+              <div className="text-center">
+                <h3 className="text-purple-200 font-bold text-lg mb-1">Shop Opening Soon!</h3>
+                <p className="text-purple-300 text-sm">
+                  The Stardust Shop is currently under construction. Check back soon for amazing rewards!
+                </p>
+              </div>
+              <span className="text-purple-300 text-2xl">⚠️</span>
+            </div>
+          </div>
+          
+          {/* Stardust Balance Display */}
+          {usercurrency !== null && (
+            <div className={styles.stardustCurrency}>
+              <img 
+                src="/stardust.png" 
+                alt="Stardust" 
+                className="w-6 h-6"
+              />
+              <span className="text-xl font-bold">{usercurrency.currency}</span>
+              <span className="ml-2 font-medium">available</span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Shop Items */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {items.sort((a, b) => a.price - b.price).map((item) => (
-            <div
-              key={item.id}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden"
-            >
-              {/* Item Image */}
-              <div className="h-48 bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center p-2">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="object-contain w-full h-full"
+      <div className={styles.stardustGrid}>
+        {items.sort((a, b) => a.price - b.price).map((item) => (
+          <div
+            key={item.id}
+            className={styles.stardustCard}
+          >
+            {/* Item Image */}
+            <div className={styles.stardustImageContainer}>
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="object-contain w-full h-32"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-200 to-blue-200 rounded-full flex items-center justify-center mx-auto">
+                  <span className="text-3xl">✨</span>
+                </div>
+              )}
+            </div>
+
+            {/* Item Content */}
+            <div>
+              <h3 className={styles.stardustItemTitle}>{item.name}</h3>
+              <p className={styles.stardustItemDescription}>{item.description}</p>
+              
+              {/* Price */}
+              <div className="flex items-center justify-between mb-4">
+                <div className={styles.stardustPrice}>
+                  <img 
+                    src="/stardust.png" 
+                    alt="Stardust" 
+                    className="w-5 h-5"
                   />
-                ) : (
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full flex items-center justify-center">
-                    <span className="text-3xl">🏆</span>
+                  <span>{item.price}</span>
+                </div>
+                
+                {/* Check if user can afford */}
+                {usercurrency !== null && (
+                  <div className={`text-sm px-2 py-1 rounded-full ${
+                    usercurrency.currency >= item.price 
+                      ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
+                      : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                  }`}>
+                    {usercurrency.currency >= item.price ? 'Can afford' : 'Not enough stardust'}
                   </div>
                 )}
               </div>
 
-              {/* Item Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
-                <p className="text-gray-600 mb-4 leading-relaxed">{item.description}</p>
-                
-                {/* Price */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <div className="w-6 h-6 mr-2 rounded-full border border-white/10" />
-                    <span className="text-2xl font-bold text-blue-600">{item.price}</span>
-                    <span className="text-gray-500 ml-1">currency</span>
-                  </div>
-                  
-                  {/* Check if user can afford */}
-                  {usercurrency !== null && (
-                    <div className={`text-sm px-2 py-1 rounded-full ${
-                      usercurrency.currency >= item.price 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {usercurrency.currency >= item.price ? 'Can afford' : 'Not enough currency'}
-                    </div>
-                  )}
-                </div>
-
-                {/* Buy Button */}
-                <button
-                  onClick={() => setSelectedItem(item)}
-                  disabled={usercurrency !== null && usercurrency.currency < item.price}
-                  className={`w-full py-3 px-6 rounded-xl font-semibold text-white transition-all duration-200 ${
-                    usercurrency !== null && usercurrency.currency < item.price
-                      ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 transform hover:scale-105'
-                  }`}
-                >
-                  {usercurrency !== null && usercurrency.currency < item.price ? 'Not enough currency' : 'Buy Now'}
-                </button>
-              </div>
+              {/* Buy Button */}
+              <button
+                onClick={() => setSelectedItem(item)}
+                disabled={usercurrency !== null && usercurrency.currency < item.price}
+                className={`${styles.stardustBuyButton} ${
+                  usercurrency !== null && usercurrency.currency < item.price
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
+                }`}
+              >
+                {usercurrency !== null && usercurrency.currency < item.price ? 'Not enough stardust' : 'Buy Now'}
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       {/* Purchase Confirmation Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all border border-gray-200">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className={`${styles.stardustModal} max-w-md w-full p-6 shadow-2xl transform transition-all`}>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Confirm Purchase</h2>
-              <p className="text-gray-600 mb-3">
-                Are you sure you want to purchase <strong>{selectedItem.name}</strong>?
+              <h2 className="text-2xl font-bold text-white mb-2">✨ Confirm Purchase ✨</h2>
+              <p className="text-white/80 mb-3">
+                Are you sure you want to purchase <strong className="text-purple-300">{selectedItem.name}</strong>?
               </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-                <h4 className="font-medium text-blue-900 mb-2">Item Description:</h4>
-                <p className="text-blue-800 text-sm">{selectedItem.description}</p>
+              <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg p-4 text-left">
+                <h4 className="font-medium text-purple-300 mb-2">Item Description:</h4>
+                <p className="text-white/80 text-sm">{selectedItem.description}</p>
               </div>
             </div>
             
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-6">
               <div className="flex items-center">
-                <span className="text-yellow-600 text-lg mr-2">⚠️</span>
-                <p className="text-yellow-800 text-sm">
-                  This is a one-way operation. Your currency will be deducted immediately.
+                <span className="text-yellow-300 text-lg mr-2">⚠️</span>
+                <p className="text-yellow-200 text-sm">
+                  This is a one-way operation. Your stardust will be deducted immediately.
                 </p>
               </div>
             </div>
             
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Quantity:</label>
+              <label className="block text-sm font-medium text-white/90 mb-2">Quantity:</label>
               <input
                 type="number"
                 min="1"
                 max="1000"
                 value={quantity}
                 onChange={(e) => setQuantity(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-white/50"
+                placeholder="Enter quantity"
               />
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg p-4 mb-6">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700">Total:</span>
+                <span className="font-medium text-white">Total:</span>
                 <div className="flex items-center">
-                  <div className="w-5 h-5 mr-1 rounded-full border border-white/10" />
-                  <span className="text-xl font-bold text-blue-600">{selectedItem.price * quantity}</span>
-                  <span className="text-gray-500 ml-1">currency</span>
+                  <img 
+                    src="/stardust.png" 
+                    alt="Stardust" 
+                    className="w-5 h-5 mr-1"
+                  />
+                  <span className="text-xl font-bold text-purple-300">{selectedItem.price * quantity}</span>
+                  <span className="text-white/70 ml-1">stardust</span>
                 </div>
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+                <p className="text-red-200 text-sm">{error}</p>
               </div>
             )}
 
@@ -294,7 +338,7 @@ export default function ShopPage() {
                   setQuantity(1);
                   setError(null);
                 }}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 py-3 px-4 border border-white/30 rounded-lg text-white hover:bg-white/10 transition"
               >
                 Cancel
               </button>
@@ -304,10 +348,10 @@ export default function ShopPage() {
                 className={`flex-1 py-3 px-4 rounded-lg font-semibold text-white transition ${
                   isPurchasing 
                     ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700'
+                    : styles.stardustBuyButton
                 }`}
               >
-                {isPurchasing ? 'Processing...' : 'Confirm Purchase'}
+                {isPurchasing ? 'Processing...' : '✨ Confirm Purchase ✨'}
               </button>
             </div>
           </div>

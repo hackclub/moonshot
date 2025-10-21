@@ -1,0 +1,602 @@
+/* Stardust Shop Theme - Cosmic Background */
+.stardustBackground {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0a0a0a 100%);
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  height: auto;
+  width: 100%;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+}
+
+/* Hide scrollbar but keep scrolling */
+.stardustBackground::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.stardustBackground::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.stardustBackground::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* Animated cloud borders */
+.stardustBackground::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    url('/topright-cloud.webp'),
+    url('/right-partial-cloud.webp'),
+    url('/right_cloud.png');
+  background-position: 
+    top right,
+    right center,
+    right top;
+  background-repeat: no-repeat;
+  background-size: 
+    auto 200px,
+    auto 300px,
+    auto 250px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.9;
+  animation: cloudDrift 15s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes cloudDrift {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-5px) translateX(3px);
+  }
+  50% {
+    transform: translateY(-3px) translateX(-2px);
+  }
+  75% {
+    transform: translateY(-8px) translateX(4px);
+  }
+}
+
+/* Mirrored top left cloud */
+.stardustBackground::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/topright-cloud.webp');
+  background-position: top left;
+  background-repeat: no-repeat;
+  background-size: auto 180px;
+  transform: scaleX(-1);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.9;
+  animation: cloudDrift 15s ease-in-out infinite reverse;
+  will-change: transform;
+}
+
+/* Animated starfield background - using a wrapper div */
+.stardustStarfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 40px 70px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 90px 40px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 130px 80px, #3b82f6, transparent),
+    radial-gradient(2px 2px at 160px 30px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 200px 60px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 240px 20px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 280px 50px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 320px 80px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 360px 40px, #3b82f6, transparent),
+    radial-gradient(2px 2px at 400px 70px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 440px 30px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 480px 60px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 520px 20px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 560px 50px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 600px 80px, #3b82f6, transparent),
+    radial-gradient(2px 2px at 640px 30px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 680px 70px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 720px 40px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 760px 60px, #3b82f6, transparent);
+  background-repeat: repeat;
+  background-size: 800px 400px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+  animation: starfieldFloat 20s linear infinite;
+  will-change: transform;
+}
+
+@keyframes starfieldFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-400px);
+  }
+}
+
+/* Twinkling animation for stars */
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+/* Cloud floating animation */
+@keyframes cloudFloat {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-3px);
+  }
+  75% {
+    transform: translateY(-15px) translateX(8px);
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+}
+
+/* Nebula clouds effect */
+.stardustBackground::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at top left, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom left, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  animation: nebulaFloat 8s ease-in-out infinite;
+}
+
+@keyframes nebulaFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) rotate(1deg);
+    opacity: 0.6;
+  }
+}
+
+/* HACK CLUB banner in top left corner */
+.hackClubBanner {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 100;
+  height: 60px;
+  width: auto;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+  animation: bannerFloat 6s ease-in-out infinite;
+}
+
+@keyframes bannerFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+/* Stardust Shop Header - transparent background */
+.stardustHeader {
+  background: transparent;
+  padding: 2rem 2rem 2rem 2rem;
+  padding-top: 4rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+}
+
+/* Removed mirror animation */
+
+/* Magical title styling with image */
+.stardustTitle {
+  background: linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease-in-out infinite, flashGlow 2s ease-in-out infinite;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 30px rgba(59, 130, 246, 0.3);
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+  font-family: 'Kavoon', cursive;
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Stardust bag in title */
+.stardustTitleCat {
+  height: 6rem;
+  width: auto;
+  filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.6));
+  animation: catFloat 4s ease-in-out infinite;
+  margin-right: 1rem;
+}
+
+@keyframes catFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(-5deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(5deg);
+  }
+  75% {
+    transform: translateY(-12px) rotate(-2deg);
+  }
+}
+
+/* Title image with magical effects */
+.stardustTitleImage {
+  height: 8rem;
+  width: auto;
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  0% {
+    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+    transform: scale(1);
+  }
+  100% {
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.9));
+    transform: scale(1.05);
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes flashGlow {
+  0% { 
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+  }
+  50% { 
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+    filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.9));
+  }
+  100% { 
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+  }
+}
+
+/* Stardust subtitle image */
+.stardustSubtitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+/* Stardust warning with cosmic theme */
+.stardustWarning {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1));
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 15px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  animation: warningPulse 3s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.stardustWarning::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+  animation: warningShimmer 4s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes warningShimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+.stardustSubtitleImage {
+  height: 2.5rem;
+  width: auto;
+  filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.4));
+}
+
+@keyframes subtitleGlow {
+  0% {
+    filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.4));
+    opacity: 0.8;
+  }
+  100% {
+    filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.7));
+    opacity: 1;
+  }
+}
+
+/* Currency display with magical glow */
+.stardustCurrency {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 25px;
+  padding: 1rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  animation: currencyGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes currencyGlow {
+  0% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+  }
+}
+
+/* Shop items grid with cosmic styling */
+.stardustGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* Individual shop item cards */
+.stardustCard {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(15, 52, 96, 0.6));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stardustCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.stardustCard:hover::before {
+  left: 100%;
+}
+
+.stardustCard:hover {
+  transform: translateY(-5px);
+  border-color: rgba(139, 92, 246, 0.6);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+/* Item image container */
+.stardustImageContainer {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+  border-radius: 15px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Item title with magical glow */
+.stardustItemTitle {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* Item description */
+.stardustItemDescription {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* Price display with magical styling */
+.stardustPrice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: #8b5cf6;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Buy button with cosmic styling */
+.stardustBuyButton {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  border: none;
+  border-radius: 15px;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.stardustBuyButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.stardustBuyButton:hover::before {
+  left: 100%;
+}
+
+.stardustBuyButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+}
+
+.stardustBuyButton:disabled {
+  background: rgba(100, 100, 100, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal styling */
+.stardustModal {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(15, 52, 96, 0.9));
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Success toast with magical styling */
+.stardustToast {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(16, 185, 129, 0.9));
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+}
+
+/* Loading spinner with cosmic theme */
+.stardustSpinner {
+  border: 3px solid rgba(139, 92, 246, 0.3);
+  border-top: 3px solid #8b5cf6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stardustTitle {
+    font-size: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .stardustTitleCat {
+    height: 4rem;
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stardustTitleImage {
+    height: 5rem;
+  }
+  
+  .stardustSubtitleImage {
+    height: 2rem;
+  }
+  
+  .stardustGrid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  
+  .stardustHeader {
+    margin: 1rem;
+    padding: 1.5rem;
+    padding-top: 2rem;
+  }
+  
+  .hackClubBanner {
+    height: 40px;
+    top: 70px;
+  }
+}
