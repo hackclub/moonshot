@@ -4,20 +4,31 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Toast from '@/components/common/Toast';
+import './verify.css';
 
 export default function VerifyPage() {
   return (
     <Suspense fallback={
-      <div className="fixed inset-0">
-        <div className="flex items-center justify-center h-full">
-          <div className="rounded-xl shadow-xl p-8 border max-w-md w-full mx-4 text-[var(--foreground)]" style={{ backgroundColor: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)' }}>
-            <h1 className="text-3xl font-bold text-center mb-4" style={{ color: 'var(--foreground)' }}>Verifying Email</h1>
-            <p className="text-center mb-4" style={{ color: 'var(--foreground)' }}>
-              Please check your email for a verification link.
+      <div className="verify-standalone">
+        {/* Dynamic stellar background */}
+        <div className="stellar-background" aria-hidden="true">
+          <div className="nebula-layer"></div>
+          <div className="starfield-layer"></div>
+        </div>
+
+        <div className="container">
+          <h1 className="title">Email Verification</h1>
+          
+          <div className="verify-card">
+            <p className="description">
+              Please <span className="highlight-text">check your email</span> for a verification link.
             </p>
-            <p className="text-center mb-6" style={{ color: 'var(--foreground)' }}>
+            <p className="important-text">
               <strong>Important:</strong> Be sure to check your spam or junk folder if you don't see the email in your inbox.
             </p>
+            
+            {/* Loading spinner centered at bottom */}
+            <div className="loading-spinner"></div>
           </div>
         </div>
       </div>
@@ -104,25 +115,36 @@ function VerifyContent() {
   }, [searchParams, router]);
 
   return (
-    <div className="fixed inset-0">
-      <div className="flex items-center justify-center h-full">
-        <div className="rounded-xl shadow-xl p-8 border max-w-md w-full mx-4 text-[var(--foreground)]" style={{ backgroundColor: 'var(--background)', borderColor: 'rgba(255,255,255,0.1)' }}>
-          <h1 className="text-3xl font-bold text-center mb-4" style={{ color: 'var(--foreground)' }}>Verifying Email</h1>
-          <p className="text-center mb-4" style={{ color: 'var(--foreground)' }}>
-            Please check your email for a verification link.
-          </p>
-          <p className="text-center mb-6" style={{ color: 'var(--foreground)' }}>
-            <strong>Important:</strong> Be sure to check your spam or junk folder if you don't see the email in your inbox.
-          </p>
-          {/* Dev-magic removed */}
-          {toastMessage && (
-            <Toast
-              message={toastMessage}
-              type={toastType}
-              onClose={() => setToastMessage(null)}
-            />
-          )}
-        </div>
+    <div className="verify-standalone">
+      {/* Dynamic stellar background */}
+      <div className="stellar-background" aria-hidden="true">
+        <div className="nebula-layer"></div>
+        <div className="starfield-layer"></div>
+      </div>
+
+      <div className="container">
+        <h1 className="title">Email Verification</h1>
+        
+          <div className="verify-card">
+            <p className="description">
+              Please <span className="highlight-text">check your email</span> for a verification link.
+            </p>
+            <p className="important-text">
+              <strong>Important:</strong> Be sure to check your spam or junk folder if you don't see the email in your inbox.
+            </p>
+            
+            {/* Loading spinner centered at bottom */}
+            <div className="loading-spinner"></div>
+            
+            {/* Toast messages */}
+            {toastMessage && (
+              <Toast
+                message={toastMessage}
+                type={toastType}
+                onClose={() => setToastMessage(null)}
+              />
+            )}
+          </div>
       </div>
     </div>
   );
