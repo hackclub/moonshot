@@ -75,7 +75,7 @@ function SettingsContent() {
       }
     };
     
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchUserData();
     }
   }, [status, session]);

@@ -454,7 +454,7 @@ export default function Header({ session, status }: HeaderProps) {
             
             <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 relative flex-shrink-0" ref={dropdownRef}>
                 {/* Stardust balance - top right, left of rocket/name */}
-                {status === 'authenticated' && (
+                {status === 'authenticated' && session?.user?.id && (
                     <div className="flex items-center text-white/90 text-sm mr-2" title={`${AppConfig.currencyName} available`}>
                         <img 
                             src="/stardust.png" 

@@ -339,7 +339,7 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
 }
 
 export default function AdminDashboard() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const [isShopAdmin, setIsShopAdmin] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -398,14 +398,14 @@ export default function AdminDashboard() {
       }
     }
     
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchStats();
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   // Fetch shop admin status
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       apiFetch('/api/users/me').then(async (res) => {
         if (res.ok) {
           const data = await res.json();
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
         }
       });
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   if (status !== 'authenticated') {
     return (

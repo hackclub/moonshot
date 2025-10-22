@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface ProjectClassification {
   classification: 'very-low' | 'low' | 'normal' | 'high' | 'very-high';
@@ -53,7 +54,7 @@ export function useProjectClassification(hours?: number) {
     setError(null);
     
     try {
-      const response = await fetch(`/api/analytics/project-histogram?classifyHours=${projectHours}`, { credentials: 'include', cache: 'no-store' });
+      const response = await apiFetch(`/api/analytics/project-histogram?classifyHours=${projectHours}`);
       
       if (!response.ok) {
         throw new Error(`Failed to classify project hours: ${response.statusText}`);
@@ -94,7 +95,7 @@ export function useHistogramAnalysis(enabled: boolean = true) {
     setError(null);
     
     try {
-      const response = await fetch('/api/analytics/project-histogram', { credentials: 'include', cache: 'no-store' });
+      const response = await apiFetch('/api/analytics/project-histogram');
       
       if (!response.ok) {
         // Gracefully degrade if unauthenticated (e.g., initial page hydration race)

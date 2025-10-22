@@ -155,11 +155,11 @@ export default function AuditLogsPage() {
 
   // Load data on initial render and when filters/pagination change
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchAuditLogs();
       fetchUsers();
     }
-  }, [status, filters, pagination.offset, pagination.limit]);
+  }, [status, session?.user?.id, filters, pagination.offset, pagination.limit]);
 
   // Format timestamp
   const formatTimestamp = (timestamp: string) => {

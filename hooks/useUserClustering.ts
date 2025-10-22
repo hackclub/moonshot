@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface UserClassification {
   category: 'whale' | 'shipper' | 'newbie';
@@ -87,7 +88,7 @@ export function useUserClassification(userId?: string) {
     setError(null);
     
     try {
-      const response = await fetch(`/api/analytics/user-clusters?classifyUser=${targetUserId}`, { credentials: 'include', cache: 'no-store' });
+      const response = await apiFetch(`/api/analytics/user-clusters?classifyUser=${targetUserId}`);
       
       if (!response.ok) {
         throw new Error(`Failed to classify user: ${response.statusText}`);
@@ -128,7 +129,7 @@ export function useUserClusterAnalysis(enabled: boolean = true) {
     setError(null);
     
     try {
-      const response = await fetch('/api/analytics/user-clusters', { credentials: 'include', cache: 'no-store' });
+      const response = await apiFetch('/api/analytics/user-clusters');
       
       if (!response.ok) {
         if (response.status === 401) {

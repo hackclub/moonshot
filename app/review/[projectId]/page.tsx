@@ -37,7 +37,7 @@ interface Review {
 function ReviewProjectPageInner() {
   const params = useParams<{ projectId: string }>();
   const projectId = params?.projectId as string;
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const router = useRouter();
   const components = useMDXComponents({});
 
@@ -51,11 +51,10 @@ function ReviewProjectPageInner() {
   }, [enableReviewMode]);
 
   useEffect(() => {
-    if (status !== 'authenticated' || !projectId) return;
+    if (status !== 'authenticated' || !session?.user?.id || !projectId) return;
     (async () => {
       try {
         setLoading(true);
-        // Fetch all review projects and pick by id (no single-project endpoint yet)
         const res = await apiFetch(`/api/review`);
         if (!res.ok) throw new Error('Failed to load review projects');
         const list = await res.json();
@@ -68,7 +67,7 @@ function ReviewProjectPageInner() {
         setLoading(false);
       }
     })();
-  }, [status, projectId]);
+  }, [status, session?.user?.id, projectId]);
 
   if (status === 'loading' || loading) {
     return <div className="min-h-screen bg-black/60 text-white flex items-center justify-center">Loading…</div>;

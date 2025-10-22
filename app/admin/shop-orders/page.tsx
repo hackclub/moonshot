@@ -173,7 +173,7 @@ export default function ShopOrdersPage() {
 
   // Fetch shop admin status
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       apiFetch('/api/users/me')
         .then(async (res) => {
           if (res.ok) {
@@ -185,7 +185,7 @@ export default function ShopOrdersPage() {
     } else if (status === 'unauthenticated') {
       setAuthResolved(true);
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   const filteredOrders = getFilteredOrders();
 
