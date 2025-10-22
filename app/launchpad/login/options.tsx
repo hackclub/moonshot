@@ -1,11 +1,22 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 // Client Side Login Option Modal
 export default function LoginOptions() {
   const callback = "/launchpad/login/success";
 
+  const searchParams = useSearchParams();
+
+    async function hcIdvLogin() {
+        window.location.href = '/api/identity/start';
+    }
+
+    useEffect(() => {
+        // Identity auth flow handled on server routes; nothing to do here now
+    }, [ searchParams ]);
   function loginWithSlack() {
     signIn("slack", { callbackUrl: callback });
   }
@@ -38,6 +49,10 @@ export default function LoginOptions() {
         </button>
 
         <p className="mb-.5 mt-2 text-lg" style={{ color: 'var(--foreground)' }}> or </p>
+
+        <button onClick={() => hcIdvLogin()}>
+            Hack Club Identity Login
+        </button>
 
         <form action={loginWithEmail} className="flex flex-row items-center gap-2 w-full flex-nowrap" style={{ minWidth: 0 }}>
             <input

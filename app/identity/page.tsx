@@ -25,29 +25,34 @@ function IdentityCallbackContent() {
           body: JSON.stringify({ code }),
         });
         const data = await response.json();
-        console.log(data);
-        if (data.access_token) {
-            const response2 = await fetch('/api/identity/me');
-            const data2 = await response2.json();
-            console.log(data2);
-          
-          if (data2.rejection_reason) {
-            setStatus('error');
-            setMessage('Your submission got rejected! Go to identity.hackclub.com to fix.');
-            return;
-          }
-          
-          if (data2.verification_status === 'pending') {
-            setStatus('pending');
-            setMessage('Your identity verification is pending. Please wait for approval.');
-            return;
-          }
-          
-          setStatus(data2.verification_status === 'verified' ? 'success' :  'error');
-          setMessage(data2.verification_status === 'verified' ? 'Identity verified! You may now return to Moonshot.' : 'Identity verification failed. Please try again.');
-        } else {
+        if (!response.ok) {
           setStatus('error');
-          setMessage('Failed to verify identity.');
+          setMessage(data?.error || 'Failed to verify identity.');
+          return;
+        }
+
+        const me = data?.me || {};
+        if (me.rejection_reason) {
+          setStatus('error');
+          setMessage('Your submission got rejected! Go to identity.hackclub.com to fix.');
+          return;
+        }
+
+        if (me.verification_status === 'pending') {
+          setStatus('pending');
+          setMessage('Your identity verification is pending. Please wait for approval.');
+          return;
+        }
+
+        const verified = (typeof me.verification_status === 'string'
+          ? me.verification_status === 'verified'
+          : (typeof me.verified === 'boolean' ? me.verified : Boolean(me && (me.id || me.email || me.uuid))));
+        setStatus(verified ? 'success' : 'error');
+        setMessage(verified ? 'Identity verified! You may now return to Moonshot.' : 'Identity verification failed. Please try again.');
+        if (verified) {
+          setTimeout(() => {
+            window.location.href = '/launchpad/login/success';
+          }, 300);
         }
       } catch {
         setStatus('error');
