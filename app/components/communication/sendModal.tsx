@@ -15,8 +15,8 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [history, setHistory] = useState<Message[]>([]);
-  const [status, setStatus] = useState<string | null>(null);
-  const { data: session } = useSession();
+  const [sendStatus, setSendStatus] = useState<string | null>(null);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -33,13 +33,17 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
       }
     };
     
-    if (open) {
+    if (open && status === 'authenticated' && session?.user?.id) {
       fetchHistory();
     }
-  }, [props.userId, open]);
+  }, [props.userId, open, status, session?.user?.id]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
+    if (status !== 'authenticated' || !session?.user?.id) {
+      setSendStatus('You must be signed in to send messages.');
+      return;
+    }
     
     try {
       // Create message via API
@@ -61,7 +65,7 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
       const newMessage = await messageResponse.json();
       setHistory(prev => [...prev, newMessage]);
       setMessage("");
-      setStatus(null);
+      setSendStatus(null);
 
       // Send email notification
       const res = await apiFetch("/api/admin/email", {
@@ -78,11 +82,11 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
         }),
       });
       const data = await res.json();
-      setStatus(
+      setSendStatus(
         `Email: ${data.emailStatus}`
       );
     } catch (e) {
-      setStatus("Failed to send message");
+      setSendStatus("Failed to send message");
       console.error('SendModal error:', e);
     }
   };
@@ -135,7 +139,7 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
             }}
             style={{ width: "100%", borderRadius: 4, border: "1px solid #ccc", padding: 8, marginBottom: 8 }}
           />
-          {status && <div style={{ color: '#0070f3', fontSize: 12, marginTop: 4 }}>{status}</div>}
+          {sendStatus && <div style={{ color: '#0070f3', fontSize: 12, marginTop: 4 }}>{sendStatus}</div>}
         </Modal>
       )}
     </>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
+import { useSession } from 'next-auth/react';
 
 interface ShopOrder {
   id: string;
@@ -14,6 +15,7 @@ interface ShopOrder {
 }
 
 export default function PendingOrders() {
+  const { status, data: session } = useSession();
   const [orders, setOrders] = useState<ShopOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +25,11 @@ export default function PendingOrders() {
       try {
         const response = await apiFetch('/api/users/me/shop-orders');
         if (!response.ok) {
+          if (response.status === 401) {
+            // Gracefully ignore if not authenticated yet
+            setOrders([]);
+            return;
+          }
           throw new Error('Failed to fetch orders');
         }
         const data = await response.json();
@@ -34,8 +41,14 @@ export default function PendingOrders() {
       }
     };
 
-    fetchOrders();
-  }, []);
+    // Only fetch when the session is fully established
+    if (status === 'authenticated' && session?.user?.id) {
+      fetchOrders();
+    } else if (status === 'unauthenticated') {
+      // If not signed in, don't show anything
+      setLoading(false);
+    }
+  }, [status, session?.user?.id]);
 
   // Filter to only show pending orders
   const pendingOrders = orders.filter(order => order.status === 'pending');

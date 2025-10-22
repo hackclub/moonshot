@@ -500,10 +500,10 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
       }
     }
 
-    if (status !== 'authenticated') return;
+    if (status !== 'authenticated' || !session?.user?.id) return;
     getIdentity();
 
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   // Check if user is admin
   const isAdmin = session?.user?.role === 'Admin' || session?.user?.isAdmin === true;

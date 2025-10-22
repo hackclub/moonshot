@@ -384,13 +384,24 @@ export default function AdminDashboard() {
   const [shopTimeRange, setShopTimeRange] = useState('7d');
   
   useEffect(() => {
+    // Client-side session diagnostics
+    console.log('[ADMIN DASHBOARD CLIENT] useSession status change', {
+      status,
+      hasUserId: !!session?.user?.id,
+      role: session?.user?.role,
+      isAdminFlag: session?.user?.isAdmin === true,
+    });
+  }, [status, session?.user?.id]);
+
+  useEffect(() => {
     async function fetchStats() {
       try {
-        // Fetch dashboard stats
         const response = await apiFetch('/api/admin/dashboard');
         if (response.ok) {
           const data = await response.json();
           setStats(data);
+        } else {
+          console.error('Failed to fetch dashboard stats:', response.status);
         }
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -398,7 +409,7 @@ export default function AdminDashboard() {
         setIsLoading(false);
       }
     }
-    
+
     if (status === 'authenticated' && session?.user?.id) {
       fetchStats();
     }
@@ -478,7 +489,7 @@ export default function AdminDashboard() {
           />
         </div>
       </div>
-      {isShopAdmin && (
+      {authReady && isShopAdmin && (
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Shop Analytics</h2>
           <div className="flex items-center space-x-4 mb-4">

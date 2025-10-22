@@ -100,9 +100,9 @@ export default function ShopItemsPage() {
   }>>({});
 
   useEffect(() => {
-    if (status !== 'authenticated') return;
+    if (status !== 'authenticated' || !session?.user?.id) return;
     fetchData();
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   // Fetch shop admin status
   useEffect(() => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useHistogramAnalysis } from '@/hooks/useProjectClassification';
+import { useSession } from 'next-auth/react';
 
 interface HistogramBin {
   min: number;
@@ -14,7 +15,9 @@ interface ProjectHistogramChartProps {
 }
 
 export default function ProjectHistogramChart({ className = '' }: ProjectHistogramChartProps) {
-  const { analysis, loading, error } = useHistogramAnalysis(true);
+  const { status, data: session } = useSession();
+  const authReady = status === 'authenticated' && !!session?.user?.id;
+  const { analysis, loading, error } = useHistogramAnalysis(authReady);
 
   if (loading) {
     return (

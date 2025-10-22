@@ -1,13 +1,16 @@
 'use client';
 
 import { useUserClusterAnalysis } from '@/hooks/useUserClustering';
+import { useSession } from 'next-auth/react';
 
 interface UserClusterChartProps {
   className?: string;
 }
 
 export default function UserClusterChart({ className = '' }: UserClusterChartProps) {
-  const { analysis, loading, error } = useUserClusterAnalysis(true);
+  const { status, data: session } = useSession();
+  const authReady = status === 'authenticated' && !!session?.user?.id;
+  const { analysis, loading, error } = useUserClusterAnalysis(authReady);
 
   if (loading) {
     return (
