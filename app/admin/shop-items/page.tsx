@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { calculateCurrencyPrice } from '@/lib/shop-utils';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface ShopItem {
   id: string;
@@ -68,6 +69,7 @@ export default function ShopItemsPage() {
   const [dollarsPerHour, setDollarsPerHour] = useState<string>('');
   const [isShopAdmin, setIsShopAdmin] = useState(false);
   const [isShopItemAdmin, setIsShopItemAdmin] = useState(false);
+  const [authResolved, setAuthResolved] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
@@ -98,19 +100,24 @@ export default function ShopItemsPage() {
   }>>({});
 
   useEffect(() => {
+    if (status !== 'authenticated') return;
     fetchData();
-  }, []);
+  }, [status]);
 
   // Fetch shop admin status
   useEffect(() => {
     if (status === 'authenticated') {
-      fetch('/api/users/me', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
-        if (res.ok) {
-          const data = await res.json();
-          setIsShopAdmin(!!data.isShopAdmin);
-          setIsShopItemAdmin(!!data.isShopItemAdmin);
-        }
-      });
+      apiFetch('/api/users/me')
+        .then(async (res) => {
+          if (res.ok) {
+            const data = await res.json();
+            setIsShopAdmin(!!data.isShopAdmin);
+            setIsShopItemAdmin(!!data.isShopItemAdmin);
+          }
+        })
+        .finally(() => setAuthResolved(true));
+    } else if (status === 'unauthenticated') {
+      setAuthResolved(true);
     }
   }, [status]);
 
@@ -143,7 +150,7 @@ export default function ShopItemsPage() {
       setAnalyticsLoading(true);
       setAnalyticsError(null);
       try {
-        const res = await fetch('/api/admin/shop-orders?status=fulfilled');
+        const res = await apiFetch('/api/admin/shop-orders?status=fulfilled');
         if (!res.ok) throw new Error('Failed to fetch orders');
         const data = await res.json();
         setOrders(data.orders || []);
@@ -185,14 +192,14 @@ export default function ShopItemsPage() {
   const fetchData = async () => {
     try {
       // Fetch shop items
-      const itemsResponse = await fetch('/api/admin/shop-items');
+      const itemsResponse = await apiFetch('/api/admin/shop-items');
       if (itemsResponse.ok) {
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items);
       }
 
       // Fetch global config
-      const configResponse = await fetch('/api/admin/global-config');
+      const configResponse = await apiFetch('/api/admin/global-config');
       if (configResponse.ok) {
         const configData = await configResponse.json();
         setGlobalConfig(configData.config);
@@ -225,7 +232,7 @@ export default function ShopItemsPage() {
       
       // Update dollars per hour
       if (dollarsPerHour !== (globalConfig.dollars_per_hour || '')) {
-        const dollarsResponse = await fetch('/api/admin/global-config', {
+        const dollarsResponse = await apiFetch('/api/admin/global-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key: 'dollars_per_hour', value: dollarsPerHour }),
@@ -242,7 +249,7 @@ export default function ShopItemsPage() {
         if (oldDollarsPerHour !== newDollarsPerHour && newDollarsPerHour > 0) {
           console.log('Recalculating prices for fixed items...');
           
-          const recalculateResponse = await fetch('/api/admin/shop-items/recalculate-prices', {
+          const recalculateResponse = await apiFetch('/api/admin/shop-items/recalculate-prices', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ dollarsPerHour: newDollarsPerHour }),
@@ -260,7 +267,7 @@ export default function ShopItemsPage() {
       }
       
       // Update min percent
-      const minResponse = await fetch('/api/admin/global-config', {
+      const minResponse = await apiFetch('/api/admin/global-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'price_random_min_percent', value: pricingConfig.minPercent }),
@@ -274,7 +281,7 @@ export default function ShopItemsPage() {
       }
       
       // Update max percent
-      const maxResponse = await fetch('/api/admin/global-config', {
+      const maxResponse = await apiFetch('/api/admin/global-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'price_random_max_percent', value: pricingConfig.maxPercent }),
@@ -339,7 +346,7 @@ export default function ShopItemsPage() {
       
       const method = editingItem ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -381,7 +388,7 @@ export default function ShopItemsPage() {
     if (!confirm('Are you sure you want to delete this item?')) return;
 
     try {
-      const response = await fetch(`/api/admin/shop-items/${itemId}`, {
+      const response = await apiFetch(`/api/admin/shop-items/${itemId}`, {
         method: 'DELETE',
       });
 
@@ -397,7 +404,7 @@ export default function ShopItemsPage() {
 
   const toggleActive = async (item: ShopItem) => {
     try {
-      const response = await fetch(`/api/admin/shop-items/${item.id}`, {
+      const response = await apiFetch(`/api/admin/shop-items/${item.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -422,6 +429,8 @@ export default function ShopItemsPage() {
     }
   };
 
+  if (!authResolved) return null; // avoid flicker while resolving auth
+
   if (status === 'unauthenticated' || session?.user?.role !== 'Admin' || !isShopItemAdmin) {
     return <div>Access denied. Only authorized shop administrators can access this page.</div>;
   }
@@ -435,46 +444,46 @@ export default function ShopItemsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-white">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Shop Items Management</h1>
+        <h1 className="text-3xl font-bold text-white">Shop Items Management</h1>
         <button
           onClick={() => {
             setEditingItem(null);
             setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true });
             setShowAddModal(true);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
         >
           Add New Item
         </button>
       </div>
 
       {/* Global Config Section */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Global Configuration</h2>
+      <div className="bg-black/60 text-white shadow rounded-lg p-6 border border-white/10">
+        <h2 className="text-xl font-semibold mb-4 text-white">Global Configuration</h2>
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
-            <label className="text-sm font-medium text-gray-700">Dollars per Hour:</label>
+            <label className="text-sm font-medium text-white">Dollars per Hour:</label>
             <input
               type="number"
               min="0"
               step="0.01"
               value={dollarsPerHour}
               onChange={(e) => setDollarsPerHour(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
               placeholder="Set global rate"
             />
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-white/70">
               Used to auto-calculate shell prices for non-special items
             </span>
           </div>
           
           <div className="border-t pt-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Randomized Pricing</h3>
+            <h3 className="text-lg font-medium text-white mb-3">Randomized Pricing</h3>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700">Min Percent:</label>
+                <label className="text-sm font-medium text-white">Min Percent:</label>
                 <input
                   type="number"
                   min="1"
@@ -482,13 +491,13 @@ export default function ShopItemsPage() {
                   step="1"
                   value={pricingConfig.minPercent}
                   onChange={(e) => setPricingConfig({ ...pricingConfig, minPercent: e.target.value })}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-20"
+                  className="border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 w-20 bg-white text-black"
                   placeholder="90"
                 />
-                <span className="text-sm text-gray-500">%</span>
+                <span className="text-sm text-white/70">%</span>
               </div>
               <div className="flex items-center space-x-2">
-                <label className="text-sm font-medium text-gray-700">Max Percent:</label>
+                <label className="text-sm font-medium text-white">Max Percent:</label>
                 <input
                   type="number"
                   min="1"
@@ -496,13 +505,13 @@ export default function ShopItemsPage() {
                   step="1"
                   value={pricingConfig.maxPercent}
                   onChange={(e) => setPricingConfig({ ...pricingConfig, maxPercent: e.target.value })}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-20"
+                  className="border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 w-20 bg-white text-black"
                   placeholder="110"
                 />
-                <span className="text-sm text-gray-500">%</span>
+                <span className="text-sm text-white/70">%</span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mb-3">
+            <p className="text-sm text-white/70 mb-3">
               Each user gets randomized pricing hourly within this range. For example, 90-110% means 10% off to 10% more expensive.
             </p>
             <div className="flex justify-end">
@@ -518,48 +527,48 @@ export default function ShopItemsPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="bg-red-900/30 border border-red-500/40 rounded-lg p-4 text-white">
+          <p className="text-white">{error}</p>
         </div>
       )}
 
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-green-800">{successMessage}</p>
+        <div className="bg-green-900/30 border border-green-500/40 rounded-lg p-4 text-white">
+          <p className="text-white">{successMessage}</p>
         </div>
       )}
 
       {/* Table Section */}
-      <div className="bg-white shadow rounded-lg overflow-x-auto w-full">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="bg-black/60 text-white shadow rounded-lg overflow-x-auto w-full border border-white/10">
+        <table className="min-w-full divide-y divide-white/10">
+          <thead className="bg-white/5">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 Item
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 currency
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 USD Cost
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 Pricing Mode
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-transparent divide-y divide-white/10">
             {items.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
+              <tr key={item.id} className="hover:bg-white/5">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     {item.image && (
@@ -570,19 +579,19 @@ export default function ShopItemsPage() {
                       />
                     )}
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                      <div className="text-sm text-gray-500">{item.description}</div>
+                      <div className="text-sm font-medium text-white">{item.name}</div>
+                      <div className="text-sm text-white/70">{item.description}</div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/10" />
-                    <span className="text-sm text-gray-900">{item.price}</span>
+                    <span className="text-sm text-white">{item.price}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">${item.usdCost?.toFixed(2) || '0.00'}</span>
+                  <span className="text-sm text-white">${item.usdCost?.toFixed(2) || '0.00'}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -647,44 +656,44 @@ export default function ShopItemsPage() {
 
       {/* Add/Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-full max-w-[95vw] sm:max-w-2xl shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-black/70 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-[95vw] sm:max-w-2xl shadow-lg rounded-md bg-black/80 text-white border-white/10">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-white mb-4">
                 {editingItem ? 'Edit Shop Item' : 'Add New Shop Item'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <label className="block text-sm font-medium text-white">Name</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <label className="block text-sm font-medium text-white">Description</label>
                   <textarea
                     required
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Image URL (optional)</label>
+                  <label className="block text-sm font-medium text-white">Image URL (optional)</label>
                   <input
                     type="url"
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">USD Cost (per unit)</label>
+                  <label className="block text-sm font-medium text-white">USD Cost (per unit)</label>
                   <input
                     type="number"
                     required
@@ -692,19 +701,19 @@ export default function ShopItemsPage() {
                     step="0.01"
                     value={formData.usdCost}
                     onChange={(e) => setFormData({ ...formData, usdCost: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-white/70 mt-1">
                     This is the base USD price for one unit of this item. This includes manual fullfillment costs (e.g shipping).
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Cost Type</label>
+                  <label className="block text-sm font-medium text-white">Cost Type</label>
                   <select
                     required
                     value={formData.costType}
                     onChange={(e) => setFormData({ ...formData, costType: e.target.value as 'fixed' | 'config' })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
                   >
                     <option value="fixed">Fixed</option>
                     <option value="config">Config (dynamic)</option>
@@ -718,27 +727,27 @@ export default function ShopItemsPage() {
                     onChange={(e) => setFormData({ ...formData, useRandomizedPricing: e.target.checked })}
                     className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="useRandomizedPricing" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="useRandomizedPricing" className="text-sm font-medium text-white">
                     Use randomized pricing
                   </label>
                   <div className="ml-2">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-white/70">
                       (If unchecked, item will use static price)
                     </span>
                   </div>
                 </div>
                 {formData.costType === 'config' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Config (JSON, required for dynamic cost)</label>
+                    <label className="block text-sm font-medium text-white">Config (JSON, required for dynamic cost)</label>
                     <textarea
                       required
                       value={formData.config}
                       onChange={(e) => setFormData({ ...formData, config: e.target.value })}
                       rows={4}
                       placeholder='{"dollars_per_hour": 10}'
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                      className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 font-mono text-sm bg-white text-black"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-white/70 mt-1">
                       For travel stipend: <code>{'{"dollars_per_hour": 10}'}</code> (custom hourly rate for this item)
                     </p>
                   </div>
@@ -785,13 +794,13 @@ export default function ShopItemsPage() {
                       setEditingItem(null);
                       setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true });
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="px-4 py-2 border border-white/20 rounded-md text-white hover:bg-white/10"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
                   >
                     {editingItem ? 'Update' : 'Create'}
                   </button>

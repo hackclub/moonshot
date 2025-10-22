@@ -17,6 +17,7 @@ import TagManagement from '@/components/common/TagManagement';
 import TrustStats from '@/components/common/TrustStats';
 import { useMDXComponents } from '@/mdx-components';
 import { lazy, Suspense } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import ReactMarkdown from 'react-markdown';
 
 // Custom CSS for static glow effect
@@ -303,7 +304,7 @@ function AIAnalysisSection({ project }: { project: Project }) {
     
     setIsLoading(true);
     try {
-      const response = await fetch('/api/review/ai-analysis', {
+      const response = await apiFetch('/api/review/ai-analysis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -723,7 +724,7 @@ function ReviewPage() {
     async function fetchTags() {
       try {
         setIsLoadingTags(true);
-        const response = await fetch('/api/admin/tags');
+        const response = await apiFetch('/api/admin/tags');
         
         if (response.ok) {
           const tags = await response.json();
@@ -802,7 +803,7 @@ function ReviewPage() {
   const fetchProjectsInReview = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/review');
+      const response = await apiFetch('/api/review');
       
       if (!response.ok) {
         throw new Error('Failed to fetch projects in review');

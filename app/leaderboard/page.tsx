@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/apiFetch';
 import { Toaster } from 'sonner';
 import UserCategoryDisplay from '@/components/common/UserCategoryDisplay';
 import { calculateProgressMetrics, getProjectHackatimeHours, getProjectApprovedHours, ProgressMetrics } from '@/lib/project-client';
@@ -69,7 +70,7 @@ function LeaderboardContent() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch('/api/users');
+        const response = await apiFetch('/api/users');
         if (response.ok) {
           const data = await response.json();
           setUsers(data);
@@ -192,7 +193,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
       }
 
       try {
-        const response = await fetch('/api/users/me/currency', { credentials: 'include', cache: 'no-store' });
+        const response = await apiFetch('/api/users/me/currency');
         if (response.ok) {
           const data = await response.json();
           setProgressData(data.progress);

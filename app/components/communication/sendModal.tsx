@@ -1,5 +1,6 @@
 import Modal from "@/components/common/Modal";
 import { useState, useEffect } from "react";
+import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 
 interface Message {
@@ -20,7 +21,7 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`/api/admin/messages?recipientId=${props.userId}`);
+        const response = await apiFetch(`/api/admin/messages?recipientId=${props.userId}`);
         if (response.ok) {
           const messages = await response.json();
           setHistory(messages);
@@ -42,7 +43,7 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
     
     try {
       // Create message via API
-      const messageResponse = await fetch("/api/admin/messages", {
+      const messageResponse = await apiFetch("/api/admin/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +64,7 @@ const SendModal = (props: { name: string; email: string, userId: string }) => {
       setStatus(null);
 
       // Send email notification
-      const res = await fetch("/api/admin/email", {
+      const res = await apiFetch("/api/admin/email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

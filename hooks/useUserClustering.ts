@@ -87,7 +87,7 @@ export function useUserClassification(userId?: string) {
     setError(null);
     
     try {
-      const response = await fetch(`/api/analytics/user-clusters?classifyUser=${targetUserId}`);
+      const response = await fetch(`/api/analytics/user-clusters?classifyUser=${targetUserId}`, { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
         throw new Error(`Failed to classify user: ${response.statusText}`);
@@ -128,7 +128,7 @@ export function useUserClusterAnalysis() {
     setError(null);
     
     try {
-      const response = await fetch('/api/analytics/user-clusters');
+      const response = await fetch('/api/analytics/user-clusters', { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch user cluster analysis: ${response.statusText}`);

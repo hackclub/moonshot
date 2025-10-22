@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { apiFetch } from '@/lib/apiFetch';
 import { AppConfig } from '@/lib/config';
 import styles from './shop.module.css';
 
@@ -21,6 +23,7 @@ interface ShellBalance {
 }
 
 export default function ShopPage() {
+  const { status } = useSession();
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [usercurrency, setUsercurrency] = useState<ShellBalance | null>(null);
@@ -33,16 +36,20 @@ export default function ShopPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (status !== 'authenticated') {
+        if (status !== 'loading') setLoading(false);
+        return;
+      }
       try {
         // Fetch shop items
-        const itemsResponse = await fetch('/api/launchpad/shop/items');
+        const itemsResponse = await apiFetch('/api/launchpad/shop/items');
         if (itemsResponse.ok) {
           const itemsData = await itemsResponse.json();
           setItems(itemsData.items);
         }
 
         // Fetch user currency
-        const currencyResponse = await fetch('/api/users/me/currency');
+        const currencyResponse = await apiFetch('/api/users/me/currency');
         if (currencyResponse.ok) {
           const currencyData = await currencyResponse.json();
           setUsercurrency(currencyData);
@@ -55,16 +62,17 @@ export default function ShopPage() {
     };
 
     fetchData();
-  }, []);
+  }, [status]);
 
   const handlePurchase = async () => {
     if (!selectedItem) return;
+    if (status !== 'authenticated') return;
 
     setIsPurchasing(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/launchpad/shop/purchase', {
+      const response = await apiFetch('/api/launchpad/shop/purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -94,7 +102,7 @@ export default function ShopPage() {
       }, 3000);
       
       // Refresh shell balance
-      const currencyResponse = await fetch('/api/users/me/currency');
+      const currencyResponse = await apiFetch('/api/users/me/currency');
       if (currencyResponse.ok) {
         const currencyData = await currencyResponse.json();
         setUsercurrency(currencyData);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 import Icon from '@hackclub/icons';
 
@@ -52,7 +53,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
         url += `?since=${encodeURIComponent(lastMessageTimestampRef.current)}`;
       }
       
-      const response = await fetch(url);
+      const response = await apiFetch(url);
       if (response.ok) {
         const data: ChatMessage[] = await response.json();
         
@@ -80,7 +81,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
   const handleDeleteMessage = async (messageId: string) => {
     if (!canModerate) return;
     try {
-      const res = await fetch(`/api/projects/${project.projectID}/chat/messages?messageId=${encodeURIComponent(messageId)}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/projects/${project.projectID}/chat/messages?messageId=${encodeURIComponent(messageId)}`, { method: 'DELETE' });
       if (res.ok) {
         setMessages(prev => prev.filter(m => m.id !== messageId));
         // Trigger quick poll to stay in sync
@@ -296,7 +297,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
           // Stream upload to temporary endpoint which returns a temporary URL
           const form = new FormData();
           form.append('file', file);
-          const presignRes = await fetch('/api/uploads', { method: 'POST', body: form });
+          const presignRes = await apiFetch('/api/uploads', { method: 'POST', body: form });
           if (!presignRes.ok) {
             const err = await presignRes.json().catch(() => ({}));
             showToast && showToast(err.error || 'Upload failed', 'error');
@@ -305,7 +306,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
           const { tempUrl } = await presignRes.json();
 
           // Ask server to instruct CDN to fetch and host the file
-          const cdnRes = await fetch('/api/cdn/ingest', {
+          const cdnRes = await apiFetch('/api/cdn/ingest', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tempPath: tempUrl }),
@@ -321,7 +322,7 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
           const content = caption ? `${caption}\n${deployedUrl}` : deployedUrl;
 
           setNewMessage('');
-          const response = await fetch(`/api/projects/${project.projectID}/chat/messages`, {
+          const response = await apiFetch(`/api/projects/${project.projectID}/chat/messages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content }),

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface ShopOrder {
   id: string;
@@ -20,7 +21,7 @@ export default function PendingOrders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('/api/users/me/shop-orders', { credentials: 'include', cache: 'no-store' });
+        const response = await apiFetch('/api/users/me/shop-orders');
         if (!response.ok) {
           throw new Error('Failed to fetch orders');
         }

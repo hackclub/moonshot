@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface ShopOrder {
   id: string;
@@ -34,6 +35,7 @@ export default function ShopOrdersPage() {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const { data: session, status } = useSession();
   const [isShopAdmin, setIsShopAdmin] = useState(false);
+  const [authResolved, setAuthResolved] = useState(false);
   // Confirmation modal state
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationOrder, setConfirmationOrder] = useState<ShopOrder | null>(null);
@@ -42,7 +44,7 @@ export default function ShopOrdersPage() {
   const fetchOrders = async (filter?: string) => {
     try {
       const url = filter ? `/api/admin/shop-orders?status=${filter}` : '/api/admin/shop-orders';
-      const response = await fetch(url);
+      const response = await apiFetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
       }
@@ -109,7 +111,7 @@ export default function ShopOrdersPage() {
   const updateOrderStatus = async (orderId: string, status: string) => {
     setUpdatingOrder(orderId);
     try {
-      const response = await fetch('/api/admin/shop-orders', {
+      const response = await apiFetch('/api/admin/shop-orders', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, status }),
@@ -165,22 +167,29 @@ export default function ShopOrdersPage() {
   };
 
   useEffect(() => {
+    if (!authResolved || status !== 'authenticated' || !isShopAdmin) return;
     fetchOrders(statusFilter);
-  }, [statusFilter]);
+  }, [authResolved, status, isShopAdmin, statusFilter]);
 
   // Fetch shop admin status
   useEffect(() => {
     if (status === 'authenticated') {
-      fetch('/api/users/me').then(async (res) => {
-        if (res.ok) {
-          const data = await res.json();
-          setIsShopAdmin(!!data.isShopAdmin);
-        }
-      });
+      apiFetch('/api/users/me')
+        .then(async (res) => {
+          if (res.ok) {
+            const data = await res.json();
+            setIsShopAdmin(!!data.isShopAdmin);
+          }
+        })
+        .finally(() => setAuthResolved(true));
+    } else if (status === 'unauthenticated') {
+      setAuthResolved(true);
     }
   }, [status]);
 
   const filteredOrders = getFilteredOrders();
+
+  if (!authResolved) return null;
 
   if (status === 'unauthenticated' || session?.user?.role !== 'Admin' || !isShopAdmin) {
     return <div>Access denied. Only authorized shop administrators can access this page.</div>;
@@ -188,10 +197,10 @@ export default function ShopOrdersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black/60 text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-700">Loading shop orders...</h2>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold">Loading shop orders...</h2>
         </div>
       </div>
     );
@@ -199,12 +208,12 @@ export default function ShopOrdersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black/60 text-white flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-4">Error: {error}</h2>
+          <h2 className="text-xl font-semibold text-red-400 mb-4">Error: {error}</h2>
           <button 
             onClick={() => fetchOrders(statusFilter)} 
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-500 transition"
           >
             Retry
           </button>
@@ -214,7 +223,7 @@ export default function ShopOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black/60 text-white">
       {/* Success Toast */}
       {showSuccess && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-right duration-300">
@@ -227,25 +236,25 @@ export default function ShopOrdersPage() {
 
       {/* Confirmation Modal */}
       {showConfirmation && confirmationOrder && confirmationAction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black/80 border border-white/10 text-white rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                confirmationAction === 'fulfill' ? 'bg-green-100' : 
-                confirmationAction === 'reject' ? 'bg-red-100' : 'bg-yellow-100'
+                confirmationAction === 'fulfill' ? 'bg-green-600/20' : 
+                confirmationAction === 'reject' ? 'bg-red-600/20' : 'bg-yellow-500/20'
               }`}>
                 <span className="text-xl">
                   {confirmationAction === 'fulfill' ? '✅' : 
                    confirmationAction === 'reject' ? '❌' : '💰'}
                 </span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold">
                 Confirm {confirmationAction === 'fulfill' ? 'Fulfillment' : 
                          confirmationAction === 'reject' ? 'Rejection' : 'Refund'}
               </h3>
             </div>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-white/80 mb-6">
               Are you sure you want to{' '}
               <span className="font-semibold">
                 {confirmationAction === 'fulfill' ? 'fulfill' : 
@@ -254,9 +263,9 @@ export default function ShopOrdersPage() {
               this order?
             </p>
             
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h4 className="font-medium text-gray-900 mb-2">Order Details:</h4>
-              <div className="text-sm text-gray-600 space-y-1">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6">
+              <h4 className="font-medium mb-2">Order Details:</h4>
+              <div className="text-sm text-white/80 space-y-1">
                 <div><span className="font-medium">Item:</span> {confirmationOrder.itemName}</div>
                 <div><span className="font-medium">Customer:</span> {confirmationOrder.user.name} ({confirmationOrder.user.email})</div>
                 <div><span className="font-medium">Quantity:</span> {confirmationOrder.quantity}</div>
@@ -281,7 +290,7 @@ export default function ShopOrdersPage() {
             <div className="flex gap-3">
               <button
                 onClick={hideConfirmationDialog}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 px-4 py-2 border border-white/20 rounded-lg text-white hover:bg-white/10 transition"
               >
                 Cancel
               </button>
@@ -290,7 +299,7 @@ export default function ShopOrdersPage() {
                 className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition ${
                   confirmationAction === 'fulfill' ? 'bg-green-600 hover:bg-green-700' : 
                   confirmationAction === 'reject' ? 'bg-red-600 hover:bg-red-700' :
-                  'bg-yellow-600 hover:bg-yellow-700'
+                  'bg-yellow-600 hover:bg-yellow-500 text-black'
                 }`}
               >
                 {confirmationAction === 'fulfill' ? 'Fulfill Order' : 
@@ -302,26 +311,26 @@ export default function ShopOrdersPage() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 py-8">
+      <div className="bg-black/50 border-b border-white/10 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Shop Orders</h1>
-              <p className="text-lg text-gray-600 mt-2">
+              <h1 className="text-3xl font-bold">Shop Orders</h1>
+              <p className="text-lg text-white/80 mt-2">
                 Manage and fulfill shop orders from users
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <label htmlFor="status-filter" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="status-filter" className="text-sm font-medium">
                     Status:
                   </label>
                   <select
                     id="status-filter"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="bg-black/40 text-white border border-white/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     <option value="pending">Pending</option>
                     <option value="fulfilled">Fulfilled</option>
@@ -331,14 +340,14 @@ export default function ShopOrdersPage() {
                   </select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label htmlFor="priority-filter" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="priority-filter" className="text-sm font-medium">
                     Priority:
                   </label>
                   <select
                     id="priority-filter"
                     value={priorityFilter}
                     onChange={(e) => setPriorityFilter(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="bg-black/40 text-white border border-white/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     <option value="all">All Items</option>
                     <option value="priority">Priority Items</option>
@@ -347,7 +356,7 @@ export default function ShopOrdersPage() {
                   </select>
                 </div>
               </div>
-              <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-medium">
+              <div className="bg-white/10 text-white px-4 py-2 rounded-full font-medium">
                 {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
               </div>
             </div>
@@ -359,13 +368,13 @@ export default function ShopOrdersPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-4xl">📦</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold mb-2">
               {statusFilter === 'pending' && priorityFilter === 'all' ? 'All caught up!' : 'No orders found'}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-white/80">
               {statusFilter === 'pending' && priorityFilter === 'all'
                 ? 'No pending orders to process.' 
                 : `No ${statusFilter !== 'all' ? statusFilter : ''} ${priorityFilter !== 'all' ? priorityFilter : ''} orders found.`
@@ -377,10 +386,10 @@ export default function ShopOrdersPage() {
             {filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className={`bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow ${
+                className={`rounded-xl border overflow-hidden hover:shadow-md transition-shadow ${
                   (order.itemId === 'progress_to_island' || order.itemId === 'travel_stipend') 
-                    ? 'border-orange-300 bg-orange-50' 
-                    : 'border-gray-200'
+                    ? 'border-orange-500 bg-orange-600/10' 
+                    : 'bg-black/50 border-white/10'
                 }`}
               >
                 <div className="p-6">
@@ -390,16 +399,16 @@ export default function ShopOrdersPage() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-gray-900">{order.itemName}</h3>
+                            <h3 className="text-xl font-bold">{order.itemName}</h3>
                             {(order.itemId === 'progress_to_island' || order.itemId === 'travel_stipend') && (
-                              <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+                              <span className="bg-orange-600/20 text-orange-300 px-2 py-1 rounded-full text-xs font-medium">
                                 Priority
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-4 text-sm text-white/80">
                             <span className="flex items-center">
-                              <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/10" />
+                              <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/20" />
                               {Math.round(order.price / order.quantity)} currency each
                             </span>
                             <span>Qty: {order.quantity}</span>
@@ -407,20 +416,20 @@ export default function ShopOrdersPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-white/60">
                             {new Date(order.createdAt).toLocaleDateString()}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-white/50">
                             {new Date(order.createdAt).toLocaleTimeString()}
                           </div>
                           <div className={`mt-1 px-2 py-1 rounded-full text-xs font-medium ${
                             order.status === 'pending' 
-                              ? 'bg-yellow-100 text-yellow-800' 
+                              ? 'bg-yellow-500/20 text-yellow-300' 
                               : order.status === 'fulfilled' 
-                              ? 'bg-green-100 text-green-800'
+                              ? 'bg-green-600/20 text-green-300'
                               : order.status === 'refunded'
-                              ? 'bg-orange-100 text-orange-800'
-                              : 'bg-red-100 text-red-800'
+                              ? 'bg-orange-600/20 text-orange-300'
+                              : 'bg-red-600/20 text-red-300'
                           }`}>
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </div>
@@ -428,16 +437,16 @@ export default function ShopOrdersPage() {
                       </div>
 
                       {/* User Info */}
-                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                        <h4 className="font-semibold text-gray-900 mb-2">Customer Information</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                      <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-4">
+                        <h4 className="font-semibold mb-2">Customer Information</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-white/80">
                           <div>
-                            <span className="text-gray-600">Name:</span>
-                            <span className="ml-2 font-medium text-gray-900">{order.user.name}</span>
+                            <span>Name:</span>
+                            <span className="ml-2 font-medium">{order.user.name}</span>
                           </div>
                           <div>
-                            <span className="text-gray-600">Email:</span>
-                            <span className="ml-2 font-medium text-gray-900">{order.user.email}</span>
+                            <span>Email:</span>
+                            <span className="ml-2 font-medium">{order.user.email}</span>
                           </div>
                         </div>
                       </div>

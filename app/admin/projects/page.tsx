@@ -14,6 +14,7 @@ import UnlinkModal from '@/components/admin/UnlinkModal';
 import DeleteModal from '@/components/admin/DeleteModal';
 import SendModal from '@/app/components/communication/sendModal';
 import TagManagement from '@/components/common/TagManagement';
+import { apiFetch } from '@/lib/apiFetch';
 
 // Force dynamic rendering to prevent prerendering errors during build
 export const dynamic = 'force-dynamic';
@@ -66,7 +67,7 @@ interface FormSave {
 
 async function editProjectAction(formData: FormData) {
   try {
-    const response = await fetch('/api/projects', {
+    const response = await apiFetch('/api/projects', {
       method: 'PUT',
       body: formData
     });
@@ -213,7 +214,7 @@ function AdminProjectsContent() {
           ? '/api/admin/projects' 
           : `/api/admin/projects?filter=${currentFilter}`;
           
-        const response = await fetch(url);
+        const response = await apiFetch(url);
         if (response.ok) {
           const data = await response.json();
           setProjects(data);
@@ -270,7 +271,7 @@ function AdminProjectsContent() {
     async function fetchTags() {
       try {
         setIsLoadingTags(true);
-        const response = await fetch('/api/admin/tags');
+        const response = await apiFetch('/api/admin/tags');
         
         if (response.ok) {
           const tags = await response.json();
@@ -406,7 +407,7 @@ function AdminProjectsContent() {
     
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/admin/projects/${projectToDelete.projectID}`, {
+      const response = await apiFetch(`/api/admin/projects/${projectToDelete.projectID}`, {
         method: 'DELETE',
       });
       
@@ -461,7 +462,7 @@ function AdminProjectsContent() {
     
     setIsUnlinking(true);
     try {
-      const response = await fetch(`/api/admin/projects/${linkToUnlink.projectID}/hackatime-links/${linkToUnlink.id}`, {
+      const response = await apiFetch(`/api/admin/projects/${linkToUnlink.projectID}/hackatime-links/${linkToUnlink.id}`, {
         method: 'DELETE'
       });
       
@@ -517,7 +518,7 @@ function AdminProjectsContent() {
   const fetchAvailableHackatimeProjects = async (userId: string) => {
     try {
       // This would fetch all Hackatime projects for the user
-      const response = await fetch(`/api/admin/users/${userId}/hackatime-projects`);
+      const response = await apiFetch(`/api/admin/users/${userId}/hackatime-projects`);
       
       if (!response.ok) {
         toast.error("Failed to fetch Hackatime projects");
@@ -564,7 +565,7 @@ function AdminProjectsContent() {
     setIsAddingLink(true);
     
     try {
-      const response = await fetch(`/api/admin/projects/${selectedProject.projectID}/hackatime-links`, {
+      const response = await apiFetch(`/api/admin/projects/${selectedProject.projectID}/hackatime-links`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -629,7 +630,7 @@ function AdminProjectsContent() {
             ? '/api/admin/projects' 
             : `/api/admin/projects?filter=${currentFilter}`;
             
-          const response = await fetch(url);
+          const response = await apiFetch(url);
           if (response.ok) {
             const data = await response.json();
             setProjects(data);

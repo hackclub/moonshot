@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import Icon from '@hackclub/icons';
@@ -49,7 +50,7 @@ export default function ReviewSection({
   reviewType,
   hackatimeLinks = [],
 }: ReviewSectionProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { isReviewMode } = useReviewMode();
   const [reviews, setReviews] = useState<ReviewType[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -119,10 +120,11 @@ export default function ReviewSection({
   // Fetch reviews for the project
   const fetchReviews = async () => {
     if (!projectID) return;
+    if (status !== 'authenticated' || !session?.user?.id) return;
     
     try {
       setIsFetchingReviews(true);
-      const response = await fetch(`/api/reviews?projectId=${projectID}`);
+    const response = await apiFetch(`/api/reviews?projectId=${projectID}`);
       if (!response.ok) {
         throw new Error('Failed to fetch reviews');
       }
@@ -140,7 +142,7 @@ export default function ReviewSection({
   // Load reviews when component mounts or projectID changes
   useEffect(() => {
     fetchReviews();
-  }, [projectID]);
+  }, [projectID, status, session?.user?.id]);
   
   // Handle flag changes from ProjectFlagsEditor
   const handleFlagsChange = (flags: ProjectFlags) => {
@@ -366,12 +368,11 @@ export default function ReviewSection({
         
         console.log('[Review] Sending flags PATCH payload -> /api/projects/flags', requestBody);
         
-        const flagsResponse = await fetch('/api/projects/flags', {
+        const flagsResponse = await apiFetch('/api/projects/flags', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include',
           body: JSON.stringify(requestBody),
         });
         
@@ -413,12 +414,11 @@ export default function ReviewSection({
       
       const finalReviewComment = `${resultPrefix}${commentContent}${flagChanges}${reviewCompleted}`;
       
-      const reviewResponse = await fetch('/api/reviews', {
+      const reviewResponse = await apiFetch('/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           projectID,
           comment: finalReviewComment,
@@ -477,7 +477,7 @@ export default function ReviewSection({
   const handleDeleteReview = async (reviewId: string) => {
     try {
       setIsDeletingReview(reviewId);
-      const response = await fetch(`/api/reviews?id=${reviewId}`, {
+      const response = await apiFetch(`/api/reviews?id=${reviewId}`, {
         method: 'DELETE',
       });
       

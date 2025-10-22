@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { createAvatar } from '@dicebear/core';
 import { thumbs } from '@dicebear/collection';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/apiFetch';
 import { usePathname } from 'next/navigation';
 import { AppConfig } from '@/lib/config';
 import ExperienceToggle from './ExperienceToggle';
@@ -75,7 +76,7 @@ export default function Header({ session, status }: HeaderProps) {
     useEffect(() => {
         if (status === 'authenticated') {
             // Fetch user data
-            fetch('/api/users/me', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
+            apiFetch('/api/users/me').then(async (res) => {
                 if (res.ok) {
                     const data = await res.json();
                     setIsShopOrdersAdmin(!!data.isShopOrdersAdmin);
@@ -83,7 +84,7 @@ export default function Header({ session, status }: HeaderProps) {
             });
 
             // Fetch travel stipends
-            fetch('/api/users/me/shop-orders', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
+            apiFetch('/api/users/me/shop-orders').then(async (res) => {
                 if (res.ok) {
                     const ordersData = await res.json();
                     
@@ -103,7 +104,7 @@ export default function Header({ session, status }: HeaderProps) {
             });
 
             // Fetch stardust balance
-            fetch('/api/users/me/currency', { credentials: 'include', cache: 'no-store' }).then(async (res) => {
+            apiFetch('/api/users/me/currency').then(async (res) => {
                 if (res.ok) {
                     const data = await res.json();
                     // Prefer top-level availablecurrency; fall back to legacy keys
@@ -312,9 +313,9 @@ export default function Header({ session, status }: HeaderProps) {
                                         <Link 
                                             href="/admin/shop-orders" 
                                             className={`block px-3 py-2 rounded transition-colors ${
-                                                isActive('/admin/shop-orders') || pathname.startsWith('/admin/shop-orders') 
-                                                    ? 'font-semibold text-[#47D1F6] bg-blue-50 border-l-4 border-[#47D1F6]' 
-                                                    : 'text-gray-700 hover:bg-gray-100 hover:text-[#47D1F6] border-l-4 border-transparent'
+                                                isActive('/admin/shop-orders') || pathname.startsWith('/admin/shop-orders')
+                                                    ? 'bg-orange-600/25 border-l-4 border-orange-500'
+                                                    : 'hover:bg-orange-600/20 border-l-4 border-transparent'
                                             }`}
                                             onClick={() => setAdminMenuOpen(false)}
                                         >
