@@ -89,50 +89,44 @@ export default function Header({ session, status }: HeaderProps) {
         };
     }, []);
     
-    // Fetch isShopOrdersAdmin, travel stipends, and stardust on mount
+    // Fetch isShopOrdersAdmin, then dependent data after session is ready
     useEffect(() => {
-        if (status === 'authenticated' && session?.user?.id) {
-            // Fetch user data
-            apiFetch('/api/users/me').then(async (res) => {
-                if (res.ok) {
-                    const data = await res.json();
-                    setIsShopOrdersAdmin(!!data.isShopOrdersAdmin);
-                }
-            });
+        if (status !== 'authenticated' || !session?.user?.id) return;
 
-            // Fetch travel stipends
-            apiFetch('/api/users/me/shop-orders').then(async (res) => {
-                if (res.ok) {
-                    const ordersData = await res.json();
-                    
-                    // Calculate travel stipend total from fulfilled orders
+        const fetchSequential = async () => {
+            try {
+                const meRes = await apiFetch('/api/users/me');
+                if (!meRes.ok) return; // do not proceed without a confirmed session
+                const me = await meRes.json();
+                setIsShopOrdersAdmin(!!me.isShopOrdersAdmin);
+
+                // Travel stipends
+                const ordersRes = await apiFetch('/api/users/me/shop-orders');
+                if (ordersRes.ok) {
+                    const ordersData = await ordersRes.json();
                     let totalHours = 0;
                     ordersData.orders.forEach((order: ShopOrder) => {
                         if (order.status === 'fulfilled' && order.itemName.toLowerCase().includes('travel stipend')) {
-                            totalHours += order.quantity; // Each quantity represents 1 hour
+                            totalHours += order.quantity;
                         }
                     });
-                    
-                    setTravelStipends({
-                        totalHours,
-                        totalAmount: totalHours * 10 // $10 per hour
-                    });
+                    setTravelStipends({ totalHours, totalAmount: totalHours * 10 });
                 }
-            });
 
-            // Fetch stardust balance
-            apiFetch('/api/users/me/currency').then(async (res) => {
-                if (res.ok) {
-                    const data = await res.json();
-                    // Prefer top-level availablecurrency; fall back to legacy keys
+                // Stardust balance
+                const currencyRes = await apiFetch('/api/users/me/currency');
+                if (currencyRes.ok) {
+                    const data = await currencyRes.json();
                     const balance =
                         typeof data?.availablecurrency === 'number' ? data.availablecurrency :
                         typeof data?.currency === 'number' ? data.currency :
                         typeof data?.progress?.availablecurrency === 'number' ? data.progress.availablecurrency : 0;
                     setStardust(Number(balance));
                 }
-            }).catch(() => {});
-        }
+            } catch {}
+        };
+
+        fetchSequential();
     }, [status, session?.user?.id]);
 
     // More robust role checking - explicitly check for roles, don't show admin/review for regular users 

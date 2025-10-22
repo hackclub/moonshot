@@ -9,8 +9,24 @@ const SHOP_ORDERS_ADMIN_WHITELIST = (process.env.SHOP_ORDERS_ADMIN_WHITELIST || 
 
 export async function GET(request: NextRequest) {
   try {
+    // Diagnostics to understand 401s after navigation/purchase
+    try {
+      const cookieHeader = request.headers.get('cookie') || '';
+      const cookieNames = request.cookies.getAll().map(c => c.name);
+      const referer = request.headers.get('referer') || '';
+      const ua = request.headers.get('user-agent') || '';
+      console.log('[SHOP-ORDERS] Incoming GET', {
+        cookiePresent: cookieHeader.length > 0,
+        cookieNames,
+        referer,
+        ua,
+        url: request.url,
+      });
+    } catch {}
+
     const session = await getServerSession(opts);
     if (!session?.user?.email) {
+      console.log('[SHOP-ORDERS] getServerSession returned no user -> 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -59,8 +75,22 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Diagnostics
+    try {
+      const cookieHeader = request.headers.get('cookie') || '';
+      const cookieNames = request.cookies.getAll().map(c => c.name);
+      const referer = request.headers.get('referer') || '';
+      console.log('[SHOP-ORDERS] Incoming PATCH', {
+        cookiePresent: cookieHeader.length > 0,
+        cookieNames,
+        referer,
+        url: request.url,
+      });
+    } catch {}
+
     const session = await getServerSession(opts);
     if (!session?.user?.email) {
+      console.log('[SHOP-ORDERS] getServerSession returned no user (PATCH) -> 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

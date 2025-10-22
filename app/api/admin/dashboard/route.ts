@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { opts } from '@/app/api/auth/[...nextauth]/route';
@@ -67,12 +67,38 @@ async function getAuditLogTimeSeries() {
   return Array.from(groupedData.values());
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Copious logging for diagnosing intermittent 401s
+  try {
+    const cookieHeader = request.headers.get('cookie') || '';
+    const ua = request.headers.get('user-agent') || '';
+    const referer = request.headers.get('referer') || '';
+    const cookieNames = request.cookies.getAll().map((c) => c.name);
+    console.log('[ADMIN DASHBOARD] Incoming request', {
+      method: request.method,
+      url: request.nextUrl?.pathname || 'unknown',
+      cookiePresent: cookieHeader.length > 0,
+      cookieNames,
+      ua,
+      referer,
+    });
+  } catch (e) {
+    console.log('[ADMIN DASHBOARD] Failed to log request headers:', e instanceof Error ? e.message : e);
+  }
+
   // Check authentication
   const session = await getServerSession(opts);
   if (!session?.user) {
+    console.log('[ADMIN DASHBOARD] getServerSession returned no user – sending 401');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  console.log('[ADMIN DASHBOARD] Session resolved', {
+    userId: session.user.id,
+    email: session.user.email,
+    role: session.user.role,
+    isAdminFlag: session.user.isAdmin === true,
+  });
 
   // Check for admin role or isAdmin flag
   const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;

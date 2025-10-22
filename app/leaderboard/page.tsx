@@ -65,7 +65,7 @@ function LeaderboardContent() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false); // deprecated
   const [progressData, setProgressData] = useState<Record<string, unknown>>({}); // deprecated
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   
   useEffect(() => {
     async function fetchUsers() {
@@ -186,27 +186,24 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
   });
 
    // Fetch shell balance and progress data
-   useEffect(() => {
-    const fetchShellBalance = async () => {
-      if (!session?.user?.id) {
-        return;
-      }
+  useEffect(() => {
+   const fetchShellBalance = async () => {
+     if (status !== 'authenticated' || !session?.user?.id) return;
+     try {
+       const response = await apiFetch('/api/users/me/currency');
+       if (response.ok) {
+         const data = await response.json();
+         setProgressData(data.progress);
+       } else if (response.status !== 401) {
+         console.error('Failed to fetch shell balance:', response.status);
+       }
+     } catch (error) {
+       console.error('Error fetching shell balance:', error);
+     }
+   };
 
-      try {
-        const response = await apiFetch('/api/users/me/currency');
-        if (response.ok) {
-          const data = await response.json();
-          setProgressData(data.progress);
-        } else {
-          console.error('Failed to fetch shell balance');
-        }
-      } catch (error) {
-        console.error('Error fetching shell balance:', error);
-      }
-    };
-
-    fetchShellBalance();
-  }, [session?.user?.id]);
+   fetchShellBalance();
+ }, [status, session?.user?.id]);
 
   const getProgressBadge = (user: User, projects: ProjectType[]) => {
     try {

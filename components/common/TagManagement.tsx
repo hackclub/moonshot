@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
 import { toast } from 'sonner';
 import Modal from './Modal';
@@ -42,6 +43,8 @@ export default function TagManagement({
   showTitle = true,
   compact = false
 }: TagManagementProps) {
+  const { status, data: session } = useSession();
+  const authReady = status === 'authenticated' && !!session?.user?.id;
   // Tag management state
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [isLoadingTags, setIsLoadingTags] = useState(false);
@@ -54,7 +57,7 @@ export default function TagManagement({
   const [existingTagMatch, setExistingTagMatch] = useState<Tag | null>(null);
   const [tagAction, setTagAction] = useState<'create' | 'use' | 'update'>('create');
 
-  // Fetch available tags
+  // Fetch available tags (auth-gated)
   useEffect(() => {
     async function fetchTags() {
       try {
@@ -75,8 +78,8 @@ export default function TagManagement({
       }
     }
     
-    fetchTags();
-  }, []);
+    if (authReady) fetchTags();
+  }, [authReady]);
 
   // Check for existing tag matches when name changes
   useEffect(() => {

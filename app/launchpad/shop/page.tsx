@@ -23,7 +23,8 @@ interface ShellBalance {
 }
 
 export default function ShopPage() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
+  const authReady = status === 'authenticated' && !!session?.user?.id;
   const [items, setItems] = useState<ShopItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [usercurrency, setUsercurrency] = useState<ShellBalance | null>(null);
@@ -36,7 +37,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (status !== 'authenticated') {
+      if (status !== 'authenticated' || !session?.user?.id) {
         if (status !== 'loading') setLoading(false);
         return;
       }
@@ -62,11 +63,14 @@ export default function ShopPage() {
     };
 
     fetchData();
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   const handlePurchase = async () => {
     if (!selectedItem) return;
-    if (status !== 'authenticated') return;
+    if (!authReady) {
+      setError('Please sign in again and try your purchase.');
+      return;
+    }
 
     setIsPurchasing(true);
     setError(null);
@@ -101,11 +105,13 @@ export default function ShopPage() {
         setSuccessMessage('');
       }, 3000);
       
-      // Refresh shell balance
-      const currencyResponse = await apiFetch('/api/users/me/currency');
-      if (currencyResponse.ok) {
-        const currencyData = await currencyResponse.json();
-        setUsercurrency(currencyData);
+      // Refresh shell balance only if session is still valid
+      if (authReady) {
+        const currencyResponse = await apiFetch('/api/users/me/currency');
+        if (currencyResponse.ok) {
+          const currencyData = await currencyResponse.json();
+          setUsercurrency(currencyData);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Purchase failed');
@@ -352,14 +358,14 @@ export default function ShopPage() {
               </button>
               <button
                 onClick={handlePurchase}
-                disabled={isPurchasing}
+                disabled={isPurchasing || !authReady}
                 className={`flex-1 py-3 px-4 rounded-lg font-semibold text-white transition ${
-                  isPurchasing 
+                  isPurchasing || !authReady
                     ? 'bg-gray-400 cursor-not-allowed' 
                     : styles.stardustBuyButton
                 }`}
               >
-                {isPurchasing ? 'Processing...' : '✨ Confirm Purchase ✨'}
+                {isPurchasing ? 'Processing...' : (!authReady ? 'Sign in required' : '✨ Confirm Purchase ✨')}
               </button>
             </div>
           </div>
