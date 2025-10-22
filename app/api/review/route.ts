@@ -157,8 +157,14 @@ export async function GET() {
         0
       );
 
+      // Normalize screenshot: ensure valid http(s) URL or null
+      const screenshot = typeof project.screenshot === 'string' && /^(https?:)?\/\//i.test(project.screenshot)
+        ? project.screenshot
+        : null;
+
       return {
         ...project,
+        screenshot,
         userName: project.user?.name || null,
         userEmail: project.user?.email || null,
         userImage: project.user?.image || null,
