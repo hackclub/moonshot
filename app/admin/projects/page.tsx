@@ -623,7 +623,7 @@ function AdminProjectsContent() {
 
   const handleTagsUpdated = () => {
     // Refresh projects list to get updated tags
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       async function fetchProjects() {
         try {
           const url = currentFilter === 'all' 
