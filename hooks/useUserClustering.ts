@@ -118,7 +118,7 @@ export function useUserClassification(userId?: string) {
   };
 }
 
-export function useUserClusterAnalysis() {
+export function useUserClusterAnalysis(enabled: boolean = true) {
   const [analysis, setAnalysis] = useState<UserClusterAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,6 +131,23 @@ export function useUserClusterAnalysis() {
       const response = await fetch('/api/analytics/user-clusters', { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
+        if (response.status === 401) {
+          setAnalysis({
+            totalUsers: 0,
+            clusters: {
+              whales: { count: 0, percentage: 0, users: [], thresholds: { minHours: 0, minProjects: 0, minShipped: 0 } },
+              shippers: { count: 0, percentage: 0, users: [], thresholds: { hourRange: [0,0], projectRange: [0,0], shippedRange: [0,0] } },
+              newbies: { count: 0, percentage: 0, users: [], thresholds: { maxHours: 0, maxProjects: 0, maxShipped: 0 } }
+            },
+            statistics: {
+              hours: { mean: 0, median: 0, p75: 0, p90: 0 },
+              projects: { mean: 0, median: 0, p75: 0, p90: 0 },
+              shipped: { mean: 0, median: 0, p75: 0, p90: 0 },
+            },
+            lastUpdated: new Date().toISOString(),
+          } as any);
+          return;
+        }
         throw new Error(`Failed to fetch user cluster analysis: ${response.statusText}`);
       }
       
@@ -146,8 +163,9 @@ export function useUserClusterAnalysis() {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
     fetchAnalysis();
-  }, [fetchAnalysis]);
+  }, [fetchAnalysis, enabled]);
 
   return {
     analysis,

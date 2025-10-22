@@ -7,7 +7,7 @@ interface UserClusterChartProps {
 }
 
 export default function UserClusterChart({ className = '' }: UserClusterChartProps) {
-  const { analysis, loading, error } = useUserClusterAnalysis();
+  const { analysis, loading, error } = useUserClusterAnalysis(true);
 
   if (loading) {
     return (

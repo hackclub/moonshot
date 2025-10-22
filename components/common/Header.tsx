@@ -74,7 +74,7 @@ export default function Header({ session, status }: HeaderProps) {
     
     // Fetch isShopOrdersAdmin, travel stipends, and stardust on mount
     useEffect(() => {
-        if (status === 'authenticated') {
+        if (status === 'authenticated' && session?.user?.id) {
             // Fetch user data
             apiFetch('/api/users/me').then(async (res) => {
                 if (res.ok) {
@@ -116,7 +116,7 @@ export default function Header({ session, status }: HeaderProps) {
                 }
             }).catch(() => {});
         }
-    }, [status]);
+    }, [status, session?.user?.id]);
 
     // More robust role checking - explicitly check for roles, don't show admin/review for regular users 
     const userRole = session?.user?.role || 'User';

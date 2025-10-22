@@ -67,6 +67,7 @@ type SortOrder = 'asc' | 'desc';
 // Create a wrapper component that uses Suspense
 function AdminUsersContent() {
   const { data: session, status } = useSession();
+  const authReady = status === 'authenticated' && !!session?.user?.id;
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -155,10 +156,10 @@ function AdminUsersContent() {
       }
     }
     
-    if (status === 'authenticated') {
+    if (authReady) {
       fetchUsers();
     }
-  }, [status]);
+  }, [authReady]);
 
   // Fetch available tags
   useEffect(() => {
@@ -179,10 +180,10 @@ function AdminUsersContent() {
       }
     }
     
-    if (status === 'authenticated') {
+    if (authReady) {
       fetchTags();
     }
-  }, [status]);
+  }, [authReady]);
 
   // Handle sorting
   const handleSort = (field: SortField) => {
@@ -386,6 +387,17 @@ function AdminUsersContent() {
     setShowDeleteModal(true);
   };
 
+  if (status === 'loading' || !authReady) {
+    return (
+      <div className="min-h-screen bg-black/60 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold">Loading…</h2>
+        </div>
+      </div>
+    );
+  }
+
   if (status !== 'authenticated') {
     return (
       <div className="min-h-screen bg-black/60 text-white flex items-center justify-center">
@@ -411,7 +423,7 @@ function AdminUsersContent() {
 
   return (
     <div className="min-h-screen bg-black/60 text-white">
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-6 flex justify-between items-center max-w-7xl mx-auto px-4">
         <h1 className="text-2xl font-bold">Administrate Users</h1>
         <button
           onClick={toggleBriefMode}
@@ -437,7 +449,7 @@ function AdminUsersContent() {
         </button>
       </div>
       
-      <div className="mb-6">
+      <div className="mb-6 max-w-7xl mx-auto px-4">
         <div className="relative">
           <input
             type="text"
@@ -453,7 +465,7 @@ function AdminUsersContent() {
       </div>
 
       {/* Tag Filter */}
-      <div className="mb-6">
+      <div className="mb-6 max-w-7xl mx-auto px-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-white">Filter by tags:</span>
           {isLoadingTags ? (
@@ -529,15 +541,15 @@ function AdminUsersContent() {
       </div>
       
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
+        <div className="flex justify-center items-center h-64 max-w-7xl mx-auto px-4">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden lg:block bg-black/50 border border-white/10 rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+          <div className="hidden lg:block max-w-7xl mx-auto px-4">
+            <div className="overflow-x-auto rounded-lg">
+                <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-white/5">
                 <tr>
                   {!briefMode && (
@@ -816,9 +828,9 @@ function AdminUsersContent() {
           </div>
 
           {/* Mobile Card View */}
-          <div className="lg:hidden">
+          <div className="lg:hidden space-y-4 max-w-7xl mx-auto px-4">
             {/* Mobile Sort Controls */}
-            <div className="mb-4 bg-black/50 border border-white/10 rounded-lg shadow p-4">
+            <div className="bg-black/50 border border-white/10 rounded-lg shadow p-4">
               <div className="text-sm font-medium mb-2">Sort by:</div>
               <div className="flex flex-wrap gap-2">
                 <button

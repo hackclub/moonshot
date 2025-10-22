@@ -14,7 +14,7 @@ interface ProjectHistogramChartProps {
 }
 
 export default function ProjectHistogramChart({ className = '' }: ProjectHistogramChartProps) {
-  const { analysis, loading, error } = useHistogramAnalysis();
+  const { analysis, loading, error } = useHistogramAnalysis(true);
 
   if (loading) {
     return (
