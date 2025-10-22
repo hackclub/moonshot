@@ -64,6 +64,23 @@ export default function Header({ session, status }: HeaderProps) {
                     filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
                 }
             }
+            @keyframes yellowFlash {
+                0% { 
+                    color: #fbbf24;
+                    text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+                }
+                50% { 
+                    color: #f59e0b;
+                    text-shadow: 0 0 15px rgba(245, 158, 11, 0.8), 0 0 25px rgba(251, 191, 36, 0.6);
+                }
+                100% { 
+                    color: #fbbf24;
+                    text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+                }
+            }
+            .yellow-flash:hover {
+                animation: yellowFlash 1.5s ease-in-out infinite;
+            }
         `;
         document.head.appendChild(style);
         
@@ -123,9 +140,8 @@ export default function Header({ session, status }: HeaderProps) {
     const isUserAdmin = userRole === 'Admin' || (session?.user?.isAdmin === true && userRole !== 'User');
     const isUserReviewer = userRole === 'Admin' || userRole === 'Reviewer';
 
-    // Eligibility for shop
-    const userStatus = session && session.user && typeof session.user.status === 'string' ? session.user.status : 'Unknown';
-    const canAccessShop = isUserAdmin || (userStatus !== 'FraudSuspect' && userStatus !== 'Unknown');
+    // Eligibility for shop - now available to all authenticated users
+    const canAccessShop = status === 'authenticated';
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -180,13 +196,13 @@ export default function Header({ session, status }: HeaderProps) {
                 <div className="hidden md:flex space-x-3 lg:space-x-4 xl:space-x-6 text-white">
                     <Link 
                         href="/launchpad" 
-                        className={`transition-colors ${isActive('/launchpad') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                        className={`transition-colors yellow-flash ${isActive('/launchpad') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                     >
                         My Projects
                     </Link>
                     <Link 
                         href="/gallery" 
-                        className={`transition-colors ${isActive('/gallery') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                        className={`transition-colors yellow-flash ${isActive('/gallery') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                     >
                         Gallery
                     </Link>
@@ -194,25 +210,25 @@ export default function Header({ session, status }: HeaderProps) {
                         <>
                             <Link 
                                 href="/leaderboard" 
-                                className={`transition-colors ${isActive('/leaderboard') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                className={`transition-colors yellow-flash ${isActive('/leaderboard') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                             >
                                 Leaderboard
                             </Link>
                             <Link 
                                 href="/launchpad/faq" 
-                                className={`transition-colors ${isActive('/launchpad/faq') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                className={`transition-colors yellow-flash ${isActive('/launchpad/faq') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                             >
                                 FAQ
                             </Link>
                             <Link 
                                 href="/launchpad/badge" 
-                                className={`transition-colors ${isActive('/launchpad/badge') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                className={`transition-colors yellow-flash ${isActive('/launchpad/badge') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                             >
                                 Badge
                             </Link>
                             <Link 
                                 href="/settings" 
-                                className={`transition-colors ${isActive('/settings') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                                className={`transition-colors yellow-flash ${isActive('/settings') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                             >
                                 Settings
                             </Link>
@@ -222,7 +238,7 @@ export default function Header({ session, status }: HeaderProps) {
                     {!isIslandMode && isUserReviewer && (
                         <Link 
                             href="/review" 
-                            className={`transition-colors ${isActive('/review') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                            className={`transition-colors yellow-flash ${isActive('/review') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                         >
                             Review
                         </Link>
@@ -231,7 +247,7 @@ export default function Header({ session, status }: HeaderProps) {
                     {!isIslandMode && canAccessShop && (
                         <Link 
                             href="/launchpad/shop" 
-                            className={`relative transition-all duration-300 ${isActive('/launchpad/shop') ? 'font-semibold underline underline-offset-4' : 'hover:text-cyan-100'}`}
+                            className={`relative transition-all duration-300 yellow-flash ${isActive('/launchpad/shop') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
                             style={{
                                 background: 'linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6)',
                                 backgroundSize: '200% 200%',
@@ -250,11 +266,11 @@ export default function Header({ session, status }: HeaderProps) {
                         <div className="relative group" ref={adminMenuRef}>
                             <button
                                 onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                                className={`flex items-center transition-colors ${
+                                className={`flex items-center transition-colors yellow-flash ${
                                     isAdminActive()
-                                        ? 'font-semibold underline underline-offset-4'
-                                        : 'hover:text-orange-400 group-hover:text-orange-400'
-                                } ${adminMenuOpen ? 'text-orange-400' : ''}`}
+                                        ? 'font-semibold underline underline-offset-4 text-blue-400'
+                                        : 'hover:text-yellow-400 group-hover:text-yellow-400'
+                                } ${adminMenuOpen ? 'text-blue-400' : ''}`}
                             >
                                 Admin
                                 <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,8 +284,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin') 
-                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
-                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
+                                                ? 'bg-yellow-600/25 border-l-4 border-yellow-500' 
+                                                : 'hover:bg-yellow-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -279,8 +295,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin/users" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin/users') || pathname.startsWith('/admin/users/') 
-                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
-                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
+                                                ? 'bg-yellow-600/25 border-l-4 border-yellow-500' 
+                                                : 'hover:bg-yellow-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -290,8 +306,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin/projects" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin/projects') || pathname.startsWith('/admin/projects/') 
-                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
-                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
+                                                ? 'bg-yellow-600/25 border-l-4 border-yellow-500' 
+                                                : 'hover:bg-yellow-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -301,8 +317,8 @@ export default function Header({ session, status }: HeaderProps) {
                                         href="/admin/audit-logs" 
                                         className={`block px-3 py-2 rounded transition-colors ${
                                             isActive('/admin/audit-logs') || pathname.startsWith('/admin/audit-logs/') 
-                                                ? 'bg-orange-600/25 border-l-4 border-orange-500' 
-                                                : 'hover:bg-orange-600/20 border-l-4 border-transparent'
+                                                ? 'bg-yellow-600/25 border-l-4 border-yellow-500' 
+                                                : 'hover:bg-yellow-600/20 border-l-4 border-transparent'
                                         }`}
                                         onClick={() => setAdminMenuOpen(false)}
                                     >
@@ -314,8 +330,8 @@ export default function Header({ session, status }: HeaderProps) {
                                             href="/admin/shop-orders" 
                                             className={`block px-3 py-2 rounded transition-colors ${
                                                 isActive('/admin/shop-orders') || pathname.startsWith('/admin/shop-orders')
-                                                    ? 'bg-orange-600/25 border-l-4 border-orange-500'
-                                                    : 'hover:bg-orange-600/20 border-l-4 border-transparent'
+                                                    ? 'bg-yellow-600/25 border-l-4 border-yellow-500'
+                                                    : 'hover:bg-yellow-600/20 border-l-4 border-transparent'
                                             }`}
                                             onClick={() => setAdminMenuOpen(false)}
                                         >
@@ -334,14 +350,14 @@ export default function Header({ session, status }: HeaderProps) {
                         <div className="space-y-4">
                             <Link 
                                 href="/launchpad" 
-                                className={`block transition-colors ${isActive('/launchpad') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                className={`block transition-colors yellow-flash ${isActive('/launchpad') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 My Projects
                             </Link>
                             <Link 
                                 href="/gallery" 
-                                className={`block transition-colors ${isActive('/gallery') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                className={`block transition-colors yellow-flash ${isActive('/gallery') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 Gallery
@@ -350,28 +366,28 @@ export default function Header({ session, status }: HeaderProps) {
                                 <>
                                     <Link 
                                         href="/leaderboard" 
-                                        className={`block transition-colors ${isActive('/leaderboard') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block transition-colors yellow-flash ${isActive('/leaderboard') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Leaderboard
                                     </Link>
                                     <Link 
                                         href="/launchpad/faq" 
-                                        className={`block transition-colors ${isActive('/launchpad/faq') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block transition-colors yellow-flash ${isActive('/launchpad/faq') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         FAQ
                                     </Link>
                                     <Link 
                                         href="/launchpad/badge" 
-                                        className={`block transition-colors ${isActive('/launchpad/badge') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block transition-colors yellow-flash ${isActive('/launchpad/badge') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Badge
                                     </Link>
                                     <Link 
                                         href="/settings" 
-                                        className={`block transition-colors ${isActive('/settings') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block transition-colors yellow-flash ${isActive('/settings') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Settings
@@ -382,7 +398,7 @@ export default function Header({ session, status }: HeaderProps) {
                             {!isIslandMode && canAccessShop && (
                                 <Link 
                                     href="/launchpad/shop" 
-                                    className={`block transition-all duration-300 ${isActive('/launchpad/shop') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                    className={`block transition-all duration-300 yellow-flash ${isActive('/launchpad/shop') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                     style={{
                                         background: 'linear-gradient(45deg, #8b5cf6, #3b82f6, #8b5cf6)',
                                         backgroundSize: '200% 200%',
@@ -410,28 +426,28 @@ export default function Header({ session, status }: HeaderProps) {
                                     <div className="font-semibold text-white">Admin</div>
                                     <Link 
                                         href="/admin" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block pl-4 transition-colors yellow-flash ${isActive('/admin') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Dashboard
                                     </Link>
                                     <Link 
                                         href="/admin/users" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin/users') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block pl-4 transition-colors yellow-flash ${isActive('/admin/users') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Users
                                     </Link>
                                     <Link 
                                         href="/admin/projects" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin/projects') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block pl-4 transition-colors yellow-flash ${isActive('/admin/projects') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Projects
                                     </Link>
                                     <Link 
                                         href="/admin/audit-logs" 
-                                        className={`block pl-4 transition-colors ${isActive('/admin/audit-logs') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                        className={`block pl-4 transition-colors yellow-flash ${isActive('/admin/audit-logs') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Audit Logs
@@ -439,7 +455,7 @@ export default function Header({ session, status }: HeaderProps) {
                                     {isShopOrdersAdmin && (
                                         <Link 
                                             href="/admin/shop-orders" 
-                                            className={`block pl-4 transition-colors ${isActive('/admin/shop-orders') ? 'font-semibold text-orange-400' : 'text-white hover:text-orange-400'}`}
+                                            className={`block pl-4 transition-colors yellow-flash ${isActive('/admin/shop-orders') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             Shop Orders

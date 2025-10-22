@@ -1303,7 +1303,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                   </div>
                   
                   {/* Fixed position button that stays at the bottom */}
-                  <div className="sticky bottom-0 left-0 right-0 p-4 p-4 mt-4 bg-transparent border-t border-white/10 z-20">
+                  <div className="sticky bottom-0 left-0 right-0 p-4 mt-4 bg-transparent border-t border-white/10 z-20">
                     <button
                       type="submit"
                       className="w-full px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded transition-colors focus:outline-none flex items-center justify-center gap-2"
