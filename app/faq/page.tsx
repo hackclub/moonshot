@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import ClientEffects from './ClientEffects';
 import './faq.css';
 
@@ -8,18 +8,27 @@ export default function FAQ() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stickersLayerRef = useRef<HTMLDivElement | null>(null);
 
+  // Ensure the global background matches other screens exactly
+  useEffect(() => {
+    document.body.classList.add('starspace-bg');
+    return () => {
+      document.body.classList.remove('starspace-bg');
+    };
+  }, []);
+
   // Move effects to a separate client component to avoid layout flashes
 
   return (
     <div ref={containerRef} className="faq-standalone">
       <ClientEffects />
-      <div className="stars" aria-hidden="true">
+      {/* Local stars disabled to avoid conflicting with the global starspace background */}
+      {/* <div className="stars" aria-hidden="true">
         <div className="star"></div>
         <div className="star"></div>
         <div className="star"></div>
         <div className="star"></div>
         <div className="star"></div>
-      </div>
+      </div> */}
 
       <div className="floating-stickers" id="faq-stickers" ref={stickersLayerRef} aria-hidden="true"></div>
 
@@ -58,7 +67,7 @@ export default function FAQ() {
               There is no specific theme required, just remember to follow the approval requirements. You can work with:<br /><br />
               • <strong>Software</strong> → Track time with <a href="https://hackatime.hackclub.com/" target="_blank">Hackatime</a> (if you have problems setting it up, ask for help in the Slack channel <a href="https://hackclub.slack.com/archives/C08MDGUPJ6A" target="_blank">#hackatime-v2</a>)<br />
               • <strong>Hardware</strong> → Track time with <a href="#journaling-system">journaling system</a><br />
-              • <strong>Video editing and art</strong> (MAX. 10% of overall time) → Track time with <a href="#journaling-system">journaling system</a>
+              • <strong>Art</strong> → Track time with any method you prefer <em>(we still require you to post your progress on Slack)</em><br />
             </div>
           </div>
         </div>

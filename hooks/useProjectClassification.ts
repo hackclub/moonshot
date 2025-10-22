@@ -84,7 +84,7 @@ export function useProjectClassification(hours?: number) {
   };
 }
 
-export function useHistogramAnalysis() {
+export function useHistogramAnalysis(enabled: boolean = true) {
   const [analysis, setAnalysis] = useState<HistogramAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +97,20 @@ export function useHistogramAnalysis() {
       const response = await fetch('/api/analytics/project-histogram', { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
+        // Gracefully degrade if unauthenticated (e.g., initial page hydration race)
+        if (response.status === 401) {
+          setAnalysis({
+            bins: [],
+            mean: 0,
+            median: 0,
+            standardDeviation: 0,
+            percentiles: { p25: 0, p50: 0, p75: 0, p90: 0, p95: 0 },
+            outlierThresholds: { lower: 0, upper: 0 },
+            classifications: { veryLow: 0, low: 0, normal: 0, high: 0, veryHigh: 0 },
+            lastUpdated: new Date().toISOString(),
+          } as any);
+          return;
+        }
         throw new Error(`Failed to fetch histogram analysis: ${response.statusText}`);
       }
       
@@ -112,8 +126,9 @@ export function useHistogramAnalysis() {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
     fetchAnalysis();
-  }, [fetchAnalysis]);
+  }, [fetchAnalysis, enabled]);
 
   return {
     analysis,
