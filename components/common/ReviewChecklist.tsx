@@ -24,7 +24,7 @@ export default function ReviewChecklist({ isSubmitting, onChecklistStateChange }
   }, [allItemsChecked, justification, onChecklistStateChange, isChecklistComplete]);
 
   return (
-    <div className="bg-black/60 text-white p-4 rounded-lg border-l-4 border-orange-600 mb-4 border border-white/10">
+    <div className="bg-black/60 text-white p-4 rounded-lg border-l-4 border-orange-600 mb-4">
       <h3 className="text-sm font-bold text-white mb-3">Review Checklist</h3>
       <p className="text-sm text-white/80 mb-4">
         Please complete all checklist items before approving this review.
