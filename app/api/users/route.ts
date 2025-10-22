@@ -22,8 +22,9 @@ export async function GET() {
                 createdAt: 'desc',
               },
         });
+        const rawList = Array.isArray(usersRaw) ? usersRaw : [];
         // Ensure all values are JSON-serializable (Prisma Decimal/Date conversions)
-        const users = usersRaw.map((u) => ({
+        const users = rawList.map((u) => ({
             ...u,
             createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : u.createdAt,
             totalCurrencySpent: u.totalCurrencySpent != null ? Number(u.totalCurrencySpent as unknown as number) : 0,

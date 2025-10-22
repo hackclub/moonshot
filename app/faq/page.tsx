@@ -11,7 +11,7 @@ export default function FAQ() {
   // Move effects to a separate client component to avoid layout flashes
 
   return (
-    <div ref={containerRef} className="faq-standalone" style={{ backgroundColor: '#0b0f19' }}>
+    <div ref={containerRef} className="faq-standalone">
       <ClientEffects />
       <div className="stars" aria-hidden="true">
         <div className="star"></div>
