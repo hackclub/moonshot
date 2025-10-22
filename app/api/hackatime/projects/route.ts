@@ -34,7 +34,18 @@ export async function GET(request: Request) {
         // console.log('✨ Found Hackatime ID:', dbUser.hackatimeId);
 
         console.log('📡 Fetching projects from Hackatime API...');
-        const projects = await fetchHackatimeProjects(hackatimeId);
+        let projects = [] as any[];
+        try {
+            projects = await fetchHackatimeProjects(hackatimeId);
+        } catch (e) {
+            // If external service returns 401/any error, degrade gracefully in mock/dev
+            if (process.env.HACKATIME_MOCK === 'true' || process.env.HACKATIME_MOCK === '1') {
+                console.warn('⚠️ Falling back to mock projects after upstream error');
+                projects = await fetchHackatimeProjects('mock-user');
+            } else {
+                return Response.json({ error: 'Hackatime unavailable' }, { status: 503 });
+            }
+        }
         // console.log('📦 Received Hackatime projects:', {
         //     count: projects.length,
         //     projectNames: projects.map(p => p.name)

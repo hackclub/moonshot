@@ -706,6 +706,22 @@ function ReviewPage() {
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoadingTags, setIsLoadingTags] = useState(false);
+  // Persisted dashboard collapse
+  const [dashCollapsed, setDashCollapsed] = useState(false);
+  useEffect(() => {
+    try {
+      const cookie = document.cookie.split('; ').find((r) => r.startsWith('reviewDashCollapsed='));
+      if (cookie) {
+        const v = cookie.split('=')[1];
+        setDashCollapsed(v === '1' || v === 'true');
+      }
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      document.cookie = `reviewDashCollapsed=${dashCollapsed ? '1' : '0'}; max-age=31536000; path=/`;
+    } catch {}
+  }, [dashCollapsed]);
   // Auto-enable review mode when the component mounts
   useEffect(() => {
     enableReviewMode();
@@ -803,17 +819,22 @@ function ReviewPage() {
   const fetchProjectsInReview = async () => {
     try {
       setIsLoading(true);
+      console.log('[REVIEW DEBUG] fetching /api/review …');
       const response = await apiFetch('/api/review');
+      console.log('[REVIEW DEBUG] /api/review status:', response.status);
       
       if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        console.warn('[REVIEW DEBUG] /api/review not ok:', response.status, text);
         throw new Error('Failed to fetch projects in review');
       }
       
       const data = await response.json();
+      console.log('[REVIEW DEBUG] received projects:', Array.isArray(data) ? data.length : typeof data);
       setProjects(data);
       setFilteredProjects(data); // Initialize filtered projects with all projects
     } catch (err) {
-      console.error('Error fetching projects in review:', err);
+      console.error('[REVIEW DEBUG] Error fetching projects in review:', err);
       setError('Failed to load projects that need review. Please try again later.');
     } finally {
       setIsLoading(false);
@@ -849,15 +870,26 @@ function ReviewPage() {
           </div>
         </div>
 
-        {/* Analytics Charts */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-            <ProjectHistogramChart />
-          </div>
-          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-            <UserClusterChart />
-          </div>
+        {/* Analytics Charts with collapse */}
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-white">Review Analytics</h2>
+          <button
+            onClick={() => setDashCollapsed((v) => !v)}
+            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${dashCollapsed ? 'bg-white/10 border-white/20 text-white hover:bg-white/20' : 'bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30'}`}
+          >
+            {dashCollapsed ? 'Show dashboards' : 'Hide dashboards'}
+          </button>
         </div>
+        {!dashCollapsed && (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+            <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+              <ProjectHistogramChart />
+            </div>
+            <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+              <UserClusterChart />
+            </div>
+          </div>
+        )}
         
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
@@ -1048,7 +1080,7 @@ function ReviewPage() {
                 <ProjectCard 
                   key={project.projectID} 
                   project={project} 
-                  onClick={() => setSelectedProject(project)}
+                  onClick={() => router.push(`/review/${project.projectID}`)}
                 />
               ))
             )}
@@ -1057,7 +1089,7 @@ function ReviewPage() {
         
         {/* Project Detail Modal */}
         {selectedProject && (
-          <div className="fixed inset-0 starspace-bg bg-black/60 flex items-start justify-center p-4 pt-20 md:pt-24 z-50 w-[100vw]">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 pt-20 md:pt-24 z-[9999] w-[100vw]">
             <div className="max-w-8xl h-full overflow-auto md:m-5">
               <div className="flex flex-col md:flex-row gap-4 h-full">
                 {/* Guidelines panel from MDX file */}
