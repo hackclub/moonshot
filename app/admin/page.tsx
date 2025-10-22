@@ -340,6 +340,7 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
 
 export default function AdminDashboard() {
   const { status, data: session } = useSession();
+  const authReady = status === 'authenticated' && !!session?.user?.id;
   const [isShopAdmin, setIsShopAdmin] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -601,12 +602,14 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">Review Leaderboard</h2>
-        <div className="w-full">
-          <ReviewLeaderboard />
+      {authReady && (
+        <div className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">Review Leaderboard</h2>
+          <div className="w-full">
+            <ReviewLeaderboard />
+          </div>
         </div>
-      </div>
+      )}
       </div>
     </div>
   );
