@@ -67,14 +67,79 @@ body {
   font-family: var(--font-kavoon), "Kavoon", cursive;
 }
 
-/* Starry gradient background (from FAQ), applied only when Header is present */
+/* Universal cosmic background (shared across all screens via Header)
+   Uses the same gradient + starfield aesthetic as the Stardust Shop page */
 .starspace-bg {
-  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><radialGradient id="bg" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:%23666bb3;stop-opacity:1" /><stop offset="100%" style="stop-color:%234a4a7a;stop-opacity:1" /></radialGradient></defs><rect width="100%" height="100%" fill="url(%23bg)"/><circle cx="200" cy="150" r="8" fill="%237a7ab8" opacity="0.8"/><circle cx="300" cy="200" r="6" fill="%238a8ac8" opacity="0.7"/><circle cx="150" cy="300" r="7" fill="%236a6aa8" opacity="0.6"/><circle cx="400" cy="100" r="5" fill="%239a9ad8" opacity="0.5"/><circle cx="500" cy="250" r="9" fill="%235a5a98" opacity="0.7"/><circle cx="600" cy="180" r="6" fill="%238a8ac8" opacity="0.6"/><circle cx="700" cy="320" r="8" fill="%237a7ab8" opacity="0.8"/><circle cx="800" cy="150" r="7" fill="%236a6aa8" opacity="0.5"/><circle cx="900" cy="280" r="5" fill="%239a9ad8" opacity="0.7"/><circle cx="1000" cy="200" r="6" fill="%235a5a98" opacity="0.6"/><circle cx="1100" cy="350" r="8" fill="%237a7ab8" opacity="0.8"/></svg>');
-  background-size: cover;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0a0a0a 100%);
   background-attachment: fixed;
   background-repeat: no-repeat;
-  /* mimic FAQ vertical offset so the bright center sits lower under the header */
-  background-position: center 64px;
+  background-size: cover;
+  position: relative;
+}
+
+/* Starfield layer */
+body.starspace-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 40px 70px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 90px 40px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 130px 80px, #3b82f6, transparent),
+    radial-gradient(2px 2px at 160px 30px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 200px 60px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 240px 20px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 280px 50px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 320px 80px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 360px 40px, #3b82f6, transparent),
+    radial-gradient(2px 2px at 400px 70px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 440px 30px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 480px 60px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 520px 20px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 560px 50px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 600px 80px, #3b82f6, transparent),
+    radial-gradient(2px 2px at 640px 30px, #8b5cf6, transparent),
+    radial-gradient(1px 1px at 680px 70px, #3b82f6, transparent),
+    radial-gradient(1px 1px at 720px 40px, #8b5cf6, transparent),
+    radial-gradient(2px 2px at 760px 60px, #3b82f6, transparent);
+  background-repeat: repeat;
+  background-size: 800px 400px;
+  opacity: 0.8;
+  animation: starfieldFloat 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Nebula glow layer */
+body.starspace-bg::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse at top left, rgba(139, 92, 246, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at top right, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom left, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(59, 130, 246, 0.10) 0%, transparent 50%);
+  animation: nebulaFloat 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes starfieldFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-400px); }
+}
+
+@keyframes nebulaFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-20px) rotate(1deg); opacity: 0.6; }
 }
 
 /* Space-dark reskin: toggled by adding `theme-reskin` class to a root element */
