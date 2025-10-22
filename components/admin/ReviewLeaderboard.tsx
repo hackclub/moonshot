@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 
 interface LeaderboardEntry {
@@ -28,34 +29,34 @@ const timeframeLabels = {
 };
 
 export default function ReviewLeaderboard() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeType>('all_time');
-  const [data, setData] = useState<LeaderboardData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { status, data: session } = useSession();
+  const [selectedTimeframe, setSelectedTimeframe] = useState<'24h' | '7d' | '30d'>('24h');
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-      
       try {
-        const response = await fetch(`/api/admin/review-leaderboard?timeframe=${selectedTimeframe}`);
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`/api/admin/review-leaderboard?timeframe=${selectedTimeframe}`, { credentials: 'include', cache: 'no-store' });
         if (!response.ok) {
           throw new Error('Failed to fetch leaderboard data');
         }
-        
-        const data = await response.json();
-        setData(data);
-      } catch (error) {
-        console.error('Error fetching leaderboard data:', error);
-        setError('Failed to load leaderboard data');
+        const payload = await response.json();
+        setData(payload?.rows || payload || []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load leaderboard');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchData();
-  }, [selectedTimeframe]);
+    if (status === 'authenticated' && session?.user?.id) {
+      fetchData();
+    }
+  }, [status, session?.user?.id, selectedTimeframe]);
 
   const getRankEmoji = (rank: number) => {
     switch (rank) {
@@ -123,14 +124,14 @@ export default function ReviewLeaderboard() {
 
       {/* Leaderboard content */}
       <div className="flex-grow overflow-hidden">
-        {isLoading ? (
+        {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-2"></div>
               <p className="text-gray-500">Loading leaderboard...</p>
             </div>
           </div>
-        ) : !data || data.leaderboard.length === 0 ? (
+        ) : !data || data.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="text-4xl text-gray-300 mb-2">📋</div>
@@ -140,7 +141,7 @@ export default function ReviewLeaderboard() {
                  ) : (
            <div className="h-full overflow-y-auto">
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-               {data.leaderboard.map((entry) => (
+               {data.map((entry) => (
                  <div
                    key={entry.userId}
                    className={`p-4 rounded-lg border ${getRankStyles(entry.rank)} transition-all hover:shadow-sm`}
