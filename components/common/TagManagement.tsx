@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import { toast } from 'sonner';
 import Modal from './Modal';
 
@@ -58,7 +59,7 @@ export default function TagManagement({
     async function fetchTags() {
       try {
         setIsLoadingTags(true);
-        const response = await fetch('/api/admin/tags');
+        const response = await apiFetch('/api/admin/tags');
         
         if (!response.ok) {
           throw new Error('Failed to fetch tags');
@@ -128,7 +129,7 @@ export default function TagManagement({
           (newTagColor !== (existingTagMatch.color || ''));
           
         if (hasChanges) {
-          const updateResponse = await fetch('/api/admin/tags/update', {
+          const updateResponse = await apiFetch('/api/admin/tags/update', {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -149,7 +150,7 @@ export default function TagManagement({
         // If entity already has this tag, we're done - just updated the tag details
         if (entityAlreadyHasTag) {
           // Refresh available tags
-          const tagsResponse = await fetch('/api/admin/tags');
+          const tagsResponse = await apiFetch('/api/admin/tags');
           if (tagsResponse.ok) {
             const tags = await tagsResponse.json();
             setAvailableTags(tags);
@@ -170,7 +171,7 @@ export default function TagManagement({
       }
       
       // Otherwise, proceed with adding the tag
-      const response = await fetch('/api/admin/tags/add', {
+      const response = await apiFetch('/api/admin/tags/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -192,7 +193,7 @@ export default function TagManagement({
       const result = await response.json();
       
       // Refresh available tags
-      const tagsResponse = await fetch('/api/admin/tags');
+      const tagsResponse = await apiFetch('/api/admin/tags');
       if (tagsResponse.ok) {
         const tags = await tagsResponse.json();
         setAvailableTags(tags);
@@ -217,7 +218,7 @@ export default function TagManagement({
     try {
       setIsRemovingTag(entityTagId);
       
-      const response = await fetch('/api/admin/tags/remove', {
+      const response = await apiFetch('/api/admin/tags/remove', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -234,7 +235,7 @@ export default function TagManagement({
       }
       
       // Refresh available tags to update usage counts
-      const tagsResponse = await fetch('/api/admin/tags');
+      const tagsResponse = await apiFetch('/api/admin/tags');
       if (tagsResponse.ok) {
         const tags = await tagsResponse.json();
         setAvailableTags(tags);

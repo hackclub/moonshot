@@ -3,6 +3,7 @@ import styles from './page.module.css';
 import Modal from '@/components/common/Modal';
 import Toast from '@/components/common/Toast';
 import { useState, useEffect, useActionState, useContext, useMemo, ReactElement, useRef, useCallback } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import type { FormSave } from '@/components/form/FormInput';
 import { Project } from '@/components/common/Project';
 import FormSelect from '@/components/form/FormSelect';
@@ -40,7 +41,8 @@ import AccessDenied from '@/components/common/AccessDenied';
 
 // Add these action functions before the Bay component
 async function createProjectAction(state: FormSave, formData: FormData): Promise<FormSave> {
-  const response = await fetch('/api/projects', {
+  // Client environment: use apiFetch which includes credentials
+  const response = await apiFetch('/api/projects', {
     method: 'POST',
     body: formData
   });
@@ -53,7 +55,7 @@ async function createProjectAction(state: FormSave, formData: FormData): Promise
 }
 
 async function editProjectAction(state: FormSave, formData: FormData): Promise<FormSave> {
-  const response = await fetch('/api/projects', {
+  const response = await apiFetch('/api/projects', {
     method: 'PUT',
     body: formData
   });
@@ -68,7 +70,7 @@ async function editProjectAction(state: FormSave, formData: FormData): Promise<F
 // Move getHackatimeProjects outside of Bay component
 async function getHackatimeProjects() {
   try {
-    const response = await fetch('/api/hackatime/projects');
+    const response = await apiFetch('/api/hackatime/projects');
     
     if (!response.ok) {
       console.error('Hackatime API returned error:', response.status, response.statusText);
@@ -478,8 +480,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
       return;
     }
     const getIdentity = async () => {
-      const response = await fetch('/api/identity/me');
-      const userResponse = impersonationData ? await fetch(`/api/users/${impersonationData.userId}`) : await fetch('/api/users/me');
+      const response = await apiFetch('/api/identity/me');
+      const userResponse = impersonationData ? await apiFetch(`/api/users/${impersonationData.userId}`) : await apiFetch('/api/users/me');
       const userData = await userResponse.json();
       setUser(userData);
       const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
@@ -674,7 +676,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     if (!hackatimeId && !isHackatimeMock) {
       (async () => {
         try {
-          const resp = await fetch('/api/hackatime/status');
+          const resp = await apiFetch('/api/hackatime/status');
           if (resp.ok) {
             const status = await resp.json();
             if (status?.isSetup) {
@@ -695,6 +697,11 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     async function loadHackatimeProjects() {
       console.log('▶️ loadHackatimeProjects() invoked');
       try {
+        // Gate: only fetch once session is authenticated and user id is present
+        if (status !== 'authenticated' || !session?.user?.id) {
+          console.log('⏳ Skipping getHackatimeProjects until session is ready');
+          return;
+        }
         const projectsData = await getHackatimeProjects();
         console.log('✅ getHackatimeProjects() returned', { count: Array.isArray(projectsData) ? projectsData.length : 'non-array' });
         
@@ -834,12 +841,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     // Pass experience mode to server for server-side filtering
     const timestamp = Date.now();
     const url = `/api/projects?isIslandMode=${isIslandMode}&_t=${timestamp}`;
-    const response = await fetch(url, {
-      cache: 'no-store', // Disable caching to ensure fresh data
-      headers: {
-        'Cache-Control': 'no-cache'
-      }
-    });
+    const response = await apiFetch(url);
     const data = await response.json();
     
     // No client-side filtering needed - server already filtered

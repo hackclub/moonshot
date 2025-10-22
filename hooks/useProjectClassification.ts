@@ -53,7 +53,7 @@ export function useProjectClassification(hours?: number) {
     setError(null);
     
     try {
-      const response = await fetch(`/api/analytics/project-histogram?classifyHours=${projectHours}`);
+      const response = await fetch(`/api/analytics/project-histogram?classifyHours=${projectHours}`, { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
         throw new Error(`Failed to classify project hours: ${response.statusText}`);
@@ -94,7 +94,7 @@ export function useHistogramAnalysis() {
     setError(null);
     
     try {
-      const response = await fetch('/api/analytics/project-histogram');
+      const response = await fetch('/api/analytics/project-histogram', { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch histogram analysis: ${response.statusText}`);

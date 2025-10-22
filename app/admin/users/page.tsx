@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/apiFetch';
 import { toast, Toaster } from 'sonner';
 import UserCategoryDisplay from '@/components/common/UserCategoryDisplay';
 import { calculateProgressMetrics, getProjectHackatimeHours, ProgressMetrics } from '@/lib/project-client';
@@ -116,7 +117,7 @@ function AdminUsersContent() {
     if (status === 'authenticated') {
       async function fetchUsers() {
         try {
-          const response = await fetch('/api/admin/users');
+          const response = await apiFetch('/api/admin/users');
           if (response.ok) {
             const data = await response.json();
             setUsers(data);
@@ -140,7 +141,7 @@ function AdminUsersContent() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const response = await fetch('/api/admin/users');
+        const response = await apiFetch('/api/admin/users');
         if (response.ok) {
           const data = await response.json();
           setUsers(data);
@@ -164,7 +165,7 @@ function AdminUsersContent() {
     async function fetchTags() {
       try {
         setIsLoadingTags(true);
-        const response = await fetch('/api/admin/tags');
+        const response = await apiFetch('/api/admin/tags');
         if (response.ok) {
           const tags = await response.json();
           setAvailableTags(tags);
@@ -355,7 +356,7 @@ function AdminUsersContent() {
     
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/admin/users/${userToDelete.id}`, {
+      const response = await apiFetch(`/api/admin/users/${userToDelete.id}`, {
         method: 'DELETE',
       });
       
@@ -387,13 +388,13 @@ function AdminUsersContent() {
 
   if (status !== 'authenticated') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-black/60 text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-6">You need to be logged in to access the admin area.</p>
+          <p className="text-white/80 mb-6">You need to be logged in to access the admin area.</p>
           <Link 
             href="/api/auth/signin"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-500"
           >
             Sign In
           </Link>
@@ -409,22 +410,22 @@ function AdminUsersContent() {
   // console.log('Search term:', searchTerm);
 
   return (
-    <div>
+    <div className="min-h-screen bg-black/60 text-white">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">Administrate Users</h1>
         <button
           onClick={toggleBriefMode}
           className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
             briefMode
-              ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'
-              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              ? 'bg-orange-600/20 border-orange-500/40 text-orange-300 hover:bg-orange-600/30'
+              : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
           }`}
           title="Toggle brief mode to show fewer columns"
         >
           <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
             briefMode 
-              ? 'border-blue-500 bg-blue-500' 
-              : 'border-gray-300 bg-white'
+              ? 'border-orange-500 bg-orange-500' 
+              : 'border-white/30 bg-transparent'
           }`}>
             {briefMode && (
               <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -443,9 +444,9 @@ function AdminUsersContent() {
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black placeholder:text-gray-500"
+            className="w-full p-3 pr-10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white/10 text-white placeholder:text-white/60"
           />
-          <span className="absolute right-3 top-3 text-gray-400">
+          <span className="absolute right-3 top-3 text-white/60">
             🔍
           </span>
         </div>
@@ -456,7 +457,7 @@ function AdminUsersContent() {
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-white">Filter by tags:</span>
           {isLoadingTags ? (
-            <div className="flex items-center text-sm text-gray-500">
+            <div className="flex items-center text-sm text-white/70">
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500 mr-2"></div>
               Loading tags...
             </div>
@@ -466,8 +467,8 @@ function AdminUsersContent() {
                 onClick={() => setSelectedTags([])}
                 className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
                   selectedTags.length === 0
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-white/10 text-white hover:bg-white/20'
                 }`}
               >
                 All Users ({users.length})
@@ -491,7 +492,7 @@ function AdminUsersContent() {
                     className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
                       isSelected
                         ? 'text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
                     style={{
                       backgroundColor: isSelected ? (tag.color || '#374151') : undefined,
@@ -517,7 +518,7 @@ function AdminUsersContent() {
           )}
         </div>
         {selectedTags.length > 0 && (
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-2 text-sm text-white/70">
             Showing users with {selectedTags.length === 1 ? 'tag' : 'all tags'}: {' '}
             {selectedTags.map(tagId => {
               const tag = availableTags.find(t => t.id === tagId);
@@ -534,19 +535,19 @@ function AdminUsersContent() {
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+          <div className="hidden lg:block bg-black/50 border border-white/10 rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-white/5">
                 <tr>
                   {!briefMode && (
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-15">
+                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-15">
                       #
                     </th>
                   )}
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-40 cursor-pointer hover:bg-white/10 select-none"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center gap-1">
@@ -554,20 +555,20 @@ function AdminUsersContent() {
                       <span className="text-xs">{getSortIcon('name')}</span>
                     </div>
                   </th>
-                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-48">
+                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-48">
                     Email
                   </th>
                   {!briefMode && (
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
+                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-24">
                       Joined
                     </th>
                   )}
-                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
+                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-20">
                     Status
                   </th>
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-20 cursor-pointer hover:bg-white/10 select-none"
                     onClick={() => handleSort('progress')}
                   >
                     <div className="flex items-center gap-1">
@@ -579,7 +580,7 @@ function AdminUsersContent() {
                     <>
                       <th 
                         scope="col" 
-                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                        className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-white/10 select-none"
                         onClick={() => handleSort('shipped')}
                       >
                         <div className="flex items-center gap-1">
@@ -589,7 +590,7 @@ function AdminUsersContent() {
                       </th>
                       <th 
                         scope="col" 
-                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                        className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-white/10 select-none"
                         onClick={() => handleSort('in_review')}
                       >
                         <div className="flex items-center gap-1">
@@ -601,7 +602,7 @@ function AdminUsersContent() {
                   )}
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-20 cursor-pointer hover:bg-white/10 select-none"
                     onClick={() => handleSort('role')}
                   >
                     <div className="flex items-center gap-1">
@@ -610,35 +611,35 @@ function AdminUsersContent() {
                     </div>
                   </th>
                   {!briefMode && (
-                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
+                    <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-24">
                       Category
                     </th>
                   )}
-                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
+                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-32">
                     Tags
                   </th>
                   {!briefMode && (
                     <>
-                      <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
+                      <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-20">
                         Verified
                       </th>
-                      <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
+                      <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-20">
                         Identity
                       </th>
-                      <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
+                      <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider min-w-20">
                         Hackatime
                       </th>
                     </>
                   )}
-                  <th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-20">
+                  <th scope="col" className="px-3 py-3 text-right text-xs font-medium text-white/60 uppercase tracking-wider min-w-20">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-black/50 divide-y divide-white/10">
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={briefMode ? 7 : 14} className="px-3 py-4 text-center text-gray-500">
+                    <td colSpan={briefMode ? 7 : 14} className="px-3 py-4 text-center text-white/70">
                       No users found
                     </td>
                   </tr>
@@ -657,12 +658,12 @@ function AdminUsersContent() {
                           {user.image ? (
                             <img className="h-8 w-8 rounded-full mr-2" src={user.image} alt={user.name || 'User'} />
                           ) : (
-                            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-gray-600 font-bold text-xs">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                            <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center mr-2">
+                              <span className="text-white font-bold text-xs">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-white">
                               {user.name || 'Unknown'}
                               <SendModal name={user.name || 'Unknown'} email={user.email || 'Unknown'} userId={user.id} />
                             </div>
@@ -670,13 +671,13 @@ function AdminUsersContent() {
                         </div>
                       </td>
                       <td className="px-3 py-3">
-                        <div className="text-sm text-gray-900 truncate max-w-48" title={user.email || ''}>
+                        <div className="text-sm text-white truncate max-w-48" title={user.email || ''}>
                           {user.email}
                         </div>
                       </td>
                       {!briefMode && (
                         <td className="px-3 py-3 whitespace-nowrap">
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-white/60">
                             {new Date(user.createdAt).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
@@ -694,12 +695,12 @@ function AdminUsersContent() {
                       {!briefMode && (
                         <>
                           <td className="px-3 py-3 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
+                            <div className="text-sm text-white">
                               {user.projects.filter(project => project.shipped).length}
                             </div>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
+                            <div className="text-sm text-white">
                               {user.projects.filter(project => project.in_review).length}
                             </div>
                           </td>
@@ -711,7 +712,7 @@ function AdminUsersContent() {
                             ? 'bg-purple-100 text-purple-800' 
                             : user.role === 'Reviewer'
                               ? 'bg-indigo-100 text-indigo-800'
-                              : 'bg-gray-100 text-gray-800'
+                              : 'bg-white/10 text-white'
                         }`}>
                           {user.role}
                         </span>
@@ -740,7 +741,7 @@ function AdminUsersContent() {
                                 </span>
                               ))
                             ) : (
-                              <span className="text-gray-400 text-xs">No tags</span>
+                              <span className="text-white/50 text-xs">No tags</span>
                             )}
                             {user.userTags && user.userTags.length > 2 && (
                               <span className="inline-flex items-center px-2 py-1 text-xs text-gray-500 bg-gray-100 rounded-full border border-gray-200">
@@ -750,7 +751,7 @@ function AdminUsersContent() {
                           </div>
                           <button
                             onClick={() => openTagManagement(user)}
-                            className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-white/60 hover:text-orange-400 hover:bg-white/10 rounded transition-colors"
                             title="Manage tags"
                           >
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -781,11 +782,11 @@ function AdminUsersContent() {
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
                             {user.hackatimeId ? (
-                              <div className="text-xs text-gray-600 truncate max-w-16" title={user.hackatimeId}>
+                              <div className="text-xs text-white/60 truncate max-w-16" title={user.hackatimeId}>
                                 {user.hackatimeId}
                               </div>
                             ) : (
-                              <span className="text-gray-400 text-xs">-</span>
+                              <span className="text-white/50 text-xs">-</span>
                             )}
                           </td>
                         </>
@@ -817,15 +818,15 @@ function AdminUsersContent() {
           {/* Mobile Card View */}
           <div className="lg:hidden">
             {/* Mobile Sort Controls */}
-            <div className="mb-4 bg-white rounded-lg shadow p-4">
-              <div className="text-sm font-medium text-gray-700 mb-2">Sort by:</div>
+            <div className="mb-4 bg-black/50 border border-white/10 rounded-lg shadow p-4">
+              <div className="text-sm font-medium mb-2">Sort by:</div>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleSort('name')}
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'name' 
                       ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      : 'bg-white/10 border-white/20 text-white'
                   }`}
                 >
                   Name {sortField === 'name' && getSortIcon('name')}
@@ -835,7 +836,7 @@ function AdminUsersContent() {
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'progress' 
                       ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      : 'bg-white/10 border-white/20 text-white'
                   }`}
                 >
                   Progress {sortField === 'progress' && getSortIcon('progress')}
@@ -845,7 +846,7 @@ function AdminUsersContent() {
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'role' 
                       ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      : 'bg-white/10 border-white/20 text-white'
                   }`}
                 >
                   Role {sortField === 'role' && getSortIcon('role')}
@@ -855,7 +856,7 @@ function AdminUsersContent() {
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'default' 
                       ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      : 'bg-white/10 border-white/20 text-white'
                   }`}
                 >
                   Default {sortField === 'default' && getSortIcon('default')}
@@ -864,34 +865,34 @@ function AdminUsersContent() {
             </div>
             
             {filteredUsers.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <p className="text-gray-500">No users found</p>
+              <div className="text-center py-12 bg-black/50 border border-white/10 rounded-lg shadow">
+                <p className="text-white/70">No users found</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {filteredUsers.map((user, index) => (
                   <div 
                     key={user.id}
-                    className="block bg-white rounded-lg shadow-md overflow-hidden"
+                    className="block bg-black/50 border border-white/10 rounded-lg shadow-md overflow-hidden"
                   >
                     <div className="p-4">
                       <div className="flex items-center mb-3">
-                        <div className="text-lg font-medium text-gray-500 mr-3">
+                        <div className="text-lg font-medium text-white/70 mr-3">
                           #{index + 1}
                         </div>
                         {user.image ? (
                           <img className="h-12 w-12 rounded-full mr-3" src={user.image} alt={user.name || 'User'} />
                         ) : (
-                          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                            <span className="text-gray-600 font-bold">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                          <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center mr-3">
+                            <span className="text-white font-bold">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
                           </div>
                         )}
                         <div>
-                          <div className="text-base font-medium text-gray-900">
+                          <div className="text-base font-medium text-white">
                             {user.name || 'Unknown'}
                             <SendModal name={user.name || 'Unknown'} email={user.email || 'Unknown'} userId={user.id} />
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-white/70">
                             {user.email}
                           </div>
                         </div>
@@ -899,47 +900,47 @@ function AdminUsersContent() {
 
                       <div className="grid grid-cols-2 gap-x-2 gap-y-3 mt-3 text-sm">
                         <div>
-                          <span className="text-gray-500 block">Status</span>
+                          <span className="text-white/70 block">Status</span>
                           {getUserStatusBadge(user.status)}
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Progress</span>
+                          <span className="text-white/70 block">Progress</span>
                           {getProgressBadge(user)}
                         </div>
                         <div>
-                          <span className="text-gray-500 block"># Shipped</span>
-                          <span className="text-gray-800">
+                          <span className="text-white/70 block"># Shipped</span>
+                          <span className="text-white">
                             {user.projects.filter(project => project.shipped).length}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block"># In Review</span>
-                          <span className="text-gray-800">
+                          <span className="text-white/70 block"># In Review</span>
+                          <span className="text-white">
                             {user.projects.filter(project => project.in_review).length}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Role</span>
+                          <span className="text-white/70 block">Role</span>
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             user.role === 'Admin' 
                               ? 'bg-purple-100 text-purple-800' 
                               : user.role === 'Reviewer'
                                 ? 'bg-indigo-100 text-indigo-800'
-                                : 'bg-gray-100 text-gray-800'
+                                : 'bg-white/10 text-white'
                           }`}>
                             {user.role}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Category</span>
+                          <span className="text-white/70 block">Category</span>
                           <UserCategoryDisplay category={user.category} size="small" />
                         </div>
                         <div className="col-span-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-500 block">Tags</span>
+                            <span className="text-white/70 block">Tags</span>
                             <button
                               onClick={() => openTagManagement(user)}
-                              className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-white/60 hover:text-orange-400 hover:bg-white/10 rounded transition-colors"
                               title="Manage tags"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -964,13 +965,13 @@ function AdminUsersContent() {
                                 </span>
                               ))
                             ) : (
-                              <span className="text-gray-400 text-xs">No tags</span>
+                              <span className="text-white/50 text-xs">No tags</span>
                             )}
                           </div>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Joined</span>
-                          <span className="text-gray-800">
+                          <span className="text-white/70 block">Joined</span>
+                          <span className="text-white">
                             {new Date(user.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
@@ -979,7 +980,7 @@ function AdminUsersContent() {
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Email Verified?</span>
+                          <span className="text-white/70 block">Email Verified?</span>
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             user.emailVerified 
                               ? 'bg-green-100 text-green-800' 
@@ -989,7 +990,7 @@ function AdminUsersContent() {
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Identity Verified?</span>
+                          <span className="text-white/70 block">Identity Verified?</span>
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             user.identityToken 
                               ? 'bg-green-100 text-green-800' 
@@ -999,11 +1000,11 @@ function AdminUsersContent() {
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">Hackatime</span>
+                          <span className="text-white/70 block">Hackatime</span>
                           {user.hackatimeId ? (
-                            <div className="text-sm text-gray-600">{user.hackatimeId}</div>
+                            <div className="text-sm text-white/70">{user.hackatimeId}</div>
                           ) : (
-                            <span className="text-gray-400 text-xs">Not connected</span>
+                            <span className="text-white/50 text-xs">Not connected</span>
                           )}
                         </div>
                       </div>
@@ -1053,10 +1054,10 @@ function AdminUsersContent() {
       {/* Delete Confirmation Modal with email verification */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <div className="bg-black/80 border border-white/10 text-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
             <div className="mb-4">
-              <p className="text-gray-700 mb-2">
+              <p className="text-white/80 mb-2">
                 Are you sure you want to delete the user{" "}
                 <span className="font-semibold">{userToDelete?.name || userToDelete?.email || 'Unknown'}</span>?
                 This action cannot be undone.
@@ -1075,7 +1076,7 @@ function AdminUsersContent() {
                   </div>
                 </div>
               </div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Type "{userToDelete?.email}" to confirm:
               </label>
               <input
@@ -1094,7 +1095,7 @@ function AdminUsersContent() {
                   setUserToDelete(null);
                   setConfirmUserEmail('');
                 }}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                className="px-4 py-2 bg-white/10 text-white rounded hover:bg-white/20"
                 disabled={isDeleting}
               >
                 Cancel

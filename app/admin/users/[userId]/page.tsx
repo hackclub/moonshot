@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
 import { calculateProgressMetrics, ProgressMetrics, getProjectHackatimeHours, getProjectApprovedHours } from '@/lib/project-client';
+import { apiFetch } from '@/lib/apiFetch';
 import { ProjectType } from '@/app/api/projects/route';
 import TagManagement from '@/components/common/TagManagement';
 import MultiPartProgressBar from '@/components/common/MultiPartProgressBar';
@@ -88,7 +89,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
       
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/admin/users/${userId}`);
+        const response = await apiFetch(`/api/admin/users/${userId}`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch user: ${response.statusText}`);
@@ -120,7 +121,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
       // Determine isAdmin value based on role
       const isAdminValue = userRole === UserRole.Admin;
       
-      const response = await fetch(`/api/admin/users/${user.id}`, {
+      const response = await apiFetch(`/api/admin/users/${user.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -151,7 +152,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
 
   const refreshUserData = async () => {
     try {
-      const userResponse = await fetch(`/api/admin/users/${userId}`);
+      const userResponse = await apiFetch(`/api/admin/users/${userId}`);
       if (userResponse.ok) {
         const userData = await userResponse.json();
         setUser(userData);
@@ -538,7 +539,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
               }
 
               try {
-                const response = await fetch(`/api/admin/users/${user?.id}/currency`, {
+                const response = await apiFetch(`/api/admin/users/${user?.id}/currency`, {
                   method: 'PATCH',
                   headers: {
                     'Content-Type': 'application/json',

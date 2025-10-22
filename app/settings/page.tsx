@@ -3,6 +3,7 @@
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import { Toaster, toast } from "sonner";
 
 import LoadingOverlay from '@/components/common/LoadingOverlay';
@@ -48,12 +49,12 @@ function SettingsContent() {
       
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/users/me`);
+        const response = await apiFetch(`/api/users/me`);
         // In mock mode, don't call identity API at all to avoid any side-effects
         if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
           setIdentityStatus('verified');
         } else {
-          const identityResponse = await fetch('/api/identity/me');
+          const identityResponse = await apiFetch('/api/identity/me');
           const identityData = await identityResponse.json();
           if (identityResponse.ok && identityData?.verification_status) {
             setIdentityStatus(identityData.verification_status);
@@ -135,7 +136,7 @@ function SettingsContent() {
   };
 
   const getIdentityUrl = async () => {
-    const response = await fetch('/api/identity/url');
+    const response = await apiFetch('/api/identity/url');
     const data = await response.json();
     return data.url;
   }

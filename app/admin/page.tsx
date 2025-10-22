@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -256,7 +257,7 @@ function ShopAnalyticsWidget({ timeRange }: { timeRange: string }) {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch(`/api/admin/shop-analytics?timeRange=${timeRange}`);
+        const response = await apiFetch(`/api/admin/shop-analytics?timeRange=${timeRange}`);
         if (response.ok) {
           const data = await response.json();
           setAnalytics(data);
@@ -385,7 +386,7 @@ export default function AdminDashboard() {
     async function fetchStats() {
       try {
         // Fetch dashboard stats
-        const response = await fetch('/api/admin/dashboard');
+        const response = await apiFetch('/api/admin/dashboard');
         if (response.ok) {
           const data = await response.json();
           setStats(data);
@@ -405,7 +406,7 @@ export default function AdminDashboard() {
   // Fetch shop admin status
   useEffect(() => {
     if (status === 'authenticated') {
-      fetch('/api/users/me').then(async (res) => {
+      apiFetch('/api/users/me').then(async (res) => {
         if (res.ok) {
           const data = await res.json();
           setIsShopAdmin(!!data.isShopAdmin);

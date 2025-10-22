@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
     try {
-        const users = await prisma.user.findMany({
+        const usersRaw = await prisma.user.findMany({
             select: {
                 id: true,
                 name: true,
@@ -22,7 +22,13 @@ export async function GET() {
                 createdAt: 'desc',
               },
         });
-        console.log("users", users);
+        // Ensure all values are JSON-serializable (Prisma Decimal/Date conversions)
+        const users = usersRaw.map((u) => ({
+            ...u,
+            createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : u.createdAt,
+            totalCurrencySpent: u.totalCurrencySpent != null ? Number(u.totalCurrencySpent as unknown as number) : 0,
+            adminCurrencyAdjustment: u.adminCurrencyAdjustment != null ? Number(u.adminCurrencyAdjustment as unknown as number) : 0,
+        }));
         return NextResponse.json(users);
   } catch (error) {
     console.error(error);

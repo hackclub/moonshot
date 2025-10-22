@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useState, useEffect, useMemo, Suspense } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import Header from '@/components/common/Header';
 import ImageWithFallback from '@/components/common/ImageWithFallback';
 import Icon from '@hackclub/icons';
@@ -139,10 +140,7 @@ function GalleryInner() {
       }
       
       try {
-        const response = await fetch('/api/gallery/challenge-tags', {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        });
+        const response = await apiFetch('/api/gallery/challenge-tags');
         
         if (response.ok) {
           const data = await response.json();
@@ -155,10 +153,10 @@ function GalleryInner() {
       }
     }
 
-    if (status === 'authenticated' && !isExperienceModeLoading) {
+    if (status === 'authenticated' && session?.user?.id && !isExperienceModeLoading) {
       fetchChallengeTags();
     }
-  }, [status, isIslandMode, isExperienceModeLoading]);
+  }, [status, session?.user?.id, isIslandMode, isExperienceModeLoading]);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -167,10 +165,7 @@ function GalleryInner() {
         const challengeTagsQuery = selectedChallengeTags.length > 0 ? `&challengeTags=${selectedChallengeTags.join(',')}` : '';
         const url = `/api/gallery?isIslandMode=${isIslandMode}${challengeTagsQuery}&_t=${timestamp}`;
         
-        const response = await fetch(url, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        });
+        const response = await apiFetch(url);
         
         if (response.ok) {
           const data = await response.json();
@@ -186,10 +181,10 @@ function GalleryInner() {
       }
     }
 
-    if (status === 'authenticated' && !isExperienceModeLoading) {
+    if (status === 'authenticated' && session?.user?.id && !isExperienceModeLoading) {
       fetchProjects();
     }
-  }, [status, isIslandMode, isExperienceModeLoading, selectedChallengeTags]);
+  }, [status, session?.user?.id, isIslandMode, isExperienceModeLoading, selectedChallengeTags]);
 
   // Filter and sort projects (server-side filtering by experience mode already applied)
   const filteredAndSortedProjects = useMemo(() => {
@@ -247,7 +242,7 @@ function GalleryInner() {
     setUpvotingProjects(prev => new Set(prev).add(projectID));
 
     try {
-      const response = await fetch(`/api/projects/${projectID}/upvote`, {
+      const response = await apiFetch(`/api/projects/${projectID}/upvote`, {
         method: 'POST',
       });
 

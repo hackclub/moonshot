@@ -19,6 +19,12 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user || user.role !== 'Admin' || !SHOP_ORDERS_ADMIN_WHITELIST.includes(user.email)) {
+      console.warn('[SHOP-ORDERS DEBUG] Access denied', {
+        email: session.user.email,
+        role: user?.role,
+        isAdmin: user?.isAdmin,
+        whitelist: SHOP_ORDERS_ADMIN_WHITELIST,
+      });
       return NextResponse.json({ error: 'Access denied. Only authorized shop order administrators can access this resource.' }, { status: 403 });
     }
 
@@ -63,6 +69,12 @@ export async function PATCH(request: NextRequest) {
     });
 
     if (!user || user.role !== 'Admin' || !SHOP_ORDERS_ADMIN_WHITELIST.includes(user.email)) {
+      console.warn('[SHOP-ORDERS DEBUG] Access denied (PATCH)', {
+        email: session.user.email,
+        role: user?.role,
+        isAdmin: user?.isAdmin,
+        whitelist: SHOP_ORDERS_ADMIN_WHITELIST,
+      });
       return NextResponse.json({ error: 'Access denied. Only authorized shop order administrators can access this resource.' }, { status: 403 });
     }
 

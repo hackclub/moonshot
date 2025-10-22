@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { apiFetch } from '@/lib/apiFetch';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
 
@@ -87,7 +88,7 @@ export default function AuditLogsPage() {
     setIsLoading(true);
     try {
       // Fetch audit logs with filters and pagination
-      const response = await fetch(
+      const response = await apiFetch(
         `/api/admin/audit-logs?${new URLSearchParams({
           ...(filters.eventType ? { eventType: filters.eventType } : {}),
           ...(filters.userId ? { userId: filters.userId } : {}),
@@ -121,7 +122,7 @@ export default function AuditLogsPage() {
   // Fetch users for filter dropdown
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users');
+      const response = await apiFetch('/api/admin/users');
       if (response.ok) {
         const data = await response.json();
         setUsers(data);
