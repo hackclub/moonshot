@@ -13,17 +13,13 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div className="fixed inset-0">
-      <div className="relative flex items-center justify-center h-full">
-        <div
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: "opacity 0.5s ease-in"
-          }}
-        >
-            <LoginOptions />
-        </div>
-      </div>
+    <div
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.5s ease-in"
+      }}
+    >
+      <LoginOptions />
     </div>
   );
 }
