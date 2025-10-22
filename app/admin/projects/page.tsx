@@ -237,7 +237,7 @@ function AdminProjectsContent() {
       }
     }
     
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchProjects();
     }
     
@@ -264,7 +264,7 @@ function AdminProjectsContent() {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [status, currentFilter, selectedProjectId]);
+  }, [status, session?.user?.id, currentFilter, selectedProjectId]);
 
   // Fetch available tags
   useEffect(() => {
@@ -286,10 +286,10 @@ function AdminProjectsContent() {
       }
     }
     
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchTags();
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   // Filter projects based on search term and tags
   const filteredProjects = projects.filter(project => {

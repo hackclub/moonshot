@@ -106,7 +106,7 @@ export default function ShopItemsPage() {
 
   // Fetch shop admin status
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       apiFetch('/api/users/me')
         .then(async (res) => {
           if (res.ok) {
@@ -119,7 +119,7 @@ export default function ShopItemsPage() {
     } else if (status === 'unauthenticated') {
       setAuthResolved(true);
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   // Add effect to auto-calculate price for config items
   useEffect(() => {

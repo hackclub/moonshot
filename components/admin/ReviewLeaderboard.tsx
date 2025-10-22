@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { apiFetch } from '@/lib/apiFetch';
 
 interface LeaderboardEntry {
   rank: number;
@@ -30,8 +31,8 @@ const timeframeLabels = {
 
 export default function ReviewLeaderboard() {
   const { status, data: session } = useSession();
-  const [selectedTimeframe, setSelectedTimeframe] = useState<'24h' | '7d' | '30d'>('24h');
-  const [data, setData] = useState<any[]>([]);
+  const [selectedTimeframe, setSelectedTimeframe] = useState<TimeframeType>('today');
+  const [data, setData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,12 +41,19 @@ export default function ReviewLeaderboard() {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`/api/admin/review-leaderboard?timeframe=${selectedTimeframe}`, { credentials: 'include', cache: 'no-store' });
+        const response = await apiFetch(`/api/admin/review-leaderboard?timeframe=${selectedTimeframe}`);
         if (!response.ok) {
           throw new Error('Failed to fetch leaderboard data');
         }
-        const payload = await response.json();
-        setData(payload?.rows || payload || []);
+        const payload: LeaderboardData | { rows?: LeaderboardEntry[] } | LeaderboardEntry[] = await response.json();
+        const rows = Array.isArray((payload as LeaderboardData)?.leaderboard)
+          ? (payload as LeaderboardData).leaderboard
+          : Array.isArray((payload as { rows?: LeaderboardEntry[] }).rows)
+          ? (payload as { rows?: LeaderboardEntry[] }).rows as LeaderboardEntry[]
+          : Array.isArray(payload)
+          ? (payload as LeaderboardEntry[])
+          : [];
+        setData(rows);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load leaderboard');
       } finally {
@@ -75,6 +83,9 @@ export default function ReviewLeaderboard() {
       default: return 'bg-white border-gray-200';
     }
   };
+
+  const totalReviews = data.reduce((sum, entry) => sum + (entry.reviewCount || 0), 0);
+  const totalReviewers = data.length;
 
   if (error) {
     return (
@@ -113,14 +124,12 @@ export default function ReviewLeaderboard() {
       </div>
 
       {/* Stats summary */}
-      {data && (
-        <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-700">Total Reviews: <strong className="text-blue-700">{data.totalReviews}</strong></span>
-            <span className="text-gray-700">Active Reviewers: <strong className="text-blue-700">{data.totalReviewers}</strong></span>
-          </div>
+      <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-700">Total Reviews: <strong className="text-blue-700">{totalReviews}</strong></span>
+          <span className="text-gray-700">Active Reviewers: <strong className="text-blue-700">{totalReviewers}</strong></span>
         </div>
-      )}
+      </div>
 
       {/* Leaderboard content */}
       <div className="flex-grow overflow-hidden">
@@ -131,69 +140,69 @@ export default function ReviewLeaderboard() {
               <p className="text-gray-500">Loading leaderboard...</p>
             </div>
           </div>
-        ) : !data || data.length === 0 ? (
+        ) : data.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="text-4xl text-gray-300 mb-2">📋</div>
               <p className="text-gray-500">No reviews found for {timeframeLabels[selectedTimeframe].toLowerCase()}</p>
             </div>
           </div>
-                 ) : (
-           <div className="h-full overflow-y-auto">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-               {data.map((entry) => (
-                 <div
-                   key={entry.userId}
-                   className={`p-4 rounded-lg border ${getRankStyles(entry.rank)} transition-all hover:shadow-sm`}
-                 >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    {/* Rank */}
-                    <div className="flex items-center justify-center w-8 h-8">
-                      {entry.rank <= 3 ? (
-                        <span className="text-lg">{getRankEmoji(entry.rank)}</span>
-                      ) : (
-                        <span className="text-sm font-semibold text-gray-600">#{entry.rank}</span>
-                      )}
-                    </div>
-
-                    {/* User info */}
+        ) : (
+          <div className="h-full overflow-y-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {data.map((entry) => (
+                <div
+                  key={entry.userId}
+                  className={`p-4 rounded-lg border ${getRankStyles(entry.rank)} transition-all hover:shadow-sm`}
+                >
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      {entry.image ? (
-                        <Image
-                          src={entry.image}
-                          alt={entry.name}
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium text-gray-600">
-                            {entry.name?.charAt(0)?.toUpperCase() || '?'}
-                          </span>
+                      {/* Rank */}
+                      <div className="flex items-center justify-center w-8 h-8">
+                        {entry.rank <= 3 ? (
+                          <span className="text-lg">{getRankEmoji(entry.rank)}</span>
+                        ) : (
+                          <span className="text-sm font-semibold text-gray-600">#{entry.rank}</span>
+                        )}
+                      </div>
+
+                      {/* User info */}
+                      <div className="flex items-center space-x-3">
+                        {entry.image ? (
+                          <Image
+                            src={entry.image}
+                            alt={entry.name}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium text-gray-600">
+                              {entry.name?.charAt(0)?.toUpperCase() || '?'}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium text-gray-900">{entry.name}</p>
+                          <p className="text-xs text-gray-500">{entry.email}</p>
                         </div>
-                      )}
-                      <div>
-                        <p className="font-medium text-gray-900">{entry.name}</p>
-                        <p className="text-xs text-gray-500">{entry.email}</p>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Review count */}
-                  <div className="text-right">
-                    <p className="font-bold text-lg text-gray-900">{entry.reviewCount}</p>
-                    <p className="text-xs text-gray-500">
-                      review{entry.reviewCount !== 1 ? 's' : ''}
-                    </p>
+                    {/* Review count */}
+                    <div className="text-right">
+                      <p className="font-bold text-lg text-gray-900">{entry.reviewCount}</p>
+                      <p className="text-xs text-gray-500">
+                        review{entry.reviewCount !== 1 ? 's' : ''}
+                      </p>
+                    </div>
                   </div>
-                                 </div>
-               </div>
-             ))}
-             </div>
-           </div>
-         )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

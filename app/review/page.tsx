@@ -729,11 +729,10 @@ function ReviewPage() {
 
   // Fetch projects that are in review
   useEffect(() => {
-    // Only fetch if authenticated - the layout will handle proper access control
-    if (status === "authenticated") {
+    if (status === "authenticated" && session?.user?.id) {
       fetchProjectsInReview();
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
 
   // Fetch available tags
   useEffect(() => {
@@ -741,7 +740,6 @@ function ReviewPage() {
       try {
         setIsLoadingTags(true);
         const response = await apiFetch('/api/admin/tags');
-        
         if (response.ok) {
           const tags = await response.json();
           setAvailableTags(tags);
@@ -754,11 +752,10 @@ function ReviewPage() {
         setIsLoadingTags(false);
       }
     }
-    
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       fetchTags();
     }
-  }, [status]);
+  }, [status, session?.user?.id]);
   
   // Apply filter when projects or filter changes
   useEffect(() => {

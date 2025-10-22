@@ -115,7 +115,7 @@ function AdminUsersContent() {
 
   const handleTagsUpdated = () => {
     // Refresh users list to get updated tags
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session?.user?.id) {
       async function fetchUsers() {
         try {
           const response = await apiFetch('/api/admin/users');
