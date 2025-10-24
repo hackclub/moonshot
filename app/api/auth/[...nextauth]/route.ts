@@ -328,80 +328,52 @@ export const opts: NextAuthOptions = {
       async authorize(credentials) {
         try {
           const code = credentials?.code;
-
           if (!code) return null;
-          console.log("got code", code);
-          const tokenUrl = new URL("/oauth/token", process.env.IDENTITY_URL);
+
+          // Construct token request parameters
+          const tokenUrl = `${process.env.IDENTITY_URL}/oauth/token`;
           const tokenParams = new URLSearchParams({
             code: String(code),
             client_id: process.env.IDENTITY_CLIENT_ID ?? "",
             client_secret: process.env.IDENTITY_CLIENT_SECRET ?? "",
             redirect_uri: `${process.env.NEXTAUTH_URL ?? ""}/launchpad/login`,
             grant_type: "authorization_code",
-          });
+          }).toString();
 
-          console.log(tokenUrl, tokenParams);
-
-          // Exchange code (from url params) for token
-          const tokenResponse = await fetch(tokenUrl.toString(), {
+          // Exchange code for token
+          const tokenResponse = await fetch(tokenUrl, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: tokenParams.toString(),
+            body: tokenParams,
           });
-
-          // console.log("about to send code", code, params);
-          console.log(
-            "token response",
-            tokenResponse.ok,
-            tokenResponse.status,
-            tokenResponse.statusText,
-          );
-
           if (!tokenResponse.ok) return null;
-          console.log("GOT HERE");
-          const data = await tokenResponse.json();
 
-          const identityToken = data.access_token;
+          const { access_token } = await tokenResponse.json();
 
-          console.log("identity token", identityToken);
-
-          const userResponse = await fetch(
+          // Fetch user info from identity provider
+          const userInfoResponse = await fetch(
             `${process.env.IDENTITY_URL}/api/v1/me`,
             {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${identityToken}`,
-              },
+              headers: { Authorization: `Bearer ${access_token}` },
             },
           );
+          if (!userInfoResponse.ok) return null;
 
-          const uDataResp = await userResponse.json();
-          const userData = uDataResp.identity;
-          const email = userData.primary_email;
-          const name = userData.first_name + userData.last_name;
+          const { identity } = await userInfoResponse.json();
+          const email = identity?.primary_email;
+          const name = `${identity?.first_name ?? ""}${identity?.last_name ?? ""}`;
 
-          console.log();
-          console.log("next auth hc identity user data", userData);
-          console.log();
+          if (!email || !name) return null;
 
+          // Upsert user record in database
           const userRecord = await prisma.user.upsert({
             where: { email },
-            update: {
-              name: name,
-              identityToken: identityToken,
-            },
-            create: {
-              email,
-              name: name,
-              identityToken: identityToken,
-            },
+            update: { name, identityToken: access_token },
+            create: { email, name, identityToken: access_token },
           });
 
           return userRecord;
-        } catch (err) {
-          console.log();
-          console.log("identity auth failed", err);
-          console.log();
+        } catch {
           return null;
         }
       },
