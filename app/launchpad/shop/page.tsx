@@ -149,6 +149,13 @@ export default function ShopPage() {
 
   return (
     <div className={`${styles.stardustBackground} pt-24`} style={{ minHeight: '100vh' }}>
+      {/* Cosmic Background */}
+      <div className={styles.stellarBackground} aria-hidden="true">
+        <div className={styles.nebulaLayer}></div>
+        <div className={styles.starfieldLayer}></div>
+        <div className={styles.shootingStars}></div>
+      </div>
+
       {/* HACK CLUB banner in top left corner */}
       <img 
         src="/HC.png" 
@@ -156,7 +163,7 @@ export default function ShopPage() {
         className={styles.hackClubBanner}
       />
       
-      {/* Animated starfield background */}
+      {/* Legacy starfield background - keeping for compatibility */}
       <div className={styles.stardustStarfield}></div>
       {/* Success Toast */}
       {showSuccess && (

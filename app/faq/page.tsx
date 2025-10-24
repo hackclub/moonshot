@@ -21,6 +21,13 @@ export default function FAQ() {
 
   return (
     <div ref={containerRef} className="faq-standalone">
+      {/* Cosmic Background */}
+      <div className="stellar-background" aria-hidden="true">
+        <div className="nebula-layer"></div>
+        <div className="starfield-layer"></div>
+        <div className="shooting-stars"></div>
+      </div>
+
       {/* Home button (top left) */}
       <Link
         href="/"
