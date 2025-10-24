@@ -112,8 +112,6 @@ export default function HackatimeSetup() {
                         </>
                     )}
                 </div>
-            </div>
-            
             <style jsx>{`
                 .setup-loading-screen {
                     min-height: 100vh;
@@ -285,6 +283,6 @@ export default function HackatimeSetup() {
                     100% { transform: rotate(360deg); }
                 }
             `}</style>
-        </div>
+            </div>
     );
 } 

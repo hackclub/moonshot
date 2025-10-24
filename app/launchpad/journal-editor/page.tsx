@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import remarkGfm from 'remark-gfm'
@@ -13,7 +13,7 @@ import { apiFetch } from '@/lib/apiFetch'
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 const DynamicMarkdown = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false })
 
-export default function JournalEditorPage() {
+function JournalEditorPage() {
   const { data: session, status } = useSession()
   const [content, setContent] = useState<string>('')
   const searchParams = useSearchParams()
@@ -353,6 +353,14 @@ export default function JournalEditorPage() {
         .journal-font-sans .wmde-markdown { background-color: transparent !important; }
       `}</style>
     </div>
+  )
+}
+
+export default function JournalEditorPageWrapper() {
+  return (
+    <Suspense fallback={<div />}> 
+      <JournalEditorPage />
+    </Suspense>
   )
 }
 

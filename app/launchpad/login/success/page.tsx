@@ -1,40 +1,12 @@
-import { opts } from "@/app/api/auth/[...nextauth]/route";
-import { getRecords } from "@/lib/airtable/index";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-// Login Successful Redirection Page
-//
-// Manages the flow and makes sure the user has completed the intro, else redirect them to their current stage
-export default async function Page() {
-  const session = await getServerSession(opts);
-
-  // If user not logged in, redirect to login page
-  if (!session || !session?.user) redirect("/launchpad/login");
-
-  // FIXME: Flow Incomplete: Toriel invite
-  // if (!(await checkSlackUserExists(session!.user!.email!)))
-  // redirect("/launchpad/intro/slack");
-
-  // FIXME: Flow Incomplete
-  // const slackUser = await getUserByEmail(session!.user!.email!);
-  // const hackatimeUser = await checkHackatimeUserExists(slackUser!.id!);
-  // if (!hackatimeUser) redirect("/launchpad/intro/hackatime");
-
-  // TODO: Recent Heartbeat Endpoint not Available
-  // FIXME: Flow Incomplete: Heartbeat endpoint not available
-  // const hackatimeHeartbeat = await fetchRecentHeartbeat(slackUser!.id!)
-  // if (!hackatimeHeartbeat.has_heartbeat) redirect("/launchpad/intro/hackatime");
-
-  const records = await getRecords("Users", {
-    filterByFormula: `Email = '${session!.user!.email!}'`,
-    sort: [],
-    maxRecords: 1,
-  });
-  if (records.length < 1) redirect("/launchpad/intro/register");
-
-  redirect("/launchpad/intro/register/complete");
-
+export default function Page() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/launchpad/intro/register/complete');
+  }, [router]);
   return (
     <div className="login-success-loading">
       <div className="stellar-background" aria-hidden="true">
@@ -53,7 +25,7 @@ export default async function Page() {
         <p className="loading-subtitle">Setting up your mission control</p>
       </div>
       
-      <style jsx>{`
+      <style jsx global>{`
         .login-success-loading {
           min-height: 100vh;
           background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0a0a0a 100%);

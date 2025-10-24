@@ -1,4 +1,5 @@
-'use client';
+"use client";
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import LoginOptions from "./options";
 import { useRouter } from "next/navigation";
@@ -6,18 +7,17 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
-// Login Page (/launchpad/login)
-export default function LoginPage() {
+// Inner component that uses useSearchParams
+function LoginInner() {
   const [visible, setVisible] = useState(false);
-
   const searchParams = useSearchParams();
 
-   useEffect(() => {
-     const code = searchParams.get("code");
-     if (code) {
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
       signIn("hc-identity", { code, callbackUrl: "/launchpad/login/success" });
-     }
-   }, [searchParams]);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 10);
@@ -52,5 +52,12 @@ export default function LoginPage() {
   );
 }
 
-import AccessDenied from '@/components/common/AccessDenied';import { sign } from "crypto";
+// Login Page (/launchpad/login)
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div />}> 
+      <LoginInner />
+    </Suspense>
+  );
+}
 
