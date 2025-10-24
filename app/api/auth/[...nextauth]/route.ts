@@ -10,6 +10,8 @@ import metrics from "@/metrics";
 import { sendAuthEmail, sendNotificationEmail } from "@/lib/loops";
 import { AdapterUser } from "next-auth/adapters";
 
+import { SignJWT, jwtVerify } from "jose";
+
 const adapter = {
   ...PrismaAdapter(prisma),
   // Custom createUser method to add auditing
@@ -285,7 +287,35 @@ const adapter = {
 export const opts: NextAuthOptions = {
   adapter: adapter,
   session: {
-    strategy: "database",
+    strategy: "jwt",
+  },
+  jwt: {
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    async encode({ token, secret, maxAge }) {
+      if (!token) return "";
+      const secretInput = secret ?? process.env.NEXTAUTH_SECRET ?? "";
+      const signingKey =
+        typeof secretInput === "string"
+          ? new TextEncoder().encode(secretInput)
+          // Buffer is a Uint8Array; ensure it's typed as such
+          : new Uint8Array(secretInput);
+      const expiresIn = Math.floor(Date.now() / 1000) + (maxAge ?? 60 * 60 * 24 * 30);
+      return await new SignJWT(token as Record<string, unknown>)
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime(expiresIn)
+        .sign(signingKey);
+    },
+    async decode({ token, secret }) {
+      if (!token) return null;
+      const secretInput = secret ?? process.env.NEXTAUTH_SECRET ?? "";
+      const verifyKey =
+        typeof secretInput === "string"
+          ? new TextEncoder().encode(secretInput)
+          : new Uint8Array(secretInput);
+      const { payload } = await jwtVerify(token, verifyKey);
+      return payload as Record<string, unknown>;
+    },
   },
   providers: [
     CredentialsProvider({
@@ -303,10 +333,10 @@ export const opts: NextAuthOptions = {
           console.log("got code", code);
           const tokenUrl = new URL("/oauth/token", process.env.IDENTITY_URL);
           const tokenParams = new URLSearchParams({
-            code,
-            client_id: process.env.IDENTITY_CLIENT_ID,
-            client_secret: process.env.IDENTITY_CLIENT_SECRET,
-            redirect_uri: `${process.env.NEXTAUTH_URL}/launchpad/login`,
+            code: String(code),
+            client_id: process.env.IDENTITY_CLIENT_ID ?? "",
+            client_secret: process.env.IDENTITY_CLIENT_SECRET ?? "",
+            redirect_uri: `${process.env.NEXTAUTH_URL ?? ""}/launchpad/login`,
             grant_type: "authorization_code",
           });
 
@@ -414,25 +444,45 @@ export const opts: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      // With database strategy, we get the fresh user data on every request
-      // Check if user is an island attendee
-      const { isAttendee } = await import("@/lib/userTags");
-      const isAttendeeFlag = await isAttendee(user.id);
+    async jwt({ token, user }) {
+      if (user) {
+        // Persist user id in token on initial sign-in
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (token as any).sub = (user as unknown as { id: string }).id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      const userId = (token?.sub as string | undefined) ?? undefined;
+      if (!userId) {
+        return session;
+      }
 
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: user.id,
-          hackatimeId: user.hackatimeId,
-          role: user.role,
-          isAdmin: user.isAdmin,
-          status: user.status,
-          emailVerified: user.emailVerified,
-          isAttendee: isAttendeeFlag,
-        },
-      };
+      try {
+        const dbUser = await prisma.user.findUnique({ where: { id: userId } });
+        if (dbUser) {
+          const { isAttendee } = await import("@/lib/userTags");
+          const isAttendeeFlag = await isAttendee(dbUser.id);
+
+          return {
+            ...session,
+            user: {
+              ...session.user,
+              id: dbUser.id,
+              hackatimeId: dbUser.hackatimeId,
+              role: dbUser.role,
+              isAdmin: dbUser.isAdmin,
+              status: dbUser.status,
+              emailVerified: dbUser.emailVerified,
+              isAttendee: isAttendeeFlag,
+            },
+          };
+        }
+      } catch (err) {
+        console.error("Error enriching session from DB:", err);
+      }
+
+      return session;
     },
     async signIn({ user, account, profile }) {
       // Log the sign in attempt
