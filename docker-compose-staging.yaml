@@ -12,6 +12,7 @@ services:
         - "traefik.http.routers.moonshot-testing.tls=true"
         - "traefik.http.routers.moonshot-testing.tls.certresolver=letsencrypt"
         - "traefik.http.services.moonshot-testing.loadbalancer.server.port=3000"
+        - "traefik.http.services.moonshot-testing.loadbalancer.passHostHeader=true"
     environment:
       - NODE_ENV=production
       - NEXTAUTH_URL=https://${CANONICAL_HOST}
