@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    
     // ID Service Parameters
     const params = {
       code,
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await response.json();
-
+    
     // Update user with token
     await prisma.user.update({
       where: {
@@ -48,4 +48,4 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : error }, { status: 500 });
   }
-}
+} 
