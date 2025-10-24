@@ -12,11 +12,7 @@ services:
         - "traefik.http.routers.moonshot-testing.tls=true"
         - "traefik.http.routers.moonshot-testing.tls.certresolver=letsencrypt"
         - "traefik.http.services.moonshot-testing.loadbalancer.server.port=3000"
-        # Forward proxy headers so Next/Auth sees the public host and proto
-        - "traefik.http.middlewares.moonshot-forward-staging.headers.customrequestheaders.X-Forwarded-Host=${CANONICAL_HOST}"
-        - "traefik.http.middlewares.moonshot-forward-staging.headers.customrequestheaders.X-Forwarded-Proto=https"
-        - "traefik.http.middlewares.moonshot-forward-staging.headers.customrequestheaders.X-Forwarded-Port=443"
-        # Attach the middleware to the router
-        - "traefik.http.routers.moonshot-testing.middlewares=moonshot-forward-staging@docker"
     environment:
       - NODE_ENV=production
+      - NEXTAUTH_URL=https://${CANONICAL_HOST}
+      - NEXTAUTH_TRUST_HOST=true
