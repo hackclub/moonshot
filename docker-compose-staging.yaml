@@ -16,3 +16,4 @@ services:
       - NODE_ENV=production
       - NEXTAUTH_URL=https://${CANONICAL_HOST}
       - NEXTAUTH_TRUST_HOST=true
+      - NEXTAUTH_COOKIE_DOMAIN=${CANONICAL_HOST}
