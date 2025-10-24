@@ -6,6 +6,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { NextAuthOptions } from "next-auth";
 import { randomBytes } from "crypto";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import metrics from "@/metrics";
 import { sendAuthEmail, sendNotificationEmail } from "@/lib/loops";
 import { AdapterUser } from "next-auth/adapters";
@@ -402,6 +404,18 @@ export const opts: NextAuthOptions = {
         token,
         provider,
       }) => {
+        try {
+          const u = new URL(url);
+          console.log('[AUTH-EMAIL] sendVerificationRequest', {
+            email,
+            host: u.host,
+            path: u.pathname,
+            search: u.search,
+            tokenHead: String(token).slice(0, 10) + '...'
+          });
+        } catch (e) {
+          console.log('[AUTH-EMAIL] sendVerificationRequest url-parse-error', e);
+        }
         // Customize the verification email
         const { host } = new URL(url);
         try {
@@ -513,5 +527,31 @@ export const opts: NextAuthOptions = {
 };
 
 const handler = NextAuth(opts);
+// Wrap GET/POST to log request/callback cookie info for the email flow
+export async function GET(req: NextRequest, ctx: any) {
+  console.log('[AUTH-ROUTE][GET]', { href: req.nextUrl.href, path: req.nextUrl.pathname, search: req.nextUrl.search });
+  const res: NextResponse = await (handler as any)(req, ctx);
+  if (req.nextUrl.pathname.includes('/api/auth/callback/email')) {
+    console.log('[AUTH-ROUTE][CALLBACK][GET] incoming-cookie:', (req.headers.get('cookie') || '(none)').slice(0, 200));
+    console.log('[AUTH-ROUTE][CALLBACK][GET] set-cookie:', res.headers.get('set-cookie') || '(none)');
+    console.log('[AUTH-ROUTE][CALLBACK][GET] status:', res.status);
+  }
+  return res;
+}
 
-export { handler as GET, handler as POST };
+export async function POST(req: NextRequest, ctx: any) {
+  console.log('[AUTH-ROUTE][POST]', { href: req.nextUrl.href, path: req.nextUrl.pathname, search: req.nextUrl.search });
+  if (req.nextUrl.pathname.includes('/api/auth/signin/email')) {
+    console.log('[AUTH-ROUTE][SIGNIN-EMAIL][POST] headers', {
+      host: req.headers.get('host'),
+      referer: req.headers.get('referer'),
+      cookieHead: (req.headers.get('cookie') || '(none)').slice(0, 200)
+    });
+  }
+  const res: NextResponse = await (handler as any)(req, ctx);
+  if (req.nextUrl.pathname.includes('/api/auth/signin/email')) {
+    console.log('[AUTH-ROUTE][SIGNIN-EMAIL][POST] status:', res.status);
+    console.log('[AUTH-ROUTE][SIGNIN-EMAIL][POST] set-cookie:', res.headers.get('set-cookie') || '(none)');
+  }
+  return res;
+}
