@@ -3,10 +3,21 @@ import { useEffect, useState } from "react";
 import LoginOptions from "./options";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 // Login Page (/launchpad/login)
 export default function LoginPage() {
   const [visible, setVisible] = useState(false);
+
+  const searchParams = useSearchParams();
+
+   useEffect(() => {
+     const code = searchParams.get("code");
+     if (code) {
+      signIn("hc-identity", { code, callbackUrl: "/launchpad/login/success" });
+     }
+   }, [searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 10);
@@ -41,4 +52,5 @@ export default function LoginPage() {
   );
 }
 
-import AccessDenied from '@/components/common/AccessDenied';
+import AccessDenied from '@/components/common/AccessDenied';import { sign } from "crypto";
+
