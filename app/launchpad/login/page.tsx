@@ -4,6 +4,7 @@ import LoginOptions from "./options";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 // Login Page (/launchpad/login)
 export default function LoginPage() {
@@ -11,12 +12,12 @@ export default function LoginPage() {
 
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const code = searchParams.get("code");
-    if (code) {
+   useEffect(() => {
+     const code = searchParams.get("code");
+     if (code) {
       signIn("hc-identity", { code, callbackUrl: "/launchpad/login/success" });
-    }
-  }, [searchParams]);
+     }
+   }, [searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 10);
@@ -51,5 +52,5 @@ export default function LoginPage() {
   );
 }
 
-import AccessDenied from '@/components/common/AccessDenied';import { signIn } from "next-auth/react";
+import AccessDenied from '@/components/common/AccessDenied';import { sign } from "crypto";
 

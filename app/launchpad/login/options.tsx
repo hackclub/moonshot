@@ -1,7 +1,6 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
 import "./login.css";
 
 // Client Side Login Option Modal
@@ -65,10 +64,8 @@ export default function LoginOptions() {
 
           <div className="divider">or</div>
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <button className="submit-button" onClick={loginWithHcIdentity}>
-              Sign In Hack Club Identity
-            </button>
+          <div className="flex justify-center items-center">
+            <button className="submit-button" onClick={loginWithHcIdentity}>Sign In Hack Club Identity</button>
           </div>
 
           <div className="divider">or</div>
