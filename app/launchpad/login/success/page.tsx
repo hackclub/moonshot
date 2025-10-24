@@ -36,26 +36,192 @@ export default async function Page() {
   redirect("/launchpad/intro/register/complete");
 
   return (
-    <div className="flex justify-center items-center h-[100vh]">
-      <div role="status">
-        <svg
-          aria-hidden="true"
-          className="w-32 h-32 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-          viewBox="0 0 100 101"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-            fill="currentColor"
-          />
-          <path
-            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-            fill="currentFill"
-          />
-        </svg>
-        <span className="sr-only">Loading...</span>
+    <div className="login-success-loading">
+      <div className="stellar-background" aria-hidden="true">
+        <div className="nebula-layer"></div>
+        <div className="starfield-layer"></div>
+        <div className="shooting-stars"></div>
       </div>
+      
+      <div className="loading-container">
+        <h1 className="loading-title">Preparing for Launch...</h1>
+        <div className="cosmic-spinner">
+          <div className="spinner-ring"></div>
+          <div className="spinner-ring"></div>
+          <div className="spinner-ring"></div>
+        </div>
+        <p className="loading-subtitle">Setting up your mission control</p>
+      </div>
+      
+      <style jsx>{`
+        .login-success-loading {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0a0a0a 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .stellar-background {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          z-index: 1;
+        }
+        
+        .nebula-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(ellipse at 20% 30%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
+            radial-gradient(ellipse at 40% 70%, rgba(139, 92, 246, 0.2) 0%, transparent 50%);
+          animation: nebulaDrift 15s ease-in-out infinite;
+        }
+        
+        .starfield-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(2px 2px at 20% 30%, #ffffff, transparent),
+            radial-gradient(2px 2px at 40% 70%, #8b5cf6, transparent),
+            radial-gradient(1px 1px at 90% 40%, #3b82f6, transparent),
+            radial-gradient(2px 2px at 10% 80%, #ffffff, transparent),
+            radial-gradient(1px 1px at 60% 20%, #8b5cf6, transparent);
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+          animation: starTwinkle 3s ease-in-out infinite;
+        }
+        
+        .shooting-stars {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+        
+        .shooting-stars::before,
+        .shooting-stars::after {
+          content: '';
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          background: #ffffff;
+          border-radius: 50%;
+          box-shadow: 0 0 20px #ffffff, 0 0 30px #8b5cf6;
+        }
+        
+        .shooting-stars::before {
+          top: 20%;
+          left: 10%;
+          animation: shootingStar 3s linear infinite;
+        }
+        
+        .shooting-stars::after {
+          top: 60%;
+          left: 80%;
+          animation: shootingStar 4s linear infinite 2s;
+        }
+        
+        .loading-container {
+          text-align: center;
+          z-index: 10;
+          position: relative;
+        }
+        
+        .loading-title {
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: #ffffff;
+          margin-bottom: 2rem;
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          animation: glow 2s ease-in-out infinite alternate;
+          font-family: var(--font-kavoon), 'Kavoon', cursive;
+        }
+        
+        .loading-subtitle {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 1.2rem;
+          margin-top: 1rem;
+        }
+        
+        .cosmic-spinner {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          margin: 0 auto;
+        }
+        
+        .spinner-ring {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border: 3px solid transparent;
+          border-top: 3px solid #8b5cf6;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
+        .spinner-ring:nth-child(2) {
+          width: 70%;
+          height: 70%;
+          top: 15%;
+          left: 15%;
+          border-top-color: #3b82f6;
+          animation-duration: 1.5s;
+          animation-direction: reverse;
+        }
+        
+        .spinner-ring:nth-child(3) {
+          width: 40%;
+          height: 40%;
+          top: 30%;
+          left: 30%;
+          border-top-color: #ffffff;
+          animation-duration: 2s;
+        }
+        
+        @keyframes nebulaDrift {
+          0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); opacity: 0.6; }
+          25% { transform: translateX(-20px) translateY(-10px) rotate(1deg); opacity: 0.8; }
+          50% { transform: translateX(10px) translateY(-20px) rotate(-1deg); opacity: 0.7; }
+          75% { transform: translateX(-15px) translateY(-5px) rotate(0.5deg); opacity: 0.9; }
+        }
+        
+        @keyframes starTwinkle {
+          0%, 100% { opacity: 0.6; filter: brightness(1); }
+          50% { opacity: 1; filter: brightness(1.5); }
+        }
+        
+        @keyframes shootingStar {
+          0% { transform: translateX(0) translateY(0); opacity: 0; }
+          5% { opacity: 1; }
+          95% { opacity: 1; }
+          100% { transform: translateX(400px) translateY(200px); opacity: 0; }
+        }
+        
+        @keyframes glow {
+          from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+          to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 40px rgba(139, 92, 246, 0.3); }
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
