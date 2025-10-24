@@ -7,15 +7,8 @@ const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
 const port = parseInt(process.env.PORT) || 3000; // Use PORT env var from Docker, fallback to 3000
 
-// Set up Next.js options
-const nextConfig = {
-  dev,
-  hostname,
-  port
-};
-
-// Initialize Next.js
-const app = next(nextConfig);
+// Initialize Next.js (do NOT pin a hostname in Next's config so request URLs derive from forwarded headers)
+const app = next({ dev });
 const handle = app.getRequestHandler();
 
 app.prepare().then(async () => {
