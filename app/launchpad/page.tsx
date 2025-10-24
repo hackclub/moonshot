@@ -473,10 +473,11 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
 
   useEffect(() => {
     // In mock mode, never show identity popup
-    if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
-      setShowIdentityPopup(false);
-      return;
-    }
+    // if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
+    //   setShowIdentityPopup(false);
+    //   return;
+    // }
+
     const getIdentity = async () => {
       const response = await fetch('/api/identity/me');
       const userResponse = impersonationData ? await fetch(`/api/users/${impersonationData.userId}`) : await fetch('/api/users/me');

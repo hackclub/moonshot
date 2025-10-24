@@ -2,21 +2,15 @@
 
 import { signIn } from "next-auth/react";
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 
 // Client Side Login Option Modal
 export default function LoginOptions() {
   const callback = "/launchpad/login/success";
 
-  const searchParams = useSearchParams();
-
     async function hcIdvLogin() {
         window.location.href = '/api/identity/start';
     }
 
-    useEffect(() => {
-        // Identity auth flow handled on server routes; nothing to do here now
-    }, [ searchParams ]);
   function loginWithSlack() {
     signIn("slack", { callbackUrl: callback });
   }

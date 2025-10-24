@@ -2,10 +2,16 @@
 import { useEffect, useState } from "react";
 import LoginOptions from "./options";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 // Login Page (/launchpad/login)
 export default function LoginPage() {
   const [visible, setVisible] = useState(false);
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    console.log("from page [/login] session", session);
+  }, [session]);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 10);

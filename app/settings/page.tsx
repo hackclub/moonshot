@@ -50,15 +50,15 @@ function SettingsContent() {
         setIsLoading(true);
         const response = await fetch(`/api/users/me`);
         // In mock mode, don't call identity API at all to avoid any side-effects
-        if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
-          setIdentityStatus('verified');
-        } else {
+        // if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
+          // setIdentityStatus('verified');
+        // } else {
           const identityResponse = await fetch('/api/identity/me');
           const identityData = await identityResponse.json();
           if (identityResponse.ok && identityData?.verification_status) {
             setIdentityStatus(identityData.verification_status);
           }
-        }
+        // }
         
         if (!response.ok) {
           throw new Error('Failed to fetch user data');

@@ -33,7 +33,10 @@ export default async function Page() {
   });
   if (records.length < 1) redirect("/launchpad/intro/register");
 
-  redirect("/launchpad/intro/register/complete");
+  // setTimeout(() => {
+  //   console.log("redirecting to /launchpad/intro/register/complete");
+  //   redirect("/launchpad/intro/register/complete");
+  // }, 3000);
 
   return (
     <div className="flex justify-center items-center h-[100vh]">

@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       const meUrl = new URL('/api/v1/me', 'https://hca.dinosaurbbq.org');
       const meResp = await fetch(meUrl, {
         headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        cache: 'no-store',
+        // cache: 'no-store',
       });
       let meJson: any = null;
       try {
@@ -78,6 +78,28 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ...tokenResponse, me: null, error: 'Failed to parse identity response as JSON' }, { status: meResp.status || 500 });
       }
       const meData = meJson && typeof meJson === 'object' && 'identity' in meJson ? (meJson as any).identity : meJson;
+
+      // Store identity-derived fields on the NextAuth user so session reflects them
+      if (session?.user?.id && meData && typeof meData === 'object') {
+        const updateData: Record<string, unknown> = {};
+        if (typeof meData.name === 'string' && meData.name.trim()) {
+          updateData.name = meData.name.trim();
+        }
+        if (typeof meData.avatar_url === 'string' && meData.avatar_url.trim()) {
+          updateData.image = meData.avatar_url.trim();
+        }
+        const isVerified = (meData.verification_status === 'verified') || (meData.verified === true);
+        if (isVerified) {
+          updateData.emailVerified = new Date();
+        }
+        if (Object.keys(updateData).length > 0) {
+          try {
+            await prisma.user.update({ where: { id: session.user.id }, data: updateData });
+          } catch (e) {
+            console.error('Failed to update user with identity data:', e);
+          }
+        }
+      }
       return NextResponse.json({ ...tokenResponse, me: meData }, { status: meResp.ok ? 200 : meResp.status });
     } catch (e) {
       console.error('Failed to fetch identity /me:', e);

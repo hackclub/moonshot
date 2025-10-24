@@ -1,7 +1,9 @@
 import { PrismaClient } from "@/app/generated/prisma/client";
 import metrics from "@/metrics";
 
-export const prisma = new PrismaClient().$extends({
+export const prisma = new PrismaClient({
+    log: ['query', 'info', 'warn', 'error'],
+}).$extends({
     name: "slackUserExtension",
     model: {
         user: {

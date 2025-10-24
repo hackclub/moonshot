@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import SlackProvider from "next-auth/providers/slack";
+import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
@@ -249,6 +250,101 @@ export const opts: NextAuthOptions = {
     strategy: "database"
   },
   providers: [
+    CredentialsProvider({
+      id: 'identity',
+      name: 'Hack Club Identity',
+      type: 'credentials',
+      credentials: {
+        code: { label: 'Authorization Code', type: 'text' }
+      },
+      async authorize(credentials) {
+        console.log("authorize credentials", credentials);
+        try {
+          const code = credentials?.code as string | undefined;
+          if (!code) return null;
+
+          const clientId = process.env.IDENTITY_CLIENT_ID || process.env.CLIENT_ID || '';
+          const clientSecret = process.env.IDENTITY_CLIENT_SECRET || process.env.CLIENT_SECRET || '';
+          if (!clientId || !clientSecret) return null;
+
+          const origin = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+          const redirectUri = process.env.IDENTITY_REDIRECT_URI || process.env.REDIRECT_URI || `${origin}/identity`;
+
+          const tokenUrl = new URL('/oauth/token', 'https://hca.dinosaurbbq.org');
+          const tokenParams = new URLSearchParams({
+            code,
+            client_id: clientId,
+            client_secret: clientSecret,
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code',
+          });
+          const tokenResp = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: tokenParams.toString(),
+          });
+          const tokenJson = await tokenResp.json().catch(() => null);
+          if (!tokenResp.ok || !tokenJson?.access_token) return null;
+
+          const meUrl = new URL('/api/v1/me', 'https://hca.dinosaurbbq.org');
+          const meResp = await fetch(meUrl, { headers: { Authorization: `Bearer ${tokenJson.access_token}` }, cache: 'no-store' });
+          const meJson = await meResp.json().catch(() => null);
+          if (!meResp.ok || !meJson) return null;
+          const me = meJson && typeof meJson === 'object' && 'identity' in meJson ? (meJson as any).identity : meJson;
+
+          console.log("got here with me", me);
+
+          const email = (me?.primary_email || '').toString().trim();
+          if (!email) return null;
+
+          const name = ((me?.first_name || '') + ' ' + (me?.last_name || '')).trim() || null;
+          // Try to construct Slack avatar URL from slack_id if available
+          const image = me?.slack_id
+            ? `https://avatars.slack-edge.com/2024-01-01/${me.slack_id}_1024.jpg`
+            : null;
+          const isVerified = (me?.verification_status === 'verified') || (me?.verified === true);
+
+          // Upsert user and persist identity token
+          // const existing = await prisma.user.findUnique({ where: { email } });
+          const userRecord = await prisma.user.upsert({
+            where: { email },
+            update: {
+              name: name ?? undefined,
+              image: image ?? undefined,
+              identityToken: tokenJson.access_token,
+              emailVerified: isVerified ? undefined : undefined, // Do not overwrite emailVerified if not verified
+            },
+            create: {
+              email,
+              name: name ?? undefined,
+              image: image ?? undefined,
+              identityToken: tokenJson.access_token,
+              emailVerified: isVerified ? new Date() : undefined,
+            },
+          });
+
+          // If the user is now verified, and they weren't before, update emailVerified
+          if (isVerified && !userRecord.emailVerified) {
+            await prisma.user.update({
+              where: { id: userRecord.id },
+              data: { emailVerified: new Date() },
+            });
+            userRecord.emailVerified = new Date();
+          }
+
+          console.log("got here with userRecord", userRecord);
+
+          return {
+            id: userRecord.id,
+            email: userRecord.email,
+            name: userRecord.name ?? undefined,
+            image: userRecord.image ?? undefined,
+          } as any;
+        } catch {
+          return null;
+        }
+      },
+    }),
     SlackProvider({
       clientId: process.env.SLACK_CLIENT_ID ?? "",
       clientSecret: process.env.SLACK_CLIENT_SECRET ?? "",
@@ -294,6 +390,8 @@ export const opts: NextAuthOptions = {
           ...session.user,
           id: user.id,
           hackatimeId: user.hackatimeId,
+          name: user.name,
+          image: user.image,
           role: user.role,
           isAdmin: user.isAdmin,
           status: user.status,
@@ -334,20 +432,18 @@ export const opts: NextAuthOptions = {
           });
         }
       }
+      // TODO: implement check if Slack account exists when signing in with Hack Club Identity
 
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Check if the URL is a callback URL with slackConnected parameter
-      if (url.includes('slackConnected=true')) {
-        console.log('Redirecting to:', url);
-        return url;
-      }
-      
-      // Clear experience mode cookie on login so it gets reset based on user status
-      // Note: We need to add a flag to clear this on the client side since we can't 
-      // access cookies directly in the redirect callback
-      return `${baseUrl}/launchpad?clearExperience=true`;
+      try {
+        const parsed = new URL(url, baseUrl);
+        const callbackUrl = parsed.searchParams.get('callbackUrl');
+        if (callbackUrl) return callbackUrl;
+      } catch {}
+      return `${baseUrl}/launchpad`;
+      // return `${baseUrl}/`;
     }
   },
   pages: {

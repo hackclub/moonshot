@@ -1,6 +1,8 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 
 function IdentityCallbackContent() {
   const router = useRouter();
@@ -16,50 +18,25 @@ function IdentityCallbackContent() {
       return;
     }
 
-    async function exchangeCode() {
+    async function completeLogin() {
       setStatus('loading');
       try {
-        const response = await fetch('/api/identity/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          setStatus('error');
-          setMessage(data?.error || 'Failed to verify identity.');
-          return;
-        }
-
-        const me = data?.me || {};
-        if (me.rejection_reason) {
-          setStatus('error');
-          setMessage('Your submission got rejected! Go to identity.hackclub.com to fix.');
-          return;
-        }
-
-        if (me.verification_status === 'pending') {
-          setStatus('pending');
-          setMessage('Your identity verification is pending. Please wait for approval.');
-          return;
-        }
-
-        const verified = (typeof me.verification_status === 'string'
-          ? me.verification_status === 'verified'
-          : (typeof me.verified === 'boolean' ? me.verified : Boolean(me && (me.id || me.email || me.uuid))));
-        setStatus(verified ? 'success' : 'error');
-        setMessage(verified ? 'Identity verified! You may now return to Moonshot.' : 'Identity verification failed. Please try again.');
-        if (verified) {
-          setTimeout(() => {
-            window.location.href = '/launchpad/login/success';
-          }, 300);
-        }
+        // Delegate session creation to NextAuth Credentials provider
+        // const result = await signIn('credentials', { code, callbackUrl: '/launchpad/login/success', redirect: true });
+        const result = await signIn('identity', { code, redirect: true });
+        // const result = {};
+  
+        // console.log("result", result);
+        // When redirect: true, NextAuth navigates away. If it returns, treat as error.
+        if (result === undefined) return; // navigation initiated
+        setStatus('error');
+        setMessage('Failed to start session. Please try again.');
       } catch {
         setStatus('error');
-        setMessage('Failed to verify identity. Please try again.');
+        setMessage('Failed to start session. Please try again.');
       }
     }
-    exchangeCode();
+    completeLogin();
   }, [searchParams]);
 
   return (
@@ -102,6 +79,7 @@ function IdentityCallbackContent() {
 
 export default function IdentityCallback() {
   return (
+    <SessionProvider>
     <Suspense fallback={
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <div className="bg-white p-8 rounded shadow max-w-md w-full text-center">
@@ -112,5 +90,6 @@ export default function IdentityCallback() {
     }>
       <IdentityCallbackContent />
     </Suspense>
+  </SessionProvider>
   );
 } 
