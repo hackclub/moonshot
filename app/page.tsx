@@ -30,15 +30,48 @@ const loadingMessages = [
 
 function RSVPLink() {
   const searchParams = useSearchParams();
-  const rsvpLink = searchParams.toString() ? `/rsvp?${searchParams.toString()}` : '/rsvp';
+  const launchpadLink = searchParams.toString() ? `/launchpad?${searchParams.toString()}` : '/launchpad';
+  const [isLaunching, setIsLaunching] = useState(false);
+  
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log('Button clicked, starting rocket animation');
+    setIsLaunching(true);
+    
+    // Start rocket animation immediately
+    setTimeout(() => {
+      console.log('Rocket animation complete, navigating to Launchpad');
+      window.location.href = launchpadLink;
+    }, 2000);
+  };
   
   return (
-    <a
-      href={rsvpLink}
-      className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-kavoon tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
-    >
-      RSVP NOW!
-    </a>
+    <>
+      <a
+        href={launchpadLink}
+        onClick={handleClick}
+        className={`rsvp-btn ${isLaunching ? 'launching' : 'animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused]'} font-kavoon tracking-wide uppercase transition-all duration-300 ease-out rounded-2xl border-2 border-white/80 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(147,51,234,0.3)] hover:brightness-125 hover:shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_40px_rgba(59,130,246,0.6),0_0_80px_rgba(147,51,234,0.5)] active:translate-y-0.5 inline-block overflow-hidden`}
+        style={{
+          background: isLaunching ? 'linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FFD23F 100%)' : 'linear-gradient(135deg, #0B0F1A 0%, #111827 50%, #0B1220 100%)',
+          textShadow: '0 0 15px rgba(255,255,255,0.5), 0 0 30px rgba(59,130,246,0.3)'
+        }}
+      >
+        <span className="relative z-10">
+          {isLaunching ? '🚀 LAUNCHING...' : 'Land on Moonshot'}
+        </span>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+        {isLaunching && (
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-500/30 via-yellow-400/20 to-transparent animate-pulse"></div>
+        )}
+      </a>
+      
+      {/* Rocket Animation */}
+      {isLaunching && (
+        <div className="rocket-container">
+          <div className="rocket">🚀</div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -291,10 +324,15 @@ export default function Home() {
           </p>
           <Suspense fallback={
             <a
-              href="/rsvp"
-              className="rsvp-btn fixed z-[100] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-kavoon tracking-wide uppercase transition-all duration-200 ease-out rounded-2xl border-2 border-white/60 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_20px_rgba(59,130,246,0.25)] hover:brightness-110 active:translate-y-0.5 inline-block"
+              href="/launchpad"
+              className="rsvp-btn animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-kavoon tracking-wide uppercase transition-all duration-300 ease-out rounded-2xl border-2 border-white/80 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(147,51,234,0.3)] hover:brightness-125 hover:shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_40px_rgba(59,130,246,0.6),0_0_80px_rgba(147,51,234,0.5)] active:translate-y-0.5 inline-block overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #0B0F1A 0%, #111827 50%, #0B1220 100%)',
+                textShadow: '0 0 15px rgba(255,255,255,0.5), 0 0 30px rgba(59,130,246,0.3)'
+              }}
             >
-              RSVP NOW!
+              <span className="relative z-10">Land on Moonshot</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
             </a>
           }>
             <RSVPLink />
@@ -364,6 +402,155 @@ export default function Home() {
         .faq-paragraph { margin: 0.25rem 0; }
         .faq-list { list-style: disc; margin-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
         .faq-content a { color: #ef4444; text-decoration: underline; }
+        
+        /* Enhanced shiny button effects */
+        @keyframes shimmer {
+          0% { transform: translateX(-100%) skewX(-12deg); }
+          100% { transform: translateX(100%) skewX(-12deg); }
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+          50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+        
+        @keyframes rotate-glow {
+          0% { 
+            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 30px rgba(59,130,246,0.4), 0 0 60px rgba(147,51,234,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+          }
+          25% { 
+            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 40px rgba(147,51,234,0.5), 0 0 70px rgba(236,72,153,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+          }
+          50% { 
+            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 50px rgba(236,72,153,0.6), 0 0 80px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+          }
+          75% { 
+            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 40px rgba(59,130,246,0.5), 0 0 70px rgba(147,51,234,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+          }
+          100% { 
+            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 30px rgba(59,130,246,0.4), 0 0 60px rgba(147,51,234,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+          }
+        }
+        
+        @keyframes sparkle {
+          0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+          50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+        
+        .rsvp-btn {
+          position: fixed !important;
+          left: 50% !important;
+          top: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          z-index: 100 !important;
+          overflow: hidden;
+          animation: float 3s ease-in-out infinite, rotate-glow 4s ease-in-out infinite;
+        }
+        
+        .rsvp-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transition: left 0.6s ease-out;
+          z-index: 1;
+        }
+        
+        .rsvp-btn::after {
+          content: '✨';
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          font-size: 20px;
+          animation: sparkle 2s ease-in-out infinite;
+          z-index: 2;
+        }
+        
+        .rsvp-btn:hover::before {
+          left: 100%;
+        }
+        
+        .rsvp-btn:hover {
+          transform: translate(-50%, -50%) translateY(-5px) scale(1.05);
+          animation-play-state: paused;
+        }
+        
+        .rsvp-btn:active {
+          transform: translate(-50%, -50%) translateY(2px) scale(0.98);
+        }
+        
+        /* Simplified Rocket Animation */
+        .rocket-container {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 9999;
+        }
+        
+        .rocket {
+          position: absolute;
+          font-size: 50px;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          animation: rocket-fly 2s ease-out forwards;
+        }
+        
+        @keyframes rocket-fly {
+          0% {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+          50% {
+            left: 75%;
+            top: 25%;
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+          }
+          100% {
+            left: 100%;
+            top: 0%;
+            transform: translate(-50%, -50%) scale(2);
+            opacity: 0;
+          }
+        }
+        
+        .rsvp-btn.launching {
+          animation: button-launch 2s ease-out forwards !important;
+          pointer-events: none !important;
+        }
+        
+        @keyframes button-launch {
+          0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+          20% {
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 0.9;
+          }
+          40% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.8;
+          }
+          60% {
+            transform: translate(-50%, -50%) scale(1.3);
+            opacity: 0.6;
+          }
+          80% {
+            transform: translate(-50%, -50%) scale(1.4);
+            opacity: 0.4;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0;
+          }
+        }
 
       `}</style>
     </div>

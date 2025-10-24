@@ -100,7 +100,7 @@ export default function FAQContent() {
           <p>You and <strong>100 Hack Clubbers</strong> will fly to <strong>Orlando, Florida, December 12–15</strong>.</p>
           <p><strong>Hack by day</strong>, then head out on <strong>unforgettable excursions</strong>:</p>
           <ul>
-            <li><strong>A trip to Universal Studios</strong></li>
+            <li><strong> - A trip to Universal Studios</strong></li>
             <li><strong>Visit Kennedy Space Center and Potentially watch a rocket launch</strong></li>
           </ul>
         </div>

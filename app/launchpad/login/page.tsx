@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import LoginOptions from "./options";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // Login Page (/launchpad/login)
 export default function LoginPage() {
@@ -19,6 +20,22 @@ export default function LoginPage() {
         transition: "opacity 0.5s ease-in"
       }}
     >
+      {/* Home button (top left) */}
+      <Link
+        href="/"
+        className="fixed top-4 left-4 z-[200] font-luckiest uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
+      >
+        ← HOME
+      </Link>
+
+      {/* FAQ button (top right) */}
+      <Link
+        href="/faq"
+        className="fixed top-4 right-4 z-[200] font-kavoon uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
+      >
+        FAQ
+      </Link>
+
       <LoginOptions />
     </div>
   );
