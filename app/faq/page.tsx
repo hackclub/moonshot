@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import ClientEffects from './ClientEffects';
 import './faq.css';
+import Link from 'next/link';
 
 export default function FAQ() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -20,6 +21,14 @@ export default function FAQ() {
 
   return (
     <div ref={containerRef} className="faq-standalone">
+      {/* Home button (top left) */}
+      <Link
+        href="/"
+        className="fixed top-4 left-4 z-[200] font-luckiest uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
+      >
+        ← HOME
+      </Link>
+
       <ClientEffects />
       {/* Local stars disabled to avoid conflicting with the global starspace background */}
       {/* <div className="stars" aria-hidden="true">
