@@ -14,6 +14,12 @@ function redirectToCanonicalHostIfNeeded(request: NextRequest): NextResponse | n
 
   const forwardedHost = request.headers.get('x-forwarded-host');
   const incomingHost = (forwardedHost || request.headers.get('host') || request.nextUrl.host || '').split(':')[0].toLowerCase();
+  // If a proxy forwarded host is present and already matches the canonical host, do NOT redirect.
+  // This prevents loops when request.nextUrl.host reflects the internal bind address (e.g., 0.0.0.0)
+  // while the proxy has already set the correct public host via X-Forwarded-Host.
+  if ((forwardedHost || '').split(':')[0].toLowerCase() === canonicalHost) {
+    return null;
+  }
   if (incomingHost && incomingHost !== canonicalHost) {
     const proto = (request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '') || 'https');
     const url = `${proto}://${canonicalHost}${request.nextUrl.pathname}${request.nextUrl.search}`;
