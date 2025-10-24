@@ -71,6 +71,12 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
 }
 
 export default async function middleware(request: NextRequest) {
+  // Allow unauthenticated, unredirected access for temporary upload URLs so the CDN can fetch them
+  // This bypass prevents canonical redirects and basic auth challenges for /api/uploads resources
+  const path = request.nextUrl.pathname || '/';
+  if (path.startsWith('/api/uploads')) {
+    return NextResponse.next();
+  }
   // Handle hack.club → hackclub.com referral redirects FIRST so we can append r=slug
   const moonshotRedirect = handleMoonshotReferralRedirect(request);
   if (moonshotRedirect) return moonshotRedirect;

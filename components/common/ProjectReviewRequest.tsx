@@ -39,6 +39,7 @@ export default function ProjectReviewRequest({
     isIslandProject ? 'ShippedApproval' : (isShipped ? 'HoursApproval' : 'ShippedApproval')
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showRequestUI, setShowRequestUI] = useState(false);
   
   // Checklist state
   const [checklist, setChecklist] = useState({
@@ -61,6 +62,19 @@ export default function ProjectReviewRequest({
     }
   }, [isShipped, isIslandProject]);
 
+  // Reset the Request review collapse state when switching selected project
+  useEffect(() => {
+    setShowRequestUI(false);
+    setComment('');
+    setChecklist({
+      codeComplete: false,
+      easyToRun: false,
+      experienceableBuild: false,
+      wellDocumented: false,
+      polished: false
+    });
+  }, [projectID]);
+
   // Don't show this component in review mode or if project is already in review
   if (isReviewMode || isInReview) {
     return null;
@@ -72,17 +86,15 @@ export default function ProjectReviewRequest({
   const hasScreenshot = screenshot && screenshot.trim() !== '';
   const hasAllRequiredMetadata = hasCodeUrl && hasPlayableUrl && hasScreenshot;
 
-  // If metadata is missing, show the warning component instead
-  if (!hasAllRequiredMetadata) {
+  // Gate both metadata warning and submit UI behind a single Request Review button
+  if (!showRequestUI) {
     return (
-      <ProjectMetadataWarning
-        projectID={projectID}
-        isInReview={isInReview}
-        codeUrl={codeUrl}
-        playableUrl={playableUrl}
-        screenshot={screenshot}
-        onEditProject={onEditProject}
-      />
+      <button
+        onClick={() => setShowRequestUI(true)}
+        className="w-full px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors"
+      >
+        Request review
+      </button>
     );
   }
 
@@ -172,9 +184,19 @@ export default function ProjectReviewRequest({
   
   return (
     <div className="p-4 rounded-lg border-l-4 border-amber-600 bg-amber-900/30 text-white">
-      <h3 className="text-sm font-bold text-white mb-3">Submit for Review</h3>
-      
-      <form onSubmit={handleSubmit}>
+      {!hasAllRequiredMetadata ? (
+        <ProjectMetadataWarning
+          projectID={projectID}
+          isInReview={isInReview}
+          codeUrl={codeUrl}
+          playableUrl={playableUrl}
+          screenshot={screenshot}
+          onEditProject={onEditProject}
+        />
+      ) : (
+      <>
+        <h3 className="text-sm font-bold text-white mb-3">Submit for Review</h3>
+        <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="reviewType" className="block text-sm font-medium text-white mb-1">
             What type of review do you need?*
@@ -300,14 +322,16 @@ export default function ProjectReviewRequest({
           </div>
         </div>
         
-        <button
-          type="submit"
-          disabled={isSubmitting || !comment.trim() || !allChecklistComplete}
-          className="w-full px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit for Review'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={isSubmitting || !comment.trim() || !allChecklistComplete}
+            className="w-full px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit for Review'}
+          </button>
+        </form>
+      </>
+      )}
     </div>
   );
 } 

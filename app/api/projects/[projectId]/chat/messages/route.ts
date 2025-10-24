@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { logProjectEvent, AuditLogEventType } from '@/lib/auditLogger';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { opts } from '../../../../auth/[...nextauth]/route';
@@ -46,9 +47,7 @@ export async function GET(
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    if (!project.chat_enabled) {
-      return NextResponse.json({ error: 'Chat is not enabled for this project' }, { status: 403 });
-    }
+    // Chat gating removed: always allow fetching messages
 
     // Check if this is an island project
     const isIslandProject = project.projectTags.some(pt => pt.tag.name === 'event-project');
@@ -108,6 +107,8 @@ export async function GET(
       content: message.content,
       userId: message.userId,
       createdAt: message.createdAt.toISOString(),
+      hours: (message as any).hours ?? 0,
+      approvedHours: (message as any).approvedHours ?? null,
       isAuthor: message.userId === project.userId, // Flag to indicate if message is from project author
       userName: isIslandProject && (message as any).user ? (message as any).user.name : undefined, // Include real name for island projects
     }));
@@ -148,9 +149,9 @@ export async function POST(
           return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
         }
 
-        // Limit message length to 1000 characters
-        if (body.content.trim().length > 1000) {
-          return NextResponse.json({ error: 'Message too long. Maximum 1000 characters allowed.' }, { status: 400 });
+        // Increase message length limit to 10KB-equivalent (~10,000 characters)
+        if (body.content.trim().length > 10000) {
+          return NextResponse.json({ error: 'Message too long. Maximum 10,000 characters allowed.' }, { status: 400 });
         }
 
         // Check if the project exists and has chat enabled
@@ -160,6 +161,7 @@ export async function POST(
           },
           select: {
             chat_enabled: true,
+            in_review: true,
             userId: true, // Include userId to determine author
             projectTags: {
               select: {
@@ -177,8 +179,11 @@ export async function POST(
           return NextResponse.json({ error: 'Project not found' }, { status: 404 });
         }
 
-        if (!project.chat_enabled) {
-          return NextResponse.json({ error: 'Chat is not enabled for this project' }, { status: 403 });
+        // Chat gating removed: always allow posting messages
+
+        // Block posting new journal entries while in review
+        if (project.in_review) {
+          return NextResponse.json({ error: 'Project is in review; posting new journal entries is disabled.' }, { status: 403 });
         }
 
         // Check if this is an island project
@@ -216,6 +221,15 @@ export async function POST(
           }
         };
 
+        // Optional hours from client; clamp to reasonable bounds
+        // Require hours field now; must be > 0 and <= 24
+        const rawHours = typeof body.hours === 'number' ? body.hours : Number(body.hours)
+        if (isNaN(rawHours) || !isFinite(rawHours) || rawHours <= 0 || rawHours > 24) {
+          return NextResponse.json({ error: 'Invalid hours. Provide a value between 0 and 24.' }, { status: 400 });
+        }
+        const clamped = Math.max(0, Math.min(24, rawHours))
+        messageCreateOptions.data.hours = clamped
+
         // Only add include clause for island projects
         if (isIslandProject) {
           messageCreateOptions.include = {
@@ -248,6 +262,86 @@ export async function POST(
     }
   );
 } 
+
+// PATCH - Update approvedHours (reviewers/admins)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> }
+) {
+  try {
+    const session = await getServerSession(opts);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { projectId } = await params;
+
+    // Only Admins or Reviewers can modify approved hours
+    const role = session.user.role;
+    const isAdmin = role === 'Admin' || session.user.isAdmin === true;
+    const isReviewer = role === 'Reviewer';
+    if (!isAdmin && !isReviewer) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { messageId, approvedHours } = body || {};
+    if (!messageId || typeof messageId !== 'string') {
+      return NextResponse.json({ error: 'messageId is required' }, { status: 400 });
+    }
+
+    // Validate approvedHours: allow null to clear, or a number between 0 and 24 inclusive
+    let nextApproved: number | null = null;
+    if (approvedHours === null || approvedHours === undefined || approvedHours === '') {
+      nextApproved = null;
+    } else {
+      const parsed = typeof approvedHours === 'number' ? approvedHours : Number(approvedHours);
+      if (isNaN(parsed) || parsed < 0 || parsed > 24) {
+        return NextResponse.json({ error: 'approvedHours must be between 0 and 24' }, { status: 400 });
+      }
+      nextApproved = parsed;
+    }
+
+    // Ensure message belongs to the project's room
+    const message = await prisma.chatMessage.findUnique({
+      where: { id: messageId },
+      select: { id: true, room: { select: { projectID: true } } }
+    });
+    if (!message || message.room.projectID !== projectId) {
+      return NextResponse.json({ error: 'Message not found' }, { status: 404 });
+    }
+
+    const updated = await prisma.chatMessage.update({
+      where: { id: messageId },
+      data: { approvedHours: nextApproved }
+    });
+
+    // Write audit event (target user is the project owner)
+    try {
+      const projectOwner = await prisma.project.findUnique({
+        where: { projectID: projectId },
+        select: { userId: true, name: true }
+      });
+      if (projectOwner?.userId) {
+        await logProjectEvent({
+          eventType: AuditLogEventType.ProjectReviewCompleted,
+          description: `Updated approved hours on chat message ${messageId} to ${nextApproved ?? 'null'}`,
+          projectId,
+          userId: projectOwner.userId,
+          actorUserId: session.user.id,
+          metadata: { messageId, approvedHours: nextApproved }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to write audit log for approved hours update:', e);
+    }
+
+    return NextResponse.json({ id: updated.id, approvedHours: updated.approvedHours });
+  } catch (error) {
+    console.error('Error updating approved hours:', error);
+    return NextResponse.json({ error: 'Failed to update approved hours' }, { status: 500 });
+  }
+}
 
 // DELETE - Delete a chat message (admins or project owners only)
 export async function DELETE(

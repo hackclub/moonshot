@@ -23,6 +23,8 @@ interface ProjectFlagsEditorProps {
   initialViral: boolean;
   initialInReview: boolean;
   hackatimeLinks?: HackatimeLink[];
+  journalRawHours?: number;
+  journalApprovedHours?: number;
   onChange: (flags: ProjectFlags) => void;
 }
 
@@ -32,6 +34,8 @@ export default function ProjectFlagsEditor({
   initialViral,
   initialInReview,
   hackatimeLinks = [],
+  journalRawHours = 0,
+  journalApprovedHours = 0,
   onChange
 }: ProjectFlagsEditorProps) {
   const { isReviewMode } = useReviewMode();
@@ -237,14 +241,14 @@ export default function ProjectFlagsEditor({
     onChange(updatedFlags);
   };
 
-  // Calculate total raw hours
-  const totalRawHours = hackatimeLinks.reduce(
+  // Calculate total raw hours from Hackatime links only
+  const totalRawHackatimeHours = hackatimeLinks.reduce(
     (sum, link) => sum + (typeof link.rawHours === 'number' ? link.rawHours : 0),
     0
   );
 
-  // Calculate total effective hours (with overrides applied)
-  const totalEffectiveHours = hackatimeLinks.reduce(
+  // Calculate total approved hours from Hackatime links only (with overrides applied)
+  const totalApprovedHackatimeHours = hackatimeLinks.reduce(
     (sum, link) => {
       // Only include hours that have been explicitly overridden/approved
       const linkHours = linkOverrides[link.id] !== undefined 
@@ -256,6 +260,27 @@ export default function ProjectFlagsEditor({
     },
     0
   );
+
+  // Include Journal entry aggregates in totals (with dynamic fallback from chat messages)
+  const [journalSums, setJournalSums] = useState<{raw:number, approved:number}>({raw:0, approved:0})
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`/api/projects/${projectID}/chat/messages`, { cache: 'no-store' })
+        if (!res.ok) return
+        const data = await res.json()
+        if (!Array.isArray(data)) return
+        const raw = data.reduce((s:number,m:any)=> s + (typeof m.hours==='number'?m.hours:0), 0)
+        const appr = data.reduce((s:number,m:any)=> s + (typeof m.approvedHours==='number'?m.approvedHours:0), 0)
+        setJournalSums({raw, approved: appr})
+      } catch {}
+    })()
+  }, [projectID])
+
+  const resolvedJournalRaw = (journalSums.raw > 0 ? journalSums.raw : (journalRawHours || 0))
+  const resolvedJournalApproved = (journalSums.approved > 0 ? journalSums.approved : (journalApprovedHours || 0))
+  const totalRawAll = (totalRawHackatimeHours || 0) + resolvedJournalRaw
+  const totalApprovedAll = (totalApprovedHackatimeHours || 0) + resolvedJournalApproved
 
   return (
     <div className="bg-black/60 text-white p-3 sm:p-4 rounded-lg border border-white/10">
@@ -279,7 +304,7 @@ export default function ProjectFlagsEditor({
       {/* Hackatime Hours Override Section */}
       {hackatimeLinks && hackatimeLinks.length > 0 && (
         <div className="mt-4 sm:mt-6">
-          <h4 className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3">Hackatime Hours Approved</h4>
+          <h4 className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3">Time Tracking</h4>
           
           <div className="bg-black/40 rounded-lg border border-white/10 overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
             <table className="min-w-full divide-y divide-white/10">
@@ -323,15 +348,38 @@ export default function ProjectFlagsEditor({
                     </td>
                   </tr>
                 ))}
+                {/* Journal entries aggregated row */}
+                <tr>
+                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-white">
+                    {inReview ? (
+                      <a
+                        href={`/launchpad/journal-editor?projectId=${encodeURIComponent(projectID)}&mode=review`}
+                        className="text-blue-300 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Journal entries
+                      </a>
+                    ) : (
+                      'Journal entries'
+                    )}
+                  </td>
+                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-white/80 text-center">
+                    {Number(resolvedJournalRaw || 0).toFixed(1)}h
+                  </td>
+                  <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-orange-400 text-center">
+                    {Number(resolvedJournalApproved || 0).toFixed(1)}h
+                  </td>
+                </tr>
                 <tr className="bg-black/60">
                   <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-white">
                     Total
                   </td>
                   <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-white text-center">
-                    {totalRawHours.toFixed(1)}h
+                    {totalRawAll.toFixed(1)}h
                   </td>
                   <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm font-medium text-orange-400 text-center">
-                    {totalEffectiveHours.toFixed(1)}h
+                    {totalApprovedAll.toFixed(1)}h
                   </td>
                 </tr>
               </tbody>

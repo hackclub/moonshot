@@ -40,6 +40,8 @@ interface ReviewSectionProps {
     rawHours: number;
     hoursOverride?: number | null;
   }>;
+  journalRawHours?: number;
+  journalApprovedHours?: number;
 }
 
 export default function ReviewSection({ 
@@ -49,6 +51,8 @@ export default function ReviewSection({
   onFlagsUpdated,
   reviewType,
   hackatimeLinks = [],
+  journalRawHours = 0,
+  journalApprovedHours = 0,
 }: ReviewSectionProps) {
   const { data: session, status } = useSession();
   const { isReviewMode } = useReviewMode();
@@ -538,6 +542,8 @@ export default function ReviewSection({
             initialViral={currentFlags.viral}
             initialInReview={currentFlags.in_review}
             hackatimeLinks={hackatimeLinks}
+            journalRawHours={journalRawHours}
+            journalApprovedHours={journalApprovedHours}
             onChange={handleFlagsChange}
           />
           

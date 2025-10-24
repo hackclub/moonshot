@@ -113,6 +113,7 @@ function ProjectDetail({
 }): ReactElement {
   const { isReviewMode } = useReviewMode();
   const { data: session } = useSession();
+  const router = useRouter();
   const [projectFlags, setProjectFlags] = useState<ProjectFlags>({
     shipped: !!project.shipped,
     viral: !!project.viral,
@@ -218,7 +219,14 @@ function ProjectDetail({
   return (
     <div className={`${styles.editForm} max-h-screen overflow-y-scroll`}>
       {isEditingAllowed && (
-        <div className="sticky top-0 z-10 flex justify-end">
+        <div className="sticky top-0 z-10 flex justify-end gap-4">
+          <button
+            className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded transition-colors border border-black/40 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-black/40"
+            onClick={() => router.push('/launchpad/journal-editor')}
+            aria-label="Write a journal entry"
+          >
+            <span className="animate-pulse">Write a journal entry</span>
+          </button>
           <button
             className="flex items-center gap-2 px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors"
             onClick={handleEdit}
@@ -229,7 +237,14 @@ function ProjectDetail({
         </div>
       )}
       <div className="flex justify-between items-center mb-5 pb-3">
-        <h2 className="text-2xl font-bold text-white">{project.name}</h2>
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          {project.name}
+          {project.projectType && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white text-black text-xs font-semibold capitalize">
+              {project.projectType}
+            </span>
+          )}
+        </h2>
         {!isEditingAllowed && (
           <span className="text-sm text-gray-500 italic">
             Cannot edit while in review
@@ -242,43 +257,73 @@ function ProjectDetail({
           <h3 className="text-sm font-medium text-white mb-2">Description</h3>
           <p className="text-base text-white">{project.description || "No description provided."}</p>
         </div>
-        
-        {/* Hours tracking sections - hidden for island projects since they use blog/vlog tracking */}
-        {!project.isIslandProject && (
-          <>
-            {/* Project Hours Details Section */}
-            <div className="bg-black/60 p-4 rounded-lg mb-4 border border-white/10 text-white">
-              <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm text-white/70">Raw</span>
-                  <p className="text-lg font-semibold mt-1 text-white">
-                    {project.hackatimeLinks && project.hackatimeLinks.length > 0 
-                      ? `${project.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
-                      : `${project.rawHours || 0}h`}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-sm text-white/70">Approved</span>
-                  <p className="text-lg font-semibold mt-1 text-white">
-                    {(() => {
-                      if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
-                        const totalApproved = project.hackatimeLinks.reduce((sum, link) => {
-                          return sum + (link.hoursOverride !== null && link.hoursOverride !== undefined ? link.hoursOverride : 0);
-                        }, 0);
-                        return totalApproved > 0 ? `${totalApproved}h` : '—';
-                      } else {
-                        return project.hoursOverride !== undefined && project.hoursOverride !== null 
-                          ? `${project.hoursOverride}h` 
-                          : '—';
-                      }
-                    })()}
-                  </p>
+
+        {/* Project Status section - only visible when NOT in review mode */}
+        {!isReviewMode && (
+          <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+            <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
+              <span className="text-sm text-white">Shipped</span>
+            </div>
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.in_review ? 'bg-green-500' : 'bg-white/30'}`}></div>
+              <span className="text-sm text-white">In Review</span>
+            </div>
+          </div>
+        )}
+
+
+        {/* Project Tracking Section */}
+        <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+          <h3 className="text-sm font-medium text-white mb-3">
+            Project Tracking
+          </h3>
+          <div className="bg-black rounded border border-white/10">
+            {/* Table Header */}
+            <div className="grid grid-cols-3 gap-4 p-3 border-b bg-black text-xs font-medium text-white/70 uppercase tracking-wider border-white/10">
+              <div>PROJECT</div>
+              <div className="text-center">RAW</div>
+              <div className="text-center">APPROVED</div>
+            </div>
+            {/* Table Rows */}
+            {(project.hackatimeLinks || []).map((link) => (
+              <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
+                <div className="font-medium text-white">{link.hackatimeName}</div>
+                <div className="text-center text-white/80">{link.rawHours}h</div>
+                <div className="text-center">
+                  {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
+                    <span className="text-white/80">{link.hoursOverride}h</span>
+                  ) : (
+                    <span className="text-white/40">—</span>
+                  )}
                 </div>
               </div>
+            ))}
+            {/* Journal entries aggregated row */}
+            <div className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
+              <div className="font-medium text-white">
+                {project.in_review ? (
+                  <a
+                    href={`/launchpad/journal-editor?projectId=${encodeURIComponent(project.projectID)}`}
+                    className="text-blue-300 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Journal entries
+                  </a>
+                ) : (
+                  'Journal entries'
+                )}
+              </div>
+              <div className="text-center text-white/80">{(project as any).journalRawHours || 0}h</div>
+              <div className="text-center text-white/80">{(project as any).journalApprovedHours || 0}h</div>
             </div>
-          </>
-        )}
+          </div>
+        </div>
+
+
+        
         {/* Project Review Request - only visible when NOT in review mode and not already in review */}
         <ProjectReviewRequest
           projectID={project.projectID}
@@ -314,53 +359,7 @@ function ProjectDetail({
             // This would normally be handled by the ReviewSection component itself
             // but we can notify it explicitly if needed
           }}
-        />
-        
-        {/* Hackatime Project Links Section */}
-        {project.hackatimeLinks && project.hackatimeLinks.length > 0 && (
-          <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-            <h3 className="text-sm font-medium text-white mb-3">
-              Hackatime Project Links
-            </h3>
-            <div className="bg-black rounded border border-white/10">
-              {/* Table Header */}
-              <div className="grid grid-cols-3 gap-4 p-3 border-b bg-black text-xs font-medium text-white/70 uppercase tracking-wider border-white/10">
-                <div>PROJECT</div>
-                <div className="text-center">RAW</div>
-                <div className="text-center">APPROVED</div>
-              </div>
-              {/* Table Rows */}
-              {project.hackatimeLinks.map((link, index) => (
-                <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
-                  <div className="font-medium text-white">{link.hackatimeName}</div>
-                  <div className="text-center text-white/80">{link.rawHours}h</div>
-                  <div className="text-center">
-                    {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
-                      <span className="text-orange-400 font-medium">{link.hoursOverride}h</span>
-                    ) : (
-                      <span className="text-white/40">—</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {/* Project Status section - only visible when NOT in review mode */}
-        {!isReviewMode && (
-          <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-            <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
-            <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
-              <span className="text-sm text-white">Shipped</span>
-            </div>
-            <div className="flex items-center">
-              <div className={`w-3 h-3 rounded-full mr-2 ${projectFlags.in_review ? 'bg-green-500' : 'bg-white/30'}`}></div>
-              <span className="text-sm text-white">In Review</span>
-            </div>
-          </div>
-        )}
+        />        
         
         {(project.codeUrl || project.playableUrl) && (
           <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
@@ -411,6 +410,8 @@ function ProjectDetail({
           projectID={project.projectID} 
           projectOwnerUserId={project.userId}
           initialFlags={projectFlags}
+          journalRawHours={(project as any).journalRawHours || 0}
+          journalApprovedHours={(project as any).journalApprovedHours || 0}
           onFlagsUpdated={handleFlagsUpdated}
           rawHours={project.rawHours}
         />
@@ -1062,6 +1063,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                       {...project}
                       rawHours={project.rawHours}
                       hoursOverride={project.hoursOverride ?? undefined}
+                      hackatimeLinks={project.hackatimeLinks as any}
+                      journalApprovedHours={(project as any).journalApprovedHours ?? 0}
                       viral={!!project.viral}
                       shipped={!!project.shipped}
                       in_review={!!project.in_review}
@@ -1276,21 +1279,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     </div>
                   </div>
 
-                  {/* Discussion toggle - desktop edit */}
-                  <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-white">Enable chat discussion</p>
-                        <p className="text-xs text-white/70">Allow others to discuss this project</p>
-                      </div>
-                      <input 
-                        type="checkbox" 
-                        name="chat_enabled"
-                        defaultChecked={!!initialEditState.chat_enabled}
-                        className="ml-3 toggle-checkbox w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
+                  {/* Discussion toggle removed from UI per requirements */}
                   
                   {/* Debug info */}
                   <div className="mb-5 p-3 border border-gray-200 rounded-lg text-xs text-gray-500" style={{ display: 'none' }}>
@@ -1484,6 +1473,22 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     <p className="text-base text-white">{selectedProject.description || "No description provided."}</p>
                   </div>
                   
+                                    {/* Project Status section - only visible when NOT in review mode */}
+                                    {!isReviewMode && (
+                    <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                      <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
+                      {/* Viral removed from mobile details */}
+                      <div className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
+                        <span className="text-sm text-white">Shipped</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.in_review ? 'bg-green-500' : 'bg-white/30'}`}></div>
+                        <span className="text-sm text-white">In Review</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Contribution summary removed */}
                   
                   {/* Project status for island projects - without viral indicator */}
@@ -1500,39 +1505,123 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     </div>
                   )}
                   
-                  {/* Project Hours Details Section - hidden for island projects */}
-                  {!selectedProject.isIslandProject && (
-                    <div className="bg-black/60 p-4 rounded-lg mb-4 border border-white/10 text-white">
-                      <h3 className="text-sm font-medium text-white mb-3">Project Hours</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <span className="text-sm text-white/70">Raw</span>
-                          <p className="text-lg font-semibold mt-1 text-white">
-                            {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 
-                              ? `${selectedProject.hackatimeLinks.reduce((sum, link) => sum + (link.rawHours || 0), 0)}h`
-                              : `${selectedProject.rawHours || 0}h`}
-                          </p>
+                                    {/* Project Flags Editor for Mobile - only visible in review mode */}
+                  <ProjectFlagsEditor
+                    projectID={selectedProject.projectID}
+                    initialShipped={!!selectedProject.shipped}
+                    initialViral={!!selectedProject.viral}
+                    initialInReview={!!selectedProject.in_review}
+                    journalRawHours={(selectedProject as any).journalRawHours || 0}
+                    journalApprovedHours={(selectedProject as any).journalApprovedHours || 0}
+                    onChange={impersonationData ? () => {
+                      toast.error("Cannot modify project flags while impersonating users");
+                    } : (flags: ProjectFlags) => {
+                      // Create a new object with the updated flags
+                      const updatedSelectedProject = {
+                        ...selectedProject,
+                      };
+                      
+                      // Update the project in the projects array
+                      setProjects(prevProjects => 
+                        prevProjects.map(p => 
+                          p.projectID === selectedProject.projectID ? updatedSelectedProject : p
+                        )
+                      );
+                    }}
+                  />
+                  
+                  {/* Project Tracking Section for Mobile */}
+                  <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">
+                      Project Tracking
+                    </h3>
+                    <div className="bg-black rounded border border-white/10">
+                      {/* Table Header */}
+                      <div className="grid grid-cols-3 gap-4 p-3 border-b bg-black text-xs font-medium text-white/70 uppercase tracking-wider border-white/10">
+                        <div>PROJECT</div>
+                        <div className="text-center">RAW</div>
+                        <div className="text-center">APPROVED</div>
+                      </div>
+                      {/* Table Rows */}
+                      {(selectedProject.hackatimeLinks || []).map((link) => (
+                        <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
+                          <div className="font-medium text-white">{link.hackatimeName}</div>
+                          <div className="text-center text-white/80">{link.rawHours}h</div>
+                          <div className="text-center">
+                            {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
+                              <span className="text-white/80">{link.hoursOverride}h</span>
+                            ) : (
+                              <span className="text-white/40">—</span>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-sm text-white/70">Approved</span>
-                          <p className="text-lg font-semibold mt-1 text-white">
-                            {(() => {
-                              if (selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0) {
-                                const totalApproved = selectedProject.hackatimeLinks.reduce((sum, link) => {
-                                  return sum + (link.hoursOverride !== null && link.hoursOverride !== undefined ? link.hoursOverride : 0);
-                                }, 0);
-                                return totalApproved > 0 ? `${totalApproved}h` : '—';
-                              } else {
-                                return selectedProject.hoursOverride !== undefined && selectedProject.hoursOverride !== null 
-                                  ? `${selectedProject.hoursOverride}h` 
-                                  : '—';
-                              }
-                            })()}
-                          </p>
+                      ))}
+                      {/* Journal entries aggregated row */}
+                      <div className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
+                        <div className="font-medium text-white">
+                          {selectedProject.in_review ? (
+                            <a
+                              href={`/launchpad/journal-editor?projectId=${encodeURIComponent(selectedProject.projectID)}&mode=review`}
+                              className="text-blue-300 hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Journal entries
+                            </a>
+                          ) : (
+                            'Journal entries'
+                          )}
                         </div>
+                        <div className="text-center text-white/80">{(selectedProject as any).journalRawHours || 0}h</div>
+                        <div className="text-center text-white/80">{(selectedProject as any).journalApprovedHours || 0}h</div>
+                      </div>
+                    </div>
+                  </div>
+                                    
+                  {(selectedProject.codeUrl || selectedProject.playableUrl) && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="text-sm font-medium text-gray-700 mb-3">Links</h3>
+                      <div className="flex flex-col gap-2">
+                        {selectedProject.codeUrl && (
+                          <a 
+                            href={selectedProject.codeUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline flex items-center gap-2"
+                          >
+                            <Icon glyph="github" size={16} />
+                            View Code Repository
+                          </a>
+                        )}
+                        {selectedProject.playableUrl && (
+                          <a 
+                            href={selectedProject.playableUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline flex items-center gap-2"
+                          >
+                            <Icon glyph="link" size={16} />
+                            Try It Out
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
+                  
+                  {selectedProject.screenshot && (
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
+                      <div className="relative mt-2 w-full h-64 rounded-lg border border-gray-200 overflow-hidden">
+                        <ImageWithFallback
+                          src={selectedProject.screenshot}
+                          alt={`Screenshot of ${selectedProject.name}`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Project Review Request for Mobile - only visible when NOT in review mode and not already in review */}
                   <ProjectReviewRequest
                     projectID={selectedProject.projectID}
@@ -1587,120 +1676,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     }}
                   />
                   
-                                    {/* Project Flags Editor for Mobile - only visible in review mode */}
-                  <ProjectFlagsEditor
-                    projectID={selectedProject.projectID}
-                    initialShipped={!!selectedProject.shipped}
-                    initialViral={!!selectedProject.viral}
-                    initialInReview={!!selectedProject.in_review}
-                    onChange={impersonationData ? () => {
-                      toast.error("Cannot modify project flags while impersonating users");
-                    } : (flags: ProjectFlags) => {
-                      // Create a new object with the updated flags
-                      const updatedSelectedProject = {
-                        ...selectedProject,
-                      };
-                      
-                      // Update the project in the projects array
-                      setProjects(prevProjects => 
-                        prevProjects.map(p => 
-                          p.projectID === selectedProject.projectID ? updatedSelectedProject : p
-                        )
-                      );
-                    }}
-                  />
-                  
-                  {/* Hackatime Project Links Section for Mobile */}
-                  {selectedProject.hackatimeLinks && selectedProject.hackatimeLinks.length > 0 && (
-                    <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3">
-                        Hackatime Project Links
-                      </h3>
-                      <div className="bg-black rounded border border-white/10">
-                        {/* Table Header */}
-                        <div className="grid grid-cols-3 gap-4 p-3 border-b bg-black text-xs font-medium text-white/70 uppercase tracking-wider border-white/10">
-                          <div>PROJECT</div>
-                          <div className="text-center">RAW</div>
-                          <div className="text-center">APPROVED</div>
-                        </div>
-                        {/* Table Rows */}
-                        {selectedProject.hackatimeLinks.map((link, index) => (
-                          <div key={link.id} className="grid grid-cols-3 gap-4 p-3 border-b last:border-b-0 text-sm border-white/10">
-                            <div className="font-medium text-white">{link.hackatimeName}</div>
-                            <div className="text-center text-white/80">{link.rawHours}h</div>
-                            <div className="text-center">
-                              {link.hoursOverride !== null && link.hoursOverride !== undefined ? (
-                                <span className="text-orange-400 font-medium">{link.hoursOverride}h</span>
-                              ) : (
-                                <span className="text-white/40">—</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Project Status section - only visible when NOT in review mode */}
-                  {!isReviewMode && (
-                    <div className="grid grid-cols-2 gap-4 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                      <h3 className="text-sm font-medium text-white mb-3 col-span-2">Project Status</h3>
-                      {/* Viral removed from mobile details */}
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.shipped ? 'bg-green-500' : 'bg-white/30'}`}></div>
-                        <span className="text-sm text-white">Shipped</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className={`w-3 h-3 rounded-full mr-2 ${selectedProject.in_review ? 'bg-green-500' : 'bg-white/30'}`}></div>
-                        <span className="text-sm text-white">In Review</span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {(selectedProject.codeUrl || selectedProject.playableUrl) && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3">Links</h3>
-                      <div className="flex flex-col gap-2">
-                        {selectedProject.codeUrl && (
-                          <a 
-                            href={selectedProject.codeUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-2"
-                          >
-                            <Icon glyph="github" size={16} />
-                            View Code Repository
-                          </a>
-                        )}
-                        {selectedProject.playableUrl && (
-                          <a 
-                            href={selectedProject.playableUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline flex items-center gap-2"
-                          >
-                            <Icon glyph="link" size={16} />
-                            Try It Out
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {selectedProject.screenshot && (
-                    <div className="mb-4">
-                      <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
-                      <div className="relative mt-2 w-full h-64 rounded-lg border border-gray-200 overflow-hidden">
-                        <ImageWithFallback
-                          src={selectedProject.screenshot}
-                          alt={`Screenshot of ${selectedProject.name}`}
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  
+
                   {/* Project Reviews Section for Mobile */}
                   <ReviewSection 
                     projectID={selectedProject.projectID}
@@ -1710,6 +1686,8 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                       viral: !!selectedProject.viral,
                       in_review: !!selectedProject.in_review
                     }}
+                    journalRawHours={(selectedProject as any).journalRawHours || 0}
+                    journalApprovedHours={(selectedProject as any).journalApprovedHours || 0}
                     onFlagsUpdated={(updatedProject: any) => {
                       // Create a new object with the updated flags
                       const updatedSelectedProject = {
@@ -1873,7 +1851,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
   const [islandProjectTypes, setIslandProjectTypes] = useState<{name: string, description: string}[]>([]);
   const [selectedIslandProjectType, setSelectedIslandProjectType] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Software');
-  const [selectedTimeTracking, setSelectedTimeTracking] = useState<string>('Hackatime');
+  const [noHackatime, setNoHackatime] = useState<boolean>(false);
   
   // Reset selected projects when modal opens for creation
   useEffect(() => {
@@ -2036,7 +2014,9 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
                   <button
                     key={cat}
                     type="button"
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                    }}
                     className={`w-full py-3 px-4 rounded-lg text-lg font-semibold border transition ${selectedCategory === cat ? 'bg-white text-black border-white' : 'bg-black text-white border-white/30 hover:border-white/60'}`}
                   >
                     {cat}
@@ -2046,28 +2026,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               <input type="hidden" name="category" value={selectedCategory} />
             </div>
             )}
-            {/* Time Tracking Selector (Create-only) */}
-            {isCreate && (
-            <div className="mt-6">
-              <label className="block mb-2 text-white">Time tracking</label>
-              <div className="grid grid-cols-2 gap-3 w-full">
-                {['Hackatime','Journal'].map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setSelectedTimeTracking(opt)}
-                    className={`w-full py-3 px-4 rounded-lg text-lg font-semibold border transition ${selectedTimeTracking === opt ? 'bg-white text-black border-white' : 'bg-black text-white border-white/30 hover:border-white/60'}`}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-              <input type="hidden" name="timeTracking" value={selectedTimeTracking} />
-              {selectedTimeTracking === 'Journal' ? (
-                <input type="hidden" name="noHackatime" value="true" />
-              ) : null}
-            </div>
-            )}
+            {/* Removed time tracking toggle per requirements */}
           </div>
           
           {!isCreate && (
@@ -2133,43 +2092,39 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
                 </div>
               </div>
 
-              {/* Chat Settings Section */}
-              <div className="mb-5 bg-black/60 p-4 rounded-lg border border-white/10 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-white">Enable chat discussion</p>
-                    <p className="text-xs text-white/70">Allow others to discuss this project</p>
-                  </div>
-                  <input 
-                    type="checkbox" 
-                    name="chat_enabled"
-                    defaultChecked={props.isIslandMode ? true : !!props.chat_enabled}
-                    className="ml-3 toggle-checkbox w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+              {/* Chat settings removed from UI per requirements */}
             </>
           )}
           
 
           
           {isCreate && !props.isIslandMode ? (
-            selectedTimeTracking === 'Hackatime' ? (
-              <div className="mb-5 p-4 rounded-lg border border-white/10 bg-black text-white">
-                <HackatimeMultiSelect
-                  availableProjects={availableHackatimeProjects}
-                  selectedProjects={selectedHackatimeProjects}
-                  onSelectionChange={setSelectedHackatimeProjects}
-                  isLoading={props.isLoadingHackatime}
-                  disabled={props.isLoadingHackatime || Object.keys(props.hackatimeProjects).length === 0}
-                />
+            <div className="mb-5 p-4 rounded-lg border border-white/10 bg-black text-white">
+              <HackatimeMultiSelect
+                availableProjects={availableHackatimeProjects}
+                selectedProjects={selectedHackatimeProjects}
+                onSelectionChange={setSelectedHackatimeProjects}
+                isLoading={props.isLoadingHackatime}
+                disabled={props.isLoadingHackatime || Object.keys(props.hackatimeProjects).length === 0}
+                required={!noHackatime}
+                noHackatime={noHackatime}
+                onNoHackatimeChange={(val: boolean) => setNoHackatime(val)}
+              />
+              {noHackatime && (
+                <input type="hidden" name="noHackatime" value="true" />
+              )}
+              <div className="mt-3 text-sm">
+                {noHackatime ? (
+                  <p className="text-yellow-300">
+                    <span className="text-red-500 font-semibold">Journaling will be required.</span> You must provide high-quality evidence (photos, videos, and written progress) to document your work.
+                  </p>
+                ) : (
+                  <p className="text-yellow-300">
+                    Journaling is encouraged to provide more context and showcase your journey.
+                  </p>
+                )}
               </div>
-            ) : (
-              <div className="mb-5 p-4 rounded-lg border border-white/10 bg-black text-white">
-                <p className="text-white/90 text-center">You will be required to upload evidence in picture and video form, and write journal entries detailing your project over time.</p>
-                <p className="mt-2 text-center text-red-500 font-extrabold tracking-wide animate-pulse">EXPECTATIONS WILL BE HIGH!!!</p>
-              </div>
-            )
+            </div>
           ) : null}
           
           {/* Explanatory text - moved from top to near button */}
@@ -2192,7 +2147,7 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
               disabled={
                 props.pending || 
                 props.isLoadingHackatime || 
-                (isCreate && !props.isIslandMode && selectedHackatimeProjects.length === 0) ||
+                (isCreate && !props.isIslandMode && selectedHackatimeProjects.length === 0 && !noHackatime) ||
                 (isCreate && props.isIslandMode && !selectedIslandProjectType)
               }
             >
@@ -2280,13 +2235,19 @@ function HackatimeMultiSelect({
   selectedProjects,
   onSelectionChange,
   isLoading,
-  disabled
+  disabled,
+  required,
+  noHackatime,
+  onNoHackatimeChange
 }: {
   availableProjects: Record<string, string>;
   selectedProjects: string[];
   onSelectionChange: (selected: string[]) => void;
   isLoading: boolean;
   disabled: boolean;
+  required: boolean;
+  noHackatime: boolean;
+  onNoHackatimeChange: (val: boolean) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownDirection, setDropdownDirection] = useState<'down' | 'up'>('down');
@@ -2345,9 +2306,9 @@ function HackatimeMultiSelect({
     <div className="w-full mb-8">
       <label className="text-lg font-semibold text-left">
         <Tooltip content="Moonshot works by allowing you to link projects that are currently being tracked by Hackatime. Select the Hackatime projects you want to showcase here.">
-          Your Hackatime Projects
+          Time tracking
         </Tooltip>
-        <p className="text-red-500 inline">*</p>
+        {required ? <p className="text-red-500 inline">*</p> : null}
       </label>
       
       {/* Selected Projects Display */}
@@ -2377,26 +2338,22 @@ function HackatimeMultiSelect({
         </div>
       )}
 
-      {/* Dropdown for adding more projects */}
-      {unselectedProjects.length > 0 && (
-        <div className="relative" ref={dropdownRef}>
-          <button
-            ref={buttonRef}
-            type="button"
-            onClick={handleToggleDropdown}
-            disabled={disabled || isLoading}
-            className="w-full px-4 py-2 bg-black text-white rounded border border-white/10 text-left flex justify-between items-center disabled:opacity-50"
-          >
-            <span className="text-white/80">
-              {isLoading 
-                ? 'Loading projects...' 
-                : selectedProjects.length === 0 
-                  ? 'Select Hackatime Projects'
-                  : 'Add more projects...'
-              }
-            </span>
-            <span className="text-white/60">▼</span>
-          </button>
+      {/* Plus button and No Hackatime checkbox */}
+      <div className="flex items-center justify-between gap-3 mt-2">
+        {!noHackatime && (
+          <div className="relative flex-1" ref={dropdownRef}>
+            <button
+              ref={buttonRef}
+              type="button"
+              onClick={handleToggleDropdown}
+              disabled={disabled || isLoading}
+              className="px-3 py-2 bg-black text-white rounded border border-white/10 flex items-center gap-2 disabled:opacity-50"
+            >
+              <span className="text-lg leading-none">+</span>
+              <span className="text-sm">
+                {selectedProjects.length === 0 ? 'Add Hackatime project' : 'Add another'}
+              </span>
+            </button>
 
           {isOpen && !disabled && !isLoading && (
             <div className={`absolute z-50 w-full bg-black text-white border border-white/10 rounded shadow-lg max-h-60 overflow-y-auto ${
@@ -2423,8 +2380,45 @@ function HackatimeMultiSelect({
               })}
             </div>
           )}
-        </div>
-      )}
+            {isOpen && !disabled && !isLoading && unselectedProjects.length > 0 && (
+              <div className={`absolute z-50 w-[22rem] bg-black text-white border border-white/10 rounded shadow-lg max-h-60 overflow-y-auto ${
+                dropdownDirection === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'
+              }`}>
+                {unselectedProjects.map(([displayLabel, projectName]) => {
+                  const parts = displayLabel.split(' ');
+                  const hoursLabel = parts.shift() || '';
+                  const nameLabel = parts.join(' ');
+                  return (
+                    <button
+                      key={projectName}
+                      type="button"
+                      onClick={() => {
+                        handleToggleProject(projectName);
+                        setIsOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-orange-600/20 focus:bg-orange-600/20 focus:outline-none flex items-center"
+                    >
+                      <span className="inline-block bg-white text-black rounded px-2 py-0.5 text-xs font-bold mr-2 whitespace-nowrap">{hoursLabel}</span>
+                      <span className="truncate">{nameLabel}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        {selectedProjects.length === 0 && (
+          <label className="flex items-center gap-2 text-sm text-white whitespace-nowrap">
+            <input
+              type="checkbox"
+              checked={noHackatime}
+              onChange={(e) => onNoHackatimeChange(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span>No hackatime projects</span>
+          </label>
+        )}
+      </div>
 
       {/* Hidden inputs for form submission */}
       {selectedProjects.map(projectName => (
@@ -2437,9 +2431,9 @@ function HackatimeMultiSelect({
       ))}
 
       {/* Validation message */}
-      {selectedProjects.length === 0 && (
+      {required && selectedProjects.length === 0 && (
         <p className="text-sm text-white/70 mt-1">
-          Please select at least one Hackatime project
+          <span className="font-bold">Add a Hackatime project </span><span className="font-bold text-white" style={{ fontSize: 'calc(0.875rem + 3px)' }}>OR</span> select "No hackatime projects"
         </p>
       )}
     </div>

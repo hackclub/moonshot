@@ -675,6 +675,8 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
             projectID={project.projectID} 
             projectOwnerUserId={project.userId}
             initialFlags={projectFlags}
+            journalRawHours={(project as any).journalRawHours || 0}
+            journalApprovedHours={(project as any).journalApprovedHours || 0}
             onFlagsUpdated={handleFlagsUpdated}
             rawHours={project.rawHours}
             reviewType={project.latestReview?.reviewType || 'Other'}
