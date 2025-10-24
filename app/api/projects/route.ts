@@ -35,6 +35,10 @@ export type ProjectType = Project & {
     // Computed fields (no tag data exposure)
     isIslandProject?: boolean;
     islandProjectType?: string | null;
+  projectType?: 'software' | 'hardware' | 'art' | 'other' | null;
+  // Aggregated journaled hours from chat messages
+  journalRawHours?: number;
+  journalApprovedHours?: number;
     // projectTags removed - no tag exposure to bay users
 };
 
@@ -169,6 +173,38 @@ export async function GET(request: Request) {
                 islandProjectType = typeTag?.tag.name || null;
                 eventProjectType = islandProjectType;
             }
+
+            // Compute projectType from pt-* tags without exposing tags
+            let projectType: 'software' | 'hardware' | 'art' | 'other' | null = null;
+            const ptTag = await prisma.projectTag.findFirst({
+                where: {
+                    projectID: project.projectID,
+                    tag: {
+                        name: {
+                            startsWith: 'pt-'
+                        }
+                    }
+                },
+                include: { tag: true }
+            });
+            if (ptTag?.tag?.name) {
+                const suffix = ptTag.tag.name.substring(3).toLowerCase();
+                if (['software','hardware','art','other'].includes(suffix)) {
+                    projectType = suffix as any;
+                }
+            }
+
+            // Aggregate journal hours from chat messages linked to this project
+            let journalRawHours = 0;
+            let journalApprovedHours = 0;
+            try {
+              const chatAgg = await prisma.chatMessage.aggregate({
+                _sum: { hours: true, approvedHours: true },
+                where: { room: { projectID: project.projectID } }
+              });
+              journalRawHours = (chatAgg._sum?.hours as number | null) || 0;
+              journalApprovedHours = (chatAgg._sum?.approvedHours as number | null) || 0;
+            } catch {}
             
             console.log(`[GET] Project ${project.projectID} (${project.name}): calculated rawHours = ${rawHours}, isIslandProject = ${isIslandProject}`);
             
@@ -179,6 +215,9 @@ export async function GET(request: Request) {
                 rawHours,
                 isIslandProject,
                 islandProjectType,
+                projectType,
+                journalRawHours,
+                journalApprovedHours,
                 // New aliases for abstraction
                 isEventProject,
                 eventProjectType
@@ -242,12 +281,13 @@ export async function POST(request: Request) {
                 codeUrl: formData.get('codeUrl')?.toString() || '',
                 playableUrl: formData.get('playableUrl')?.toString() || '',
                 screenshot: formData.get('screenshot')?.toString() || '',
-                chat_enabled: formData.get('chat_enabled') === 'on' || formData.get('isIslandProject') === 'true',
+                chat_enabled: true, // default chat on for new projects
                 viral: formData.get('viral') === 'true',
                 shipped: formData.get('shipped') === 'true',
                 in_review: formData.get('in_review') === 'true',
                 isIslandProject: formData.get('isIslandProject') === 'true',
                 islandProjectType: formData.get('islandProjectType')?.toString() || '',
+                category: formData.get('category')?.toString() || ''
             };
         } else {
             console.log('[POST-TRACE] 5.2 Parsing as JSON');
@@ -268,6 +308,7 @@ export async function POST(request: Request) {
                 projectData.codeUrl = projectData.codeUrl || '';
                 projectData.playableUrl = projectData.playableUrl || '';
                 projectData.screenshot = projectData.screenshot || '';
+                projectData.category = projectData.category || '';
                 
             } catch (parseError) {
                 console.error('[POST-TRACE] 5.3 Error parsing JSON:', parseError);
@@ -514,6 +555,45 @@ export async function POST(request: Request) {
                     // Don't fail the entire request if chat room creation fails
                 }
             }
+
+            // Auto-tag project type using prefix "pt-" based on chosen category
+            try {
+                const rawCategory: string = (projectData.category || '').toString();
+                const normalizedCategory = rawCategory.trim().toLowerCase();
+                const allowedCategories = ['software', 'hardware', 'art', 'other'];
+
+                if (normalizedCategory && allowedCategories.includes(normalizedCategory)) {
+                    const typeTagName = `pt-${normalizedCategory}`;
+                    console.log(`[POST-TRACE] 13.8 Adding project type tag: ${typeTagName}`);
+
+                    // Find or create the tag
+                    let typeTag = await prisma.tag.findUnique({ where: { name: typeTagName } });
+                    if (!typeTag) {
+                        typeTag = await prisma.tag.create({
+                            data: {
+                                name: typeTagName,
+                                description: `Project type: ${normalizedCategory}`,
+                                color: null
+                            }
+                        });
+                    }
+
+                    // Link tag to project (unique constraint prevents duplicates)
+                    await prisma.projectTag.create({
+                        data: {
+                            projectID: createdProject.projectID,
+                            tagId: typeTag.id
+                        }
+                    });
+
+                    console.log('[POST-TRACE] 13.9 Project type tag added successfully');
+                } else {
+                    console.log('[POST-TRACE] 13.8 Skipping type tag - category missing or not allowed:', rawCategory);
+                }
+            } catch (typeTagError) {
+                console.error('[POST-TRACE] 13.10 Failed to add project type tag:', typeTagError);
+                // Do not fail the entire request if tagging fails
+            }
             
             // Fetch the complete project data including tags for the response
             console.log(`[POST-TRACE] 14. Fetching complete project data including tags for response`);
@@ -551,11 +631,27 @@ export async function POST(request: Request) {
                     });
                     islandProjectType = typeTag?.tag.name || null;
                 }
+                // Compute projectType from pt-* tags without exposing tags
+                let projectType: 'software' | 'hardware' | 'art' | 'other' | null = null;
+                const ptTag = await prisma.projectTag.findFirst({
+                    where: {
+                        projectID: completeProject.projectID,
+                        tag: { name: { startsWith: 'pt-' } }
+                    },
+                    include: { tag: true }
+                });
+                if (ptTag?.tag?.name) {
+                    const suffix = ptTag.tag.name.substring(3).toLowerCase();
+                    if (['software','hardware','art','other'].includes(suffix)) {
+                        projectType = suffix as any;
+                    }
+                }
                 
                 responseProject = {
                     ...completeProject,
                     isIslandProject,
-                    islandProjectType
+                    islandProjectType,
+                    projectType
                 } as any; // Type assertion for computed fields
             }
             

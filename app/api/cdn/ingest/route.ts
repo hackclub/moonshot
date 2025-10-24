@@ -10,21 +10,20 @@ function resolvePublicOrigin(req: NextRequest): string {
 
 export async function POST(request: NextRequest) {
   try {
-    // Prefer server env, but allow Authorization header or NEXT_PUBLIC_API_TOKEN for dev
-    const headerAuth = request.headers.get('authorization') || '';
-    const headerToken = headerAuth.toLowerCase().startsWith('bearer ')
-      ? headerAuth.slice(7)
-      : '';
-    const token = process.env.API_TOKEN || process.env.NEXT_PUBLIC_API_TOKEN || headerToken;
+    // SECURITY: Only use the server-side CDN_PASSWORD env var for Bearer auth to the CDN.
+    // Do NOT accept client-provided tokens (e.g., headers or public env vars).
+    const token = process.env.CDN_PASSWORD;
     if (!token) {
-      return NextResponse.json({ error: 'Missing API token. Set API_TOKEN, or send Authorization: Bearer <token>.' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing CDN_PASSWORD env var on the server.' }, { status: 400 });
     }
     const { tempPath } = await request.json();
     if (typeof tempPath !== 'string' || !tempPath.startsWith('/')) {
       return NextResponse.json({ error: 'Invalid tempPath' }, { status: 400 });
     }
 
-    const base = resolvePublicOrigin(request);
+    // Optional tunnel/public URL override solely for CDN fetching
+    // Example: set CDN_PUBLIC_ORIGIN to your ngrok URL (https://abc.ngrok.io)
+    const base = (process.env.CDN_PUBLIC_ORIGIN || '').replace(/\/$/, '') || resolvePublicOrigin(request);
     const fileUrl = `${base}${tempPath}`;
 
     const res = await fetch('https://cdn.hackclub.com/api/v3/new', {

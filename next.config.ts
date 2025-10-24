@@ -26,33 +26,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      {
-        source: '/waves/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, immutable'
-          }
-        ]
-      },
-      {
-        source: '/:path*.(png|webp|jpg|jpeg)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, immutable'
-          }
-        ]
-      }
     ]
   },
   async redirects() {
     return [
-      {
-        source: '/info/travel-stipends',
-        destination: '/info/travel',
-        permanent: true,
-      },
     ]
   },
 };

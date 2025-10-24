@@ -53,6 +53,17 @@ export function getProjectApprovedHours(project: any): number {
   return project?.hoursOverride || 0;
 }
 
+// Journal helpers
+function getProjectJournalRawHours(project: any): number {
+  const v = (project as any)?.journalRawHours
+  return typeof v === 'number' && isFinite(v) ? v : 0
+}
+
+function getProjectJournalApprovedHours(project: any): number {
+  const v = (project as any)?.journalApprovedHours
+  return typeof v === 'number' && isFinite(v) ? v : 0
+}
+
 // Centralized function to calculate all progress metrics
 export function calculateProgressMetrics(
   projects: any[], 
@@ -83,7 +94,11 @@ export function calculateProgressMetrics(
 
   // Get all projects and their hours (for reporting only)
   const allProjectsWithHours = projects
-    .map(project => ({ project, hours: getProjectHackatimeHours(project) }))
+    .map(project => ({ 
+      project, 
+      // Raw hours now include Hackatime raw/overrides + journal raw
+      hours: getProjectHackatimeHours(project) + getProjectJournalRawHours(project)
+    }))
     .sort((a, b) => b.hours - a.hours);
 
 
@@ -96,7 +111,8 @@ export function calculateProgressMetrics(
   // Only pay out for approved hours on shipped projects
   const approvedHoursAcrossAllProjects = projects.reduce((sum, project) => {
     if (project?.shipped === true) {
-      return sum + getProjectApprovedHours(project);
+      // Approved now includes hackatime approved (overrides) + journal approved
+      return sum + getProjectApprovedHours(project) + getProjectJournalApprovedHours(project);
     }
     return sum;
   }, 0);

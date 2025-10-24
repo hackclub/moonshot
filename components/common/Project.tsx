@@ -9,13 +9,16 @@ type ProjectProps = Project & {
     userId: string, 
     hoursOverride?: number,
     rawHours?: number,
+    journalApprovedHours?: number | null,
+    hackatimeLinks?: Array<{ hoursOverride?: number | null; rawHours?: number | null }>,
     hackatime?: string,
     editHandler?: (project: ProjectType) => void,
     selected?: boolean,
-    islandProjectType?: string
+    islandProjectType?: string,
+    projectType?: 'software' | 'hardware' | 'art' | 'other' | null
 };
 
-export function Project({ name, description, codeUrl, playableUrl, screenshot, hackatime, submitted, projectID, editHandler, userId, hoursOverride, rawHours = 0, selected, viral, shipped, in_review, islandProjectType }: ProjectProps) {
+export function Project({ name, description, codeUrl, playableUrl, screenshot, hackatime, submitted, projectID, editHandler, userId, hoursOverride, rawHours = 0, journalApprovedHours = 0, hackatimeLinks = [], selected, viral, shipped, in_review, islandProjectType, projectType }: ProjectProps) {
     // Detect mobile screen size
     const isMobile = useIsMobile();
 
@@ -41,7 +44,15 @@ export function Project({ name, description, codeUrl, playableUrl, screenshot, h
         }
     };
 
-    const displayHours = typeof hoursOverride === 'number' ? hoursOverride : (rawHours || 0);
+    const hackatimeApprovedFromLinks = Array.isArray(hackatimeLinks)
+      ? hackatimeLinks.reduce((sum, link) => sum + (typeof link?.hoursOverride === 'number' ? (link!.hoursOverride as number) : 0), 0)
+      : 0;
+    const hackatimeApproved = hackatimeApprovedFromLinks > 0
+      ? hackatimeApprovedFromLinks
+      : (typeof hoursOverride === 'number' ? hoursOverride : 0);
+    const journalApproved = typeof journalApprovedHours === 'number' ? journalApprovedHours : 0;
+    const approvedTotal = hackatimeApproved + journalApproved;
+    const displayHours = approvedTotal > 0 ? approvedTotal : (rawHours || 0);
     return (
         <div 
             className={`flex items-center p-3 cursor-pointer transition-colors border-b border-white/10 ${
@@ -65,6 +76,11 @@ export function Project({ name, description, codeUrl, playableUrl, screenshot, h
                 </span>
                 {description && (
                   <span className="text-white/70 flex-grow truncate min-w-0 ml-2">{description}</span>
+                )}
+                {projectType && (
+                  <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full bg-white text-black text-xs font-semibold capitalize">
+                    {projectType}
+                  </span>
                 )}
             </div>
         </div>

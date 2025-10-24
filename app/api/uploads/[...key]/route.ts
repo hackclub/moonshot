@@ -1,8 +1,9 @@
 import { NextRequest } from 'next/server';
 import { redis } from '@/lib/redis/redis';
 
-export async function GET(_req: NextRequest, { params }: { params: { key: string[] } }) {
-  const key = decodeURIComponent(params.key.join('/'));
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ key: string[] }> }) {
+  const { key: keyParts } = await params;
+  const key = decodeURIComponent(keyParts.join('/'));
   try {
     const buf = await redis.getBuffer(key);
     if (!buf) {
