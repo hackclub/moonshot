@@ -18,6 +18,29 @@ const baseAdapter = PrismaAdapter(prisma);
 
 const adapter = {
   ...baseAdapter,
+  // Override verification token methods to ensure they return the correct values
+  createVerificationToken: async (verificationToken: { identifier: string; token: string; expires: Date }) => {
+    const result = await prisma.verificationToken.create({
+      data: verificationToken,
+    });
+    return result;
+  },
+  useVerificationToken: async ({ identifier, token }: { identifier: string; token: string }) => {
+    try {
+      const result = await prisma.verificationToken.delete({
+        where: {
+          identifier_token: {
+            identifier,
+            token,
+          },
+        },
+      });
+      return result;
+    } catch (error) {
+      // Token not found or already used
+      return null;
+    }
+  },
   // Custom createUser method to add auditing
   createUser: async (user: AdapterUser) => {
     console.log("Creating user:", user.email);
