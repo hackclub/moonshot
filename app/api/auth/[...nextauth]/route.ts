@@ -406,15 +406,6 @@ export const opts: NextAuthOptions = {
       server: process.env.EMAIL_SERVER as string,
       from: process.env.EMAIL_FROM as string,
       maxAge: 60 * 10, // make email links valid for 10 minutes
-      generateVerificationToken: async () => {
-        // Generate a more secure token that matches NextAuth's expectations
-        return new Promise((resolve, reject) => {
-          randomBytes(32, (err, buf) => {
-            if (err) reject(err);
-            else resolve(buf.toString("hex"));
-          });
-        });
-      },
       sendVerificationRequest: async ({
         identifier: email,
         url,
