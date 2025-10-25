@@ -29,6 +29,10 @@ function redirectToCanonicalHostIfNeeded(request: NextRequest): NextResponse | n
 }
 
 function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
+  // DISABLED: Basic auth temporarily disabled
+  return null;
+  
+  /* COMMENTED OUT: Basic auth enforcement
   const authPassword = process.env.AUTH_PASSWD;
   if (!authPassword) return null;
 
@@ -74,6 +78,7 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
   }
 
   return null;
+  */
 }
 
 export default async function middleware(request: NextRequest) {
