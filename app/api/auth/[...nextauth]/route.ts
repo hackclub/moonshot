@@ -29,7 +29,19 @@ const adapter = {
     console.log('  expires:', data.expires);
     console.log('  Stack trace:', new Error().stack?.split('\n').slice(1, 4).join('\n'));
     
-    const result = await prisma.verificationToken.create({ data });
+    let result;
+    try {
+      result = await prisma.verificationToken.create({ data });
+      console.log('[CUSTOM-ADAPTER] Prisma create returned:', result);
+    } catch (err) {
+      console.log('[CUSTOM-ADAPTER] PRISMA CREATE FAILED:', err);
+      throw err;
+    }
+    
+    if (!result) {
+      console.log('[CUSTOM-ADAPTER] ERROR: Prisma returned undefined/null!');
+      throw new Error('Prisma create returned undefined');
+    }
     
     console.log('[CUSTOM-ADAPTER] Token STORED in DB:');
     console.log('  identifier:', result.identifier);
