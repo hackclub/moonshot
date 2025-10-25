@@ -44,7 +44,7 @@ export async function fetchHackatimeProjects(
   }
   console.log(`🎮 Fetching Hackatime projects for user ID: ${hackatimeUserId}`);
   
-  const uri = `https://hackatime.hackclub.com/api/v1/users/${hackatimeUserId}/stats?features=projects&start_date=2025-04-22`;
+  const uri = `https://hackatime.hackclub.com/api/v1/users/${hackatimeUserId}/stats?features=projects&start_date=2024-10-06`;
   console.log(`📡 Hackatime API Request: ${uri}`);
 
   try {
