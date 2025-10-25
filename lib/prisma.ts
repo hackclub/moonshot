@@ -1,7 +1,28 @@
 import { PrismaClient } from "@/app/generated/prisma/client";
 import metrics from "@/metrics";
 
-export const prisma = new PrismaClient().$extends({
+const prismaClient = new PrismaClient();
+
+// Test database connection on startup
+async function testDatabaseConnection() {
+    try {
+        console.log('[PRISMA] Testing database connection...');
+        await prismaClient.$connect();
+        await prismaClient.$queryRaw`SELECT 1`;
+        console.log('[PRISMA] ✅ Database connection successful');
+    } catch (error) {
+        console.error('[PRISMA] ❌ FATAL: Cannot connect to database');
+        console.error('[PRISMA] Error:', error);
+        console.error('[PRISMA] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+        console.error('[PRISMA] Exiting process...');
+        process.exit(1);
+    }
+}
+
+// Run connection test immediately
+testDatabaseConnection();
+
+export const prisma = prismaClient.$extends({
     name: "slackUserExtension",
     model: {
         user: {
