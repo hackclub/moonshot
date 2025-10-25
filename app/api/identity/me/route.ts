@@ -40,7 +40,10 @@ export async function GET() {
         return NextResponse.json({ error: 'Identity token not found. Please complete identity verification.' }, { status: 404 });
     }
 
-    const response = await fetch(`${process.env.IDENTITY_URL}/api/v1/me`, {
+    // Strip any path from IDENTITY_URL to get base URL only
+    const identityBaseUrl = process.env.IDENTITY_URL?.replace(/\/oauth\/.*$/, '') || 'https://identity.hackclub.com';
+    
+    const response = await fetch(`${identityBaseUrl}/api/v1/me`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${user.identityToken}`,

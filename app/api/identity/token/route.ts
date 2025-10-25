@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
+    // Strip any path from IDENTITY_URL to get base URL only
+    const identityBaseUrl = process.env.IDENTITY_URL?.replace(/\/oauth\/.*$/, '') || 'https://identity.hackclub.com';
+    
     // ID Service Parameters
     const params = new URLSearchParams({
       code,
@@ -26,7 +29,9 @@ export async function POST(req: NextRequest) {
 
     // Exchange code (from url params) for token
     console.log('Exchanging code for token with params:', { code, client_id: process.env.IDENTITY_CLIENT_ID, client_secret: '***', redirect_uri: `${process.env.NEXTAUTH_URL}/identity`, grant_type: 'authorization_code' });
-    const response = await fetch(`${process.env.IDENTITY_URL}/oauth/token`, {
+    const tokenUrl = `${identityBaseUrl}/oauth/token`;
+    console.log('Token URL:', tokenUrl);
+    const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params.toString(),

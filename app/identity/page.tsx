@@ -16,7 +16,13 @@ function IdentityCallbackContent() {
       return;
     }
 
+    // Prevent multiple executions of the same code
+    let executed = false;
+
     async function exchangeCode() {
+      if (executed) return;
+      executed = true;
+      
       setStatus('loading');
       try {
         const response = await fetch('/api/identity/token', {
@@ -28,7 +34,7 @@ function IdentityCallbackContent() {
         console.log('Token response:', response.status, data);
         if (!response.ok) {
           setStatus('error');
-          setMessage(`Failed to exchange code: ${data.error || 'Unknown error'} (${response.status})`);
+          setMessage(`Failed to exchange code: ${data.error || 'Unknown error'} (${response.status}). Details: ${JSON.stringify(data.details || {})}`);
           return;
         }
         if (data.access_token) {
@@ -54,9 +60,9 @@ function IdentityCallbackContent() {
           setStatus('error');
           setMessage('Failed to verify identity.');
         }
-      } catch {
+      } catch (error) {
         setStatus('error');
-        setMessage('Failed to verify identity. Please try again.');
+        setMessage(`Failed to verify identity: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
     exchangeCode();
