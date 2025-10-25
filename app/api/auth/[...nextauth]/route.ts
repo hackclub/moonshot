@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import SlackProvider from "next-auth/providers/slack";
 import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { NextAuthOptions } from "next-auth";
 import { randomBytes } from "crypto";
