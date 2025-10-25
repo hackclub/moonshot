@@ -47,28 +47,9 @@ export default function LoginOptions() {
 
         <div className="login-card">
           <p className="description">
-            Use the{" "}
-            <span className="highlight-text">
-              same email / slack account on your Hackatime account
-            </span>{" "}
-            to sign in! You do not need to have a Moonshot account to begin.
+            Enter your email to sign in.
           </p>
 
-          <button className="slack-button" onClick={loginWithSlack}>
-            <img
-              src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
-              srcSet="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x"
-              alt="Sign in with Slack"
-            />
-          </button>
-
-          <div className="divider">or</div>
-
-          <div className="flex justify-center items-center">
-            <button className="submit-button" onClick={loginWithHcIdentity}>Sign In Hack Club Identity</button>
-          </div>
-
-          <div className="divider">or</div>
           <form action={loginWithEmail} className="email-form">
             <input
               className="email-input"
