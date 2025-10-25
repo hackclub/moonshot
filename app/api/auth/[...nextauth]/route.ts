@@ -29,19 +29,26 @@ const adapter = {
     console.log('  expires:', data.expires);
     console.log('  Stack trace:', new Error().stack?.split('\n').slice(1, 4).join('\n'));
     
-    let result;
+    // Prisma returns undefined for models with composite keys, so we create then read back
     try {
-      result = await prisma.verificationToken.create({ data });
-      console.log('[CUSTOM-ADAPTER] Prisma create returned:', result);
+      await prisma.verificationToken.create({ data });
+      console.log('[CUSTOM-ADAPTER] Prisma create succeeded (no error)');
     } catch (err) {
       console.log('[CUSTOM-ADAPTER] PRISMA CREATE FAILED:', err);
       throw err;
     }
     
+    // Read it back since create returns undefined for composite key models
+    const result = await prisma.verificationToken.findUnique({
+      where: { identifier_token: { identifier: data.identifier, token: data.token } }
+    });
+    
     if (!result) {
-      console.log('[CUSTOM-ADAPTER] ERROR: Prisma returned undefined/null!');
-      throw new Error('Prisma create returned undefined');
+      console.log('[CUSTOM-ADAPTER] ERROR: Token not found after create!');
+      throw new Error('Token not found after create');
     }
+    
+    console.log('[CUSTOM-ADAPTER] Token read back successfully');
     
     console.log('[CUSTOM-ADAPTER] Token STORED in DB:');
     console.log('  identifier:', result.identifier);
