@@ -25,18 +25,28 @@ const adapter = {
       tokenHead: verificationToken.token?.substring(0, 10) + '...',
       expires: verificationToken.expires
     });
-    const result = await baseAdapter.createVerificationToken!(verificationToken);
-    console.log('[ADAPTER] createVerificationToken result:', result ? 'success' : 'undefined/null');
-    return result;
+    try {
+      const result = await baseAdapter.createVerificationToken!(verificationToken);
+      console.log('[ADAPTER] createVerificationToken result:', result);
+      return result;
+    } catch (error) {
+      console.error('[ADAPTER] createVerificationToken error:', error);
+      throw error;
+    }
   },
   useVerificationToken: async (params: any) => {
     console.log('[ADAPTER] useVerificationToken called with:', {
       identifier: params.identifier,
       tokenHead: params.token?.substring(0, 10) + '...'
     });
-    const result = await baseAdapter.useVerificationToken!(params);
-    console.log('[ADAPTER] useVerificationToken result:', result ? 'found and deleted' : 'not found');
-    return result;
+    try {
+      const result = await baseAdapter.useVerificationToken!(params);
+      console.log('[ADAPTER] useVerificationToken result:', result);
+      return result;
+    } catch (error) {
+      console.error('[ADAPTER] useVerificationToken error:', error);
+      throw error;
+    }
   },
   // Custom createUser method to add auditing
   createUser: async (user: AdapterUser) => {
