@@ -15,35 +15,8 @@ import { AdapterUser } from "next-auth/adapters";
 import { SignJWT, jwtVerify } from "jose";
 import crypto from "crypto";
 
-const baseAdapter = PrismaAdapter(prisma);
-
 const adapter = {
-  ...baseAdapter,
-  // Override verification token methods - NextAuth already hashes tokens before calling these
-  createVerificationToken: async (verificationToken: { identifier: string; token: string; expires: Date }) => {
-    // Store the token as-is (NextAuth has already hashed it)
-    const result = await prisma.verificationToken.create({
-      data: verificationToken,
-    });
-    return result;
-  },
-  useVerificationToken: async ({ identifier, token }: { identifier: string; token: string }) => {
-    try {
-      // Look up the token as-is (NextAuth has already hashed it)
-      const result = await prisma.verificationToken.delete({
-        where: {
-          identifier_token: {
-            identifier,
-            token,
-          },
-        },
-      });
-      return result;
-    } catch (error) {
-      // Token not found or already used
-      return null;
-    }
-  },
+  ...PrismaAdapter(prisma),
   // Custom createUser method to add auditing
   createUser: async (user: AdapterUser) => {
     console.log("Creating user:", user.email);
@@ -389,18 +362,6 @@ export const opts: NextAuthOptions = {
         token,
         provider,
       }) => {
-        try {
-          const u = new URL(url);
-          console.log('[AUTH-EMAIL] sendVerificationRequest', {
-            email,
-            host: u.host,
-            path: u.pathname,
-            search: u.search,
-            tokenHead: String(token).slice(0, 10) + '...'
-          });
-        } catch (e) {
-          console.log('[AUTH-EMAIL] sendVerificationRequest url-parse-error', e);
-        }
         // Customize the verification email
         const { host } = new URL(url);
         try {
