@@ -17,4 +17,3 @@ services:
       - NODE_ENV=production
       - NEXTAUTH_URL=https://${CANONICAL_HOST}
       - AUTH_TRUST_HOST=true
-      - HOSTNAME=${CANONICAL_HOST}

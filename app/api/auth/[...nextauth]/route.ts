@@ -291,6 +291,23 @@ export const opts: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  useSecureCookies: process.env.NODE_ENV === "production",
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" 
+        ? `__Secure-next-auth.session-token`
+        : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" 
+          ? (process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : undefined)
+          : undefined,
+      },
+    },
+  },
   jwt: {
     maxAge: 60 * 60 * 24 * 30, // 30 days
     async encode({ token, secret, maxAge }) {
