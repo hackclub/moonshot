@@ -11,6 +11,10 @@ const port = parseInt(process.env.PORT) || 3000; // Use PORT env var from Docker
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
+// Log NEXTAUTH_URL on startup
+console.log('[server.js] NEXTAUTH_URL on startup:', process.env.NEXTAUTH_URL || '(not set)');
+console.log('[server.js] NEXTAUTH_TRUST_HOST:', process.env.NEXTAUTH_TRUST_HOST || '(not set)');
+
 app.prepare().then(async () => {
   const server = createServer(async (req, res) => {
     // Normalize proxy headers FIRST so Next/Auth builds URLs with the public origin
@@ -25,8 +29,8 @@ app.prepare().then(async () => {
       } catch {}
     }
     
-    // Debug: log what we're about to set
-    if (req.url?.includes('/api/auth/')) {
+    // Debug: log what we're about to set (check path only, not full URL)
+    if (req.url && req.url.startsWith('/api/auth/')) {
       console.log('[server.js] BEFORE header normalization:', {
         url: req.url,
         host: req.headers['host'],
@@ -50,7 +54,7 @@ app.prepare().then(async () => {
     }
     
     // Debug: log what we set
-    if (req.url?.includes('/api/auth/')) {
+    if (req.url && req.url.startsWith('/api/auth/')) {
       console.log('[server.js] AFTER header normalization:', {
         host: req.headers['host'],
         xForwardedHost: req.headers['x-forwarded-host'],
