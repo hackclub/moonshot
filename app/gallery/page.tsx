@@ -652,7 +652,7 @@ function GalleryInner() {
                         Demo
                       </a>
                     )}
-                    {/* Chat button - only show if chat is enabled */}
+                    {/* COMMENTED OUT: Chat/Discuss button
                     {project.chat_enabled && (
                       <button
                         onClick={() => handleOpenChat(project)}
@@ -672,6 +672,7 @@ function GalleryInner() {
                         )}
                       </button>
                     )}
+                    */}
                   </div>
 
                   {/* Status Badges */}
