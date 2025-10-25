@@ -13,6 +13,28 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(async () => {
   const server = createServer(async (req, res) => {
+    // Normalize proxy headers FIRST so Next/Auth builds URLs with the public origin
+    const nextauthUrl = process.env.NEXTAUTH_URL || '';
+    let canonicalHost = '';
+    let canonicalProto = '';
+    if (nextauthUrl) {
+      try {
+        const u = new URL(nextauthUrl);
+        canonicalHost = u.host; // includes hostname[:port] if present
+        canonicalProto = u.protocol.replace(':', '');
+      } catch {}
+    }
+    if (canonicalHost) {
+      req.headers['x-forwarded-host'] = req.headers['x-forwarded-host'] || canonicalHost;
+      req.headers['host'] = canonicalHost;
+    }
+    if (!req.headers['x-forwarded-proto']) {
+      req.headers['x-forwarded-proto'] = canonicalProto || 'https';
+    }
+    if (!req.headers['x-forwarded-port']) {
+      req.headers['x-forwarded-port'] = req.headers['x-forwarded-proto'] === 'https' ? '443' : '80';
+    }
+
     // Optional Basic HTTP Auth using BASICAUTH_USERNAME and BASICAUTH_PASSWORD
     const basicUser = process.env.BASICAUTH_USERNAME;
     const basicPass = process.env.BASICAUTH_PASSWORD;
@@ -127,27 +149,6 @@ app.prepare().then(async () => {
       if (basicDebug) console.log('[basic-auth] authorized');
     }
     try {
-      // Normalize proxy headers so Next/Auth builds URLs with the public origin
-      const nextauthUrl = process.env.NEXTAUTH_URL || '';
-      let canonicalHost = '';
-      let canonicalProto = '';
-      if (nextauthUrl) {
-        try {
-          const u = new URL(nextauthUrl);
-          canonicalHost = u.host; // includes hostname[:port] if present
-          canonicalProto = u.protocol.replace(':', '');
-        } catch {}
-      }
-      if (canonicalHost) {
-        req.headers['x-forwarded-host'] = req.headers['x-forwarded-host'] || canonicalHost;
-        req.headers['host'] = canonicalHost;
-      }
-      if (!req.headers['x-forwarded-proto']) {
-        req.headers['x-forwarded-proto'] = canonicalProto || 'https';
-      }
-      if (!req.headers['x-forwarded-port']) {
-        req.headers['x-forwarded-port'] = req.headers['x-forwarded-proto'] === 'https' ? '443' : '80';
-      }
       const parsedUrl = parse(req.url, true);
       await handle(req, res, parsedUrl);
     } catch (err) {
