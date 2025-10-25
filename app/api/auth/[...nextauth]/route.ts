@@ -21,20 +21,41 @@ const adapter = {
   ...baseAdapter,
   // Override verification token methods - the v1.0.7 adapter returns undefined
   async createVerificationToken(data: { identifier: string; token: string; expires: Date }) {
-    const token = await prisma.verificationToken.create({ data });
-    // NextAuth expects an object with an id field, but VerificationToken has no id
-    // Return the token with a synthetic id to satisfy NextAuth's internal checks
-    return { ...token, id: `${token.identifier}:${token.token}` };
+    console.log('[CUSTOM-ADAPTER] createVerificationToken called with:', { 
+      identifier: data.identifier, 
+      tokenHead: data.token.slice(0, 10) + '...',
+      expires: data.expires 
+    });
+    
+    const result = await prisma.verificationToken.create({ data });
+    
+    console.log('[CUSTOM-ADAPTER] Token created in DB:', {
+      identifier: result.identifier,
+      tokenHead: result.token.slice(0, 10) + '...'
+    });
+    
+    // Return the result directly - NextAuth v4 doesn't actually need an id field
+    return result;
   },
   async useVerificationToken(params: { identifier: string; token: string }) {
+    console.log('[CUSTOM-ADAPTER] useVerificationToken called with:', {
+      identifier: params.identifier,
+      tokenHead: params.token.slice(0, 10) + '...'
+    });
+    
     try {
-      const token = await prisma.verificationToken.delete({
+      const result = await prisma.verificationToken.delete({
         where: { identifier_token: { identifier: params.identifier, token: params.token } },
       });
-      // Return with synthetic id
-      return token ? { ...token, id: `${token.identifier}:${token.token}` } : null;
-    } catch {
-      // Token not found or already used
+      
+      console.log('[CUSTOM-ADAPTER] Token found and deleted:', {
+        identifier: result.identifier,
+        tokenHead: result.token.slice(0, 10) + '...'
+      });
+      
+      return result;
+    } catch (error) {
+      console.log('[CUSTOM-ADAPTER] Token not found in DB');
       return null;
     }
   },
