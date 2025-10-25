@@ -16,20 +16,20 @@ export async function POST(req: NextRequest) {
     }
     
     // ID Service Parameters
-    const params = {
+    const params = new URLSearchParams({
       code,
-      client_id: process.env.IDENTITY_CLIENT_ID,
-      client_secret: process.env.IDENTITY_CLIENT_SECRET,
+      client_id: process.env.IDENTITY_CLIENT_ID || '',
+      client_secret: process.env.IDENTITY_CLIENT_SECRET || '',
       redirect_uri: `${process.env.NEXTAUTH_URL}/identity`,
       grant_type: "authorization_code",
-    };
+    });
 
     // Exchange code (from url params) for token
-    console.log('Exchanging code for token with params:', { ...params, client_secret: '***' });
+    console.log('Exchanging code for token with params:', { code, client_id: process.env.IDENTITY_CLIENT_ID, client_secret: '***', redirect_uri: `${process.env.NEXTAUTH_URL}/identity`, grant_type: 'authorization_code' });
     const response = await fetch(`${process.env.IDENTITY_URL}/oauth/token`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
     });
 
     const responseText = await response.text();
