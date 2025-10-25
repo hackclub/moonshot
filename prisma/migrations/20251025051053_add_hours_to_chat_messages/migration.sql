@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "ChatMessage" ADD COLUMN     "approvedHours" DOUBLE PRECISION,
+ADD COLUMN     "hours" DOUBLE PRECISION NOT NULL DEFAULT 0;

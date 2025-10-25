@@ -226,6 +226,7 @@ function SettingsContent() {
                 </div>
               </div>
               
+              {/* COMMENTED OUT: Slack Connected section
               <div>
                 <p className="text-white mb-1">Slack Connected?</p>
                 <div className="flex items-center">
@@ -249,6 +250,7 @@ function SettingsContent() {
                   )}
                 </div>
               </div>
+              */}
             </div>
           </div>
         </div>
