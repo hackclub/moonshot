@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Exchange code (from url params) for token
+    console.log('Exchanging code for token with params:', { ...params, client_secret: '***' });
     const response = await fetch(`${process.env.IDENTITY_URL}/oauth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,6 +33,17 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await response.json();
+    console.log('Identity OAuth response:', response.status, data);
+    
+    if (!response.ok) {
+      console.error('Identity OAuth error:', data);
+      return NextResponse.json({ error: 'Failed to exchange code', details: data }, { status: response.status });
+    }
+    
+    if (!data.access_token) {
+      console.error('No access_token in response:', data);
+      return NextResponse.json({ error: 'No access token received' }, { status: 500 });
+    }
     
     // Update user with token
     await prisma.user.update({
@@ -43,9 +55,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("token identity data", data);
+    console.log("Successfully stored identity token for user:", session.user.id);
     return NextResponse.json(data);
   } catch (error) {
+    console.error('Identity token exchange error:', error);
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : error }, { status: 500 });
   }
 } 

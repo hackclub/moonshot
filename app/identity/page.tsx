@@ -25,7 +25,12 @@ function IdentityCallbackContent() {
           body: JSON.stringify({ code }),
         });
         const data = await response.json();
-        console.log(data);
+        console.log('Token response:', response.status, data);
+        if (!response.ok) {
+          setStatus('error');
+          setMessage(`Failed to exchange code: ${data.error || 'Unknown error'} (${response.status})`);
+          return;
+        }
         if (data.access_token) {
             const response2 = await fetch('/api/identity/me');
             const data2 = await response2.json();
