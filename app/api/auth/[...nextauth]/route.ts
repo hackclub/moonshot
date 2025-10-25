@@ -15,8 +15,29 @@ import { AdapterUser } from "next-auth/adapters";
 import { SignJWT, jwtVerify } from "jose";
 import crypto from "crypto";
 
+const baseAdapter = PrismaAdapter(prisma);
+
 const adapter = {
-  ...PrismaAdapter(prisma),
+  ...baseAdapter,
+  // Override verification token methods - the v1.0.7 adapter returns undefined
+  async createVerificationToken(data: { identifier: string; token: string; expires: Date }) {
+    const token = await prisma.verificationToken.create({ data });
+    // NextAuth expects an object with an id field, but VerificationToken has no id
+    // Return the token with a synthetic id to satisfy NextAuth's internal checks
+    return { ...token, id: `${token.identifier}:${token.token}` };
+  },
+  async useVerificationToken(params: { identifier: string; token: string }) {
+    try {
+      const token = await prisma.verificationToken.delete({
+        where: { identifier_token: { identifier: params.identifier, token: params.token } },
+      });
+      // Return with synthetic id
+      return token ? { ...token, id: `${token.identifier}:${token.token}` } : null;
+    } catch {
+      // Token not found or already used
+      return null;
+    }
+  },
   // Custom createUser method to add auditing
   createUser: async (user: AdapterUser) => {
     console.log("Creating user:", user.email);
