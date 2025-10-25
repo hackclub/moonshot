@@ -19,28 +19,22 @@ const baseAdapter = PrismaAdapter(prisma);
 
 const adapter = {
   ...baseAdapter,
-  // Override verification token methods with SHA-256 hashing (NextAuth v4 behavior)
+  // Override verification token methods - NextAuth already hashes tokens before calling these
   createVerificationToken: async (verificationToken: { identifier: string; token: string; expires: Date }) => {
-    // Hash the token before storing (NextAuth v4 with Prisma adapter hashes tokens)
-    const hashedToken = crypto.createHash("sha256").update(verificationToken.token).digest("hex");
+    // Store the token as-is (NextAuth has already hashed it)
     const result = await prisma.verificationToken.create({
-      data: {
-        identifier: verificationToken.identifier,
-        token: hashedToken,
-        expires: verificationToken.expires,
-      },
+      data: verificationToken,
     });
     return result;
   },
   useVerificationToken: async ({ identifier, token }: { identifier: string; token: string }) => {
     try {
-      // Hash the incoming token to match what's stored in the DB
-      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+      // Look up the token as-is (NextAuth has already hashed it)
       const result = await prisma.verificationToken.delete({
         where: {
           identifier_token: {
             identifier,
-            token: hashedToken,
+            token,
           },
         },
       });
