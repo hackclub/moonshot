@@ -18,36 +18,6 @@ const baseAdapter = PrismaAdapter(prisma);
 
 const adapter = {
   ...baseAdapter,
-  // Wrap verification token methods to add logging
-  createVerificationToken: async (verificationToken: any) => {
-    console.log('[ADAPTER] createVerificationToken called with:', {
-      identifier: verificationToken.identifier,
-      tokenHead: verificationToken.token?.substring(0, 10) + '...',
-      expires: verificationToken.expires
-    });
-    try {
-      const result = await baseAdapter.createVerificationToken!(verificationToken);
-      console.log('[ADAPTER] createVerificationToken result:', result);
-      return result;
-    } catch (error) {
-      console.error('[ADAPTER] createVerificationToken error:', error);
-      throw error;
-    }
-  },
-  useVerificationToken: async (params: any) => {
-    console.log('[ADAPTER] useVerificationToken called with:', {
-      identifier: params.identifier,
-      tokenHead: params.token?.substring(0, 10) + '...'
-    });
-    try {
-      const result = await baseAdapter.useVerificationToken!(params);
-      console.log('[ADAPTER] useVerificationToken result:', result);
-      return result;
-    } catch (error) {
-      console.error('[ADAPTER] useVerificationToken error:', error);
-      throw error;
-    }
-  },
   // Custom createUser method to add auditing
   createUser: async (user: AdapterUser) => {
     console.log("Creating user:", user.email);
