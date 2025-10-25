@@ -13,25 +13,34 @@ import { sendAuthEmail, sendNotificationEmail } from "@/lib/loops";
 import { AdapterUser } from "next-auth/adapters";
 
 import { SignJWT, jwtVerify } from "jose";
+import crypto from "crypto";
 
 const baseAdapter = PrismaAdapter(prisma);
 
 const adapter = {
   ...baseAdapter,
-  // Override verification token methods to ensure they return the correct values
+  // Override verification token methods with SHA-256 hashing (NextAuth v4 behavior)
   createVerificationToken: async (verificationToken: { identifier: string; token: string; expires: Date }) => {
+    // Hash the token before storing (NextAuth v4 with Prisma adapter hashes tokens)
+    const hashedToken = crypto.createHash("sha256").update(verificationToken.token).digest("hex");
     const result = await prisma.verificationToken.create({
-      data: verificationToken,
+      data: {
+        identifier: verificationToken.identifier,
+        token: hashedToken,
+        expires: verificationToken.expires,
+      },
     });
     return result;
   },
   useVerificationToken: async ({ identifier, token }: { identifier: string; token: string }) => {
     try {
+      // Hash the incoming token to match what's stored in the DB
+      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
       const result = await prisma.verificationToken.delete({
         where: {
           identifier_token: {
             identifier,
-            token,
+            token: hashedToken,
           },
         },
       });
