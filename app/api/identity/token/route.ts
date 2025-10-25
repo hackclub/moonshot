@@ -32,7 +32,19 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(params),
     });
 
-    const data = await response.json();
+    const responseText = await response.text();
+    console.log('Identity OAuth raw response:', response.status, responseText.substring(0, 500));
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse Identity OAuth response as JSON:', parseError);
+      return NextResponse.json({ 
+        error: 'Invalid response from identity service', 
+        details: `Status ${response.status}: ${responseText.substring(0, 200)}` 
+      }, { status: 500 });
+    }
     console.log('Identity OAuth response:', response.status, data);
     
     if (!response.ok) {
