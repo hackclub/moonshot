@@ -475,6 +475,20 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
   const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
+    // Identity verification is not required - always hide the popup
+    setShowIdentityPopup(false);
+
+    // Still fetch user data for other purposes
+    const getUser = async () => {
+      const userResponse = impersonationData ? await apiFetch(`/api/users/${impersonationData.userId}`) : await apiFetch('/api/users/me');
+      const userData = await userResponse.json();
+      setUser(userData);
+    }
+
+    if (status !== 'authenticated' || !session?.user?.id) return;
+    getUser();
+
+    /* COMMENTED OUT: Identity verification requirement
     // In mock mode, never show identity popup
     if (process.env.NEXT_PUBLIC_IDENTITY_MOCK === 'true' || process.env.NEXT_PUBLIC_IDENTITY_MOCK === '1') {
       setShowIdentityPopup(false);
@@ -503,6 +517,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
 
     if (status !== 'authenticated' || !session?.user?.id) return;
     getIdentity();
+    */
 
   }, [status, session?.user?.id]);
 
