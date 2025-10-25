@@ -14,8 +14,30 @@ import { AdapterUser } from "next-auth/adapters";
 
 import { SignJWT, jwtVerify } from "jose";
 
+const baseAdapter = PrismaAdapter(prisma);
+
 const adapter = {
-  ...PrismaAdapter(prisma),
+  ...baseAdapter,
+  // Wrap verification token methods to add logging
+  createVerificationToken: async (verificationToken: any) => {
+    console.log('[ADAPTER] createVerificationToken called with:', {
+      identifier: verificationToken.identifier,
+      tokenHead: verificationToken.token?.substring(0, 10) + '...',
+      expires: verificationToken.expires
+    });
+    const result = await baseAdapter.createVerificationToken!(verificationToken);
+    console.log('[ADAPTER] createVerificationToken result:', result ? 'success' : 'undefined/null');
+    return result;
+  },
+  useVerificationToken: async (params: any) => {
+    console.log('[ADAPTER] useVerificationToken called with:', {
+      identifier: params.identifier,
+      tokenHead: params.token?.substring(0, 10) + '...'
+    });
+    const result = await baseAdapter.useVerificationToken!(params);
+    console.log('[ADAPTER] useVerificationToken result:', result ? 'found and deleted' : 'not found');
+    return result;
+  },
   // Custom createUser method to add auditing
   createUser: async (user: AdapterUser) => {
     console.log("Creating user:", user.email);
