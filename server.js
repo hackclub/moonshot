@@ -15,7 +15,29 @@ const handle = app.getRequestHandler();
 console.log('[server.js] NEXTAUTH_URL on startup:', process.env.NEXTAUTH_URL || '(not set)');
 console.log('[server.js] NEXTAUTH_TRUST_HOST:', process.env.NEXTAUTH_TRUST_HOST || '(not set)');
 
+// Test database connection BEFORE starting server
+async function testDatabaseConnection() {
+  console.log('[server.js] Testing PostgreSQL connection...');
+  const { PrismaClient } = require('./app/generated/prisma/client');
+  const testClient = new PrismaClient();
+  
+  try {
+    await testClient.$connect();
+    const result = await testClient.$queryRaw`SELECT 1 as test`;
+    console.log('[server.js] ✅ PostgreSQL connection successful');
+    await testClient.$disconnect();
+  } catch (error) {
+    console.error('[server.js] ❌ FATAL: Cannot connect to PostgreSQL');
+    console.error('[server.js] Error:', error.message);
+    console.error('[server.js] DATABASE_URL:', process.env.DATABASE_URL ? 'SET (hidden)' : 'NOT SET');
+    console.error('[server.js] Cannot start server without database connection');
+    process.exit(1);
+  }
+}
+
 app.prepare().then(async () => {
+  // Test database connection before binding to port
+  await testDatabaseConnection();
   const server = createServer(async (req, res) => {
     // Normalize proxy headers FIRST so Next/Auth builds URLs with the public origin
     const nextauthUrl = process.env.NEXTAUTH_URL || '';
