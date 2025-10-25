@@ -240,52 +240,9 @@ export const opts: NextAuthOptions = {
   adapter: adapter,
   session: {
     strategy: "jwt",
-  },
-  useSecureCookies: process.env.NODE_ENV === "production",
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === "production" 
-        ? `__Secure-next-auth.session-token`
-        : `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" 
-          ? (process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : undefined)
-          : undefined,
-      },
-    },
-  },
-  jwt: {
     maxAge: 60 * 60 * 24 * 30, // 30 days
-    async encode({ token, secret, maxAge }) {
-      if (!token) return "";
-      const secretInput = secret ?? process.env.NEXTAUTH_SECRET ?? "";
-      const signingKey =
-        typeof secretInput === "string"
-          ? new TextEncoder().encode(secretInput)
-          // Buffer is a Uint8Array; ensure it's typed as such
-          : new Uint8Array(secretInput);
-      const expiresIn = Math.floor(Date.now() / 1000) + (maxAge ?? 60 * 60 * 24 * 30);
-      return await new SignJWT(token as Record<string, unknown>)
-        .setProtectedHeader({ alg: "HS256" })
-        .setIssuedAt()
-        .setExpirationTime(expiresIn)
-        .sign(signingKey);
-    },
-    async decode({ token, secret }) {
-      if (!token) return null;
-      const secretInput = secret ?? process.env.NEXTAUTH_SECRET ?? "";
-      const verifyKey =
-        typeof secretInput === "string"
-          ? new TextEncoder().encode(secretInput)
-          : new Uint8Array(secretInput);
-      const { payload } = await jwtVerify(token, verifyKey);
-      return payload as Record<string, unknown>;
-    },
   },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       id: "hc-identity",
