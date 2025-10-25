@@ -24,15 +24,39 @@ app.prepare().then(async () => {
         canonicalProto = u.protocol.replace(':', '');
       } catch {}
     }
+    
+    // Debug: log what we're about to set
+    if (req.url?.includes('/api/auth/')) {
+      console.log('[server.js] BEFORE header normalization:', {
+        url: req.url,
+        host: req.headers['host'],
+        xForwardedHost: req.headers['x-forwarded-host'],
+        xForwardedProto: req.headers['x-forwarded-proto'],
+        canonicalHost,
+        canonicalProto,
+        nextauthUrl
+      });
+    }
+    
     if (canonicalHost) {
-      req.headers['x-forwarded-host'] = req.headers['x-forwarded-host'] || canonicalHost;
+      req.headers['x-forwarded-host'] = canonicalHost;
       req.headers['host'] = canonicalHost;
     }
-    if (!req.headers['x-forwarded-proto']) {
-      req.headers['x-forwarded-proto'] = canonicalProto || 'https';
+    if (canonicalProto) {
+      req.headers['x-forwarded-proto'] = canonicalProto;
     }
-    if (!req.headers['x-forwarded-port']) {
-      req.headers['x-forwarded-port'] = req.headers['x-forwarded-proto'] === 'https' ? '443' : '80';
+    if (req.headers['x-forwarded-proto'] === 'https') {
+      req.headers['x-forwarded-port'] = '443';
+    }
+    
+    // Debug: log what we set
+    if (req.url?.includes('/api/auth/')) {
+      console.log('[server.js] AFTER header normalization:', {
+        host: req.headers['host'],
+        xForwardedHost: req.headers['x-forwarded-host'],
+        xForwardedProto: req.headers['x-forwarded-proto'],
+        xForwardedPort: req.headers['x-forwarded-port']
+      });
     }
 
     // Optional Basic HTTP Auth using BASICAUTH_USERNAME and BASICAUTH_PASSWORD
