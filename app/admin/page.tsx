@@ -356,7 +356,12 @@ export default function AdminDashboard() {
       totalRawHours: 0,
       totalEffectiveHours: 0,
       shippedHours: 0,
-      reviewHours: 0
+      reviewHours: 0,
+      rawHoursBreakdown: {
+        hackatimeRawHours: 0,
+        journalRawHours: 0,
+        pieData: [] as { name: string; value: number }[]
+      }
     },
     projectStats: {
       shipped: 0,
@@ -542,24 +547,35 @@ export default function AdminDashboard() {
             title="Raw" 
             value={stats.hourStats.totalRawHours} 
             icon="⏱️" 
-            description="Total hours logged in Hackatime before any overrides"
+            description="Total hours from Hackatime and journal entries before any overrides"
           />
           <StatCard 
             title="Effective Hours" 
             value={stats.hourStats.totalEffectiveHours} 
             icon="⚙️" 
-            description="Total hours after applying manual overrides"
+            description="Total hours from Hackatime and journal entries after applying manual overrides"
           />
           <StatCard 
             title="Shipped Hours" 
             value={stats.hourStats.shippedHours} 
             icon="🚀" 
             linkTo="/admin/projects?filter=shipped"
-            description="Hours from projects marked as shipped"
+            description="Effective hours from projects marked as shipped"
           />
           <ProjectsPerUserCard 
             mean={stats.projectsPerUser.mean} 
             median={stats.projectsPerUser.median} 
+          />
+        </div>
+      </div>
+
+      <div className="mb-10">
+        <h2 className="text-xl font-semibold mb-4">Raw Hours Breakdown</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+          <StatPieChart 
+            title="Raw Hours by Source" 
+            data={stats.hourStats.rawHoursBreakdown.pieData} 
+            unit="hours"
           />
         </div>
       </div>

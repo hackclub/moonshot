@@ -159,6 +159,16 @@ export async function GET(request: NextRequest) {
             rawHours: true,
             hoursOverride: true
           }
+        },
+        chatRooms: {
+          select: {
+            messages: {
+              select: {
+                hours: true,
+                approvedHours: true
+              }
+            }
+          }
         }
       }
     });
@@ -168,17 +178,19 @@ export async function GET(request: NextRequest) {
     let totalEffectiveHours = 0;
     let shippedHours = 0;
     let reviewHours = 0;
+    let totalHackatimeRawHours = 0;
+    let totalJournalRawHours = 0;
 
     if (projects && projects.length > 0) {
       projects.forEach(project => {
         // Calculate raw hours and effective hours from hackatime links
-        const rawHours = project.hackatimeLinks.reduce(
+        const hackatimeRawHours = project.hackatimeLinks.reduce(
           (sum, link) => sum + (typeof link.rawHours === 'number' ? link.rawHours : 0),
           0
         );
         
         // Calculate effective hours with overrides if present
-        const effectiveHours = project.hackatimeLinks.reduce(
+        const hackatimeEffectiveHours = project.hackatimeLinks.reduce(
           (sum, link) => {
             const linkHours = (link.hoursOverride !== undefined && link.hoursOverride !== null)
               ? link.hoursOverride
@@ -188,9 +200,36 @@ export async function GET(request: NextRequest) {
           0
         );
         
+        // Calculate journal hours from chat messages
+        let journalRawHours = 0;
+        let journalApprovedHours = 0;
+        
+        if (project.chatRooms && project.chatRooms.length > 0) {
+          project.chatRooms.forEach(room => {
+            if (room.messages && room.messages.length > 0) {
+              room.messages.forEach(message => {
+                // Add raw hours from journal entries
+                journalRawHours += typeof message.hours === 'number' ? message.hours : 0;
+                
+                // Add approved hours (use approvedHours if present, otherwise fall back to hours)
+                const approved = (message.approvedHours !== undefined && message.approvedHours !== null)
+                  ? message.approvedHours
+                  : (typeof message.hours === 'number' ? message.hours : 0);
+                journalApprovedHours += approved;
+              });
+            }
+          });
+        }
+        
+        // Combine hackatime and journal hours
+        const rawHours = hackatimeRawHours + journalRawHours;
+        const effectiveHours = hackatimeEffectiveHours + journalApprovedHours;
+        
         // Add to totals
         totalRawHours += rawHours;
         totalEffectiveHours += effectiveHours;
+        totalHackatimeRawHours += hackatimeRawHours;
+        totalJournalRawHours += journalRawHours;
         
         // Add to shipped hours if project is shipped
         if (project.shipped) {
@@ -267,7 +306,15 @@ export async function GET(request: NextRequest) {
         totalRawHours: Math.round(totalRawHours),
         totalEffectiveHours: Math.round(totalEffectiveHours),
         shippedHours: Math.round(shippedHours),
-        reviewHours: Math.round(reviewHours)
+        reviewHours: Math.round(reviewHours),
+        rawHoursBreakdown: {
+          hackatimeRawHours: Math.round(totalHackatimeRawHours),
+          journalRawHours: Math.round(totalJournalRawHours),
+          pieData: [
+            { name: 'Hackatime Raw Hours', value: Math.round(totalHackatimeRawHours) },
+            { name: 'Journal Raw Hours', value: Math.round(totalJournalRawHours) }
+          ]
+        }
       },
       projectStats: {
         shipped: shippedProjects,
