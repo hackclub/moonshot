@@ -11,9 +11,13 @@
 import { PrismaClient } from '../../../app/generated/prisma/client';
 import * as dotenv from 'dotenv';
 import { exponentialFetchRetry } from '../exponentialRetry/exponentialRetry';
+import { AppConfig } from '../../../lib/config';
 
 // Load environment variables
 dotenv.config();
+
+// Check for dry run mode
+const DRY_RUN = process.env.DRY_RUN === 'true' || process.argv.includes('--dry-run');
 
 // Initialize Prisma client
 const prisma = new PrismaClient({
@@ -41,11 +45,12 @@ interface UpdatedLink {
   hackatimeName: string;
   oldHours: number;
   newHours: number;
+  delta: number;
 }
 
 async function getHackatimeProjects(hackatimeId: string): Promise<HackatimeProject[]> {
   try {
-    const uri = `${HACKATIME_API_URL}/v1/users/${hackatimeId}/stats?features=projects&start_date=2025-04-22`;
+    const uri = `${HACKATIME_API_URL}/v1/users/${hackatimeId}/stats?features=projects&start_date=${AppConfig.hackatimeStartDate}`;
     
     const response = await exponentialFetchRetry(uri, {
       headers: {
@@ -76,6 +81,11 @@ async function getHackatimeProjects(hackatimeId: string): Promise<HackatimeProje
 async function main(): Promise<void> {
   console.log(`[${new Date().toISOString()}] Starting Hackatime hours synchronization...`);
   
+  if (DRY_RUN) {
+    console.log('🔍 DRY RUN MODE - No database changes will be made');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  }
+  
   try {
     console.log('Connecting to database...');
     
@@ -97,6 +107,7 @@ async function main(): Promise<void> {
     console.log(`Found ${users.length} users with Hackatime IDs`);
     
     let totalUpdatedLinks = 0;
+    let totalDelta = 0; // Track total change in hours
     
     // Process each user
     for (const user of users) {
@@ -144,17 +155,23 @@ async function main(): Promise<void> {
               // Only update if hours are different to avoid unnecessary database writes
               if (link.rawHours !== hours) {
                 try {
-                  await prisma.hackatimeProjectLink.update({
-                    where: { id: link.id },
-                    data: { rawHours: hours }
-                  });
+                  if (!DRY_RUN) {
+                    await prisma.hackatimeProjectLink.update({
+                      where: { id: link.id },
+                      data: { rawHours: hours }
+                    });
+                  }
                   
-                  // Track the update
+                  // Calculate delta (change in hours)
+                  const delta = hours - link.rawHours;
+                  
+                  // Track the update (or would-be update in dry run mode)
                   updatedLinks.push({
                     projectName: project.name,
                     hackatimeName: link.hackatimeName,
                     oldHours: link.rawHours,
-                    newHours: hours
+                    newHours: hours,
+                    delta: delta
                   });
                 } catch (updateError) {
                   console.error(`Failed to update link ${link.hackatimeName}:`, updateError);
@@ -165,10 +182,20 @@ async function main(): Promise<void> {
         }
         
         if (updatedLinks.length > 0) {
-          console.log(`Updated ${updatedLinks.length} Hackatime links for user ${user.id}:`);
+          const action = DRY_RUN ? 'Would update' : 'Updated';
+          console.log(`${action} ${updatedLinks.length} Hackatime links for user ${user.id}:`);
+          
+          let userDelta = 0;
           for (const link of updatedLinks) {
-            console.log(`  - ${link.projectName} -> ${link.hackatimeName}: ${link.oldHours} -> ${link.newHours} hours`);
+            const deltaSign = link.delta >= 0 ? '+' : '';
+            console.log(`  - ${link.projectName} -> ${link.hackatimeName}: ${link.oldHours} -> ${link.newHours} hours (${deltaSign}${link.delta.toFixed(2)}h)`);
+            userDelta += link.delta;
+            totalDelta += link.delta;
           }
+          
+          const userDeltaSign = userDelta >= 0 ? '+' : '';
+          console.log(`  Total delta for user: ${userDeltaSign}${userDelta.toFixed(2)} hours`);
+          
           totalUpdatedLinks += updatedLinks.length;
         } else {
           console.log(`No Hackatime links needed updating for user ${user.id}`);
@@ -178,7 +205,19 @@ async function main(): Promise<void> {
       }
     }
     
-    console.log(`Synchronization completed successfully. Updated ${totalUpdatedLinks} total Hackatime links.`);
+    const deltaSign = totalDelta >= 0 ? '+' : '';
+    const summary = DRY_RUN 
+      ? `Dry run completed successfully. Would update ${totalUpdatedLinks} total Hackatime links.`
+      : `Synchronization completed successfully. Updated ${totalUpdatedLinks} total Hackatime links.`;
+    
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(summary);
+    console.log(`Total delta: ${deltaSign}${totalDelta.toFixed(2)} hours`);
+    
+    if (DRY_RUN) {
+      console.log('\n💡 This was a dry run. No changes were made to the database.');
+      console.log('   Run without --dry-run flag to apply these changes.');
+    }
   } catch (error) {
     console.error(`Error during synchronization:`, error);
     process.exit(1);

@@ -14,6 +14,7 @@
 import { prisma } from '../lib/prisma';
 import { fetchHackatimeProjects } from '../lib/hackatime';
 import { HackatimeProject } from '../types/hackatime';
+import { AppConfig } from '../lib/config';
 import * as dotenv from 'dotenv';
 
 // Load environment variables
@@ -38,7 +39,7 @@ interface UpdatedProject {
 async function getHackatimeProjects(hackatimeId: string): Promise<HackatimeProject[]> {
   try {
     // Use the correct endpoint format following lib/hackatime.ts
-    const uri = `${HACKATIME_API_URL}/v1/users/${hackatimeId}/stats?features=projects&start_date=2025-04-22`;
+    const uri = `${HACKATIME_API_URL}/v1/users/${hackatimeId}/stats?features=projects&start_date=${AppConfig.hackatimeStartDate}`;
     console.log(`📡 Hackatime API Request: ${uri}`);
     
     const response = await fetch(uri, {

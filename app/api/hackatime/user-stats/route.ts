@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { opts } from '../../auth/[...nextauth]/route';
 import { HackatimeStatsLanguageData } from '@/types/hackatime';
+import { AppConfig } from '@/lib/config';
 
 const HACKATIME_API_TOKEN = process.env.HACKATIME_API_TOKEN;
 const HACKATIME_RACK_ATTACK_BYPASS_TOKEN = process.env.HACKATIME_RACK_ATTACK_BYPASS_TOKEN;
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
     }
 
     // Build Hackatime API URL with optional project filter
-    let uri = `https://hackatime.hackclub.com/api/v1/users/${user.hackatimeId}/stats?features=languages&start_date=2025-04-22`;
+    let uri = `https://hackatime.hackclub.com/api/v1/users/${user.hackatimeId}/stats?features=languages&start_date=${AppConfig.hackatimeStartDate}`;
     
     if (projectNames) {
       // Use the comma-separated project names directly
