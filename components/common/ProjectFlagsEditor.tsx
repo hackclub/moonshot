@@ -353,7 +353,7 @@ export default function ProjectFlagsEditor({
                   <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-white">
                     {inReview ? (
                       <a
-                        href={`/launchpad/journal-editor?projectId=${encodeURIComponent(projectID)}&mode=review`}
+                        href={`/launchpad/journal-editor/${encodeURIComponent(projectID)}?mode=review`}
                         className="text-blue-300 hover:underline"
                         target="_blank"
                         rel="noopener noreferrer"

@@ -222,7 +222,7 @@ function ProjectDetail({
         <div className="sticky top-0 z-10 flex justify-end gap-4">
           <button
             className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded transition-colors border border-black/40 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-black/40"
-            onClick={() => router.push('/launchpad/journal-editor')}
+            onClick={() => router.push(`/launchpad/journal-editor/${encodeURIComponent(project.projectID)}`)}
             aria-label="Write a journal entry"
           >
             <span className="animate-pulse">Write a journal entry</span>
@@ -305,7 +305,7 @@ function ProjectDetail({
               <div className="font-medium text-white">
                 {project.in_review ? (
                   <a
-                    href={`/launchpad/journal-editor?projectId=${encodeURIComponent(project.projectID)}`}
+                    href={`/launchpad/journal-editor/${encodeURIComponent(project.projectID)}`}
                     className="text-blue-300 hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1576,7 +1576,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                         <div className="font-medium text-white">
                           {selectedProject.in_review ? (
                             <a
-                              href={`/launchpad/journal-editor?projectId=${encodeURIComponent(selectedProject.projectID)}&mode=review`}
+                              href={`/launchpad/journal-editor/${encodeURIComponent(selectedProject.projectID)}?mode=review`}
                               className="text-blue-300 hover:underline"
                               target="_blank"
                               rel="noopener noreferrer"

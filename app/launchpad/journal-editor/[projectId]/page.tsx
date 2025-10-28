@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState, Suspense } from 'react'
+import { useEffect, useRef, useState, use } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import remarkGfm from 'remark-gfm'
@@ -13,14 +13,19 @@ import { apiFetch } from '@/lib/apiFetch'
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 const DynamicMarkdown = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false })
 
-function JournalEditorPage() {
+function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> }) {
+  const { projectId } = use(params)
   const { data: session, status } = useSession()
   const [content, setContent] = useState<string>('')
   const searchParams = useSearchParams()
-  const initialProjectId = searchParams.get('projectId') || ''
   const modeParam = searchParams.get('mode') || ''
-  const isReviewOnly = modeParam === 'review'
-  const [projectId, setProjectId] = useState<string>(initialProjectId)
+  
+  // Only allow review mode for admins and reviewers
+  const userRole = session?.user?.role
+  const isAdmin = userRole === 'Admin' || session?.user?.isAdmin === true
+  const isReviewer = userRole === 'Reviewer'
+  const canAccessReviewMode = isAdmin || isReviewer
+  const isReviewOnly = modeParam === 'review' && canAccessReviewMode
   const [projects, setProjects] = useState<Array<{ projectID: string; name: string; in_review?: boolean; chat_enabled?: boolean }>>([])
   const [isLoadingProjects, setIsLoadingProjects] = useState<boolean>(true)
   const [isDragging, setIsDragging] = useState<boolean>(false)
@@ -31,6 +36,8 @@ function JournalEditorPage() {
   const [isPublishing, setIsPublishing] = useState<boolean>(false)
   const [publishTick, setPublishTick] = useState<number>(0)
   const [hoursWorked, setHoursWorked] = useState<string>('')
+  const [projectError, setProjectError] = useState<string | null>(null)
+  const [isValidatingProject, setIsValidatingProject] = useState<boolean>(true)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -68,9 +75,6 @@ function JournalEditorPage() {
         if (res.ok) {
           const data = await res.json()
           setProjects(Array.isArray(data) ? data : [])
-          if (!initialProjectId && Array.isArray(data) && data.length > 0) {
-            setProjectId(data[0].projectID)
-          }
         } else {
           setProjects([])
         }
@@ -78,16 +82,130 @@ function JournalEditorPage() {
         setIsLoadingProjects(false)
       }
     })()
-  }, [status, initialProjectId])
+  }, [status])
 
-  if (status === 'loading') return <LoadingOverlay />
+  // Validate project access upfront
+  useEffect(() => {
+    (async () => {
+      if (status !== 'authenticated' || !projectId) return
+      
+      setIsValidatingProject(true)
+      setProjectError(null)
+      
+      try {
+        // Try to fetch the specific project to validate access
+        const res = await apiFetch(`/api/projects?projectId=${encodeURIComponent(projectId)}`)
+        
+        if (!res.ok) {
+          if (res.status === 404) {
+            setProjectError('Project not found. It may have been deleted or you may not have access to it.')
+          } else if (res.status === 403) {
+            setProjectError('You do not have permission to write journal entries for this project.')
+          } else {
+            setProjectError('Unable to load project. Please try again.')
+          }
+          return
+        }
+        
+        const data = await res.json()
+        const project = Array.isArray(data) ? data.find((p: any) => p.projectID === projectId) : data
+        
+        if (!project) {
+          setProjectError('Project not found. It may have been deleted or you may not have access to it.')
+          return
+        }
+        
+        // Check if user owns this project (unless they're an admin/reviewer)
+        // Admins/reviewers can view any project in review mode, but can only write to projects they own
+        const userRole = session?.user?.role
+        const isAdmin = userRole === 'Admin' || session?.user?.isAdmin === true
+        const isReviewer = userRole === 'Reviewer'
+        const canBypassOwnershipCheck = isAdmin || isReviewer
+        const requestedReviewMode = searchParams.get('mode') === 'review'
+        
+        // For write mode (not review): must own the project unless admin/reviewer
+        if (!canBypassOwnershipCheck && project.userId !== session?.user?.id) {
+          setProjectError('You can only write journal entries to your own projects.')
+          return
+        }
+        
+        // For review mode: must be admin/reviewer AND project must be in review
+        if (requestedReviewMode && !canBypassOwnershipCheck) {
+          setProjectError('Review mode is only available to administrators and reviewers.')
+          return
+        }
+        
+        // Project is valid and accessible
+        setProjectError(null)
+      } catch (error) {
+        console.error('Error validating project:', error)
+        setProjectError('Unable to validate project access. Please try again.')
+      } finally {
+        setIsValidatingProject(false)
+      }
+    })()
+  }, [status, projectId, session, searchParams])
+
+  if (status === 'loading' || isValidatingProject) return <LoadingOverlay />
   if (status === 'unauthenticated') return <AccessDenied />
+
+  // Require a projectId to be provided in the URL
+  if (!projectId) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <div className="max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-8">
+          <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-red-400 mb-2">No Project Selected</h2>
+            <p className="text-white/80 mb-4">
+              The journal editor requires a specific project context. Please navigate to this page from your project details.
+            </p>
+            <Link
+              href="/launchpad"
+              className="inline-block px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white transition-colors"
+            >
+              Go to Launchpad
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if project validation failed
+  if (projectError) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <div className="max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-8">
+          <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6">
+            <h2 className="text-xl font-bold text-red-400 mb-2">Access Denied</h2>
+            <p className="text-white/80 mb-4">{projectError}</p>
+            <Link
+              href="/launchpad"
+              className="inline-block px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white transition-colors"
+            >
+              Go to Launchpad
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Find the selected project for display
+  const selectedProject = projects.find(p => p.projectID === projectId)
 
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="journal-font-sans max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Journal Editor</h1>
+          <div>
+            <h1 className="text-2xl font-bold">Journal Editor</h1>
+            {selectedProject && (
+              <p className="text-sm text-white/60 mt-1">
+                Writing to: <span className="text-white/90 font-medium">{selectedProject.name}</span>
+              </p>
+            )}
+          </div>
           <Link
             href="/launchpad"
             className="px-3 py-2 rounded bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -356,19 +474,15 @@ function JournalEditorPage() {
   )
 }
 
-export default function JournalEditorPageWrapper() {
-  return (
-    <Suspense fallback={<div />}> 
-      <JournalEditorPage />
-    </Suspense>
-  )
-}
+export default JournalEditorPage
 
 // Minimal inline chat viewer using existing chat APIs
 function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false }: { projectId: string; refreshTrigger?: number; isReviewOnly?: boolean }) {
   const { data: session } = useSession()
   const userRole = session?.user?.role
-  const canApprove = userRole === 'Admin' || userRole === 'Reviewer'
+  const isAdmin = userRole === 'Admin' || session?.user?.isAdmin === true
+  const isReviewer = userRole === 'Reviewer'
+  const canApprove = isAdmin || isReviewer
   const [messages, setMessages] = useState<Array<{ id: string; content: string; createdAt: string; hours?: number | null; approvedHours?: number | null }>>([])
   const [loading, setLoading] = useState<boolean>(true)
   const lastTsRef = useRef<string>('')
