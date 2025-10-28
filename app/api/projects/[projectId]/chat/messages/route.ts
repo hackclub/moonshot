@@ -190,9 +190,14 @@ export async function POST(
         const isIslandProject = project.projectTags.some(pt => pt.tag.name === 'event-project');
         const isEventProject = project.projectTags.some(pt => pt.tag.name === 'event-project') || isIslandProject;
 
-        // For island projects, only the project owner may post messages
-        if (isIslandProject && session.user.id !== project.userId) {
-          return NextResponse.json({ error: 'Only the project owner can write in island stories.' }, { status: 403 });
+        // CRITICAL: Only the project owner can write journal entries to their own project
+        // Admins and reviewers can bypass this check if needed for support purposes
+        const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
+        const isReviewer = session.user.role === 'Reviewer';
+        const canBypassOwnershipCheck = isAdmin || isReviewer;
+        
+        if (!canBypassOwnershipCheck && session.user.id !== project.userId) {
+          return NextResponse.json({ error: 'You can only write journal entries to your own projects.' }, { status: 403 });
         }
 
         // Get or create the chat room for this project
