@@ -199,18 +199,20 @@ export default function ShopPage() {
           </div>
           
           {/* Shop Opening Soon Warning */}
-          <div className={`${styles.stardustWarning} mb-6 max-w-2xl mx-auto`}>
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-purple-300 text-2xl">⚠️</span>
-              <div className="text-center">
-                <h3 className="text-purple-200 font-bold text-lg mb-1">Shop Opening Soon!</h3>
-                <p className="text-purple-300 text-sm">
-                  The Stardust Shop is currently under construction. Check back soon for amazing rewards!
-                </p>
+          {items.length === 0 && (
+            <div className={`${styles.stardustWarning} mb-6 max-w-2xl mx-auto`}>
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-purple-300 text-2xl">⚠️</span>
+                <div className="text-center">
+                  <h3 className="text-purple-200 font-bold text-lg mb-1">Shop Opening Soon!</h3>
+                  <p className="text-purple-300 text-sm">
+                    The Stardust Shop is currently under construction. Check back soon for amazing rewards!
+                  </p>
+                </div>
+                <span className="text-purple-300 text-2xl">⚠️</span>
               </div>
-              <span className="text-purple-300 text-2xl">⚠️</span>
             </div>
-          </div>
+          )}
           
           {/* Stardust Balance Display */}
           {usercurrency !== null && (
