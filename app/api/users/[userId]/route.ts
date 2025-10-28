@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { userId: stri
         role: true,
         status: true,
         hackatimeId: true,
-        identityToken: true,
+        // identityToken deliberately excluded - should never be exposed in API responses
         purchasedProgressHours: true,
         totalCurrencySpent: true,
         adminCurrencyAdjustment: true,

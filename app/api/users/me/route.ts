@@ -37,7 +37,7 @@ export async function GET() {
         status: true,
         hackatimeId: true,
         slack: true,
-        identityToken: true,
+        // identityToken deliberately excluded - should never be exposed in API responses
         purchasedProgressHours: true,
         totalCurrencySpent: true,
         adminCurrencyAdjustment: true,

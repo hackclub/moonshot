@@ -37,7 +37,7 @@ function IdentityCallbackContent() {
           setMessage(`Failed to exchange code: ${data.error || 'Unknown error'} (${response.status}). Details: ${JSON.stringify(data.details || {})}`);
           return;
         }
-        if (data.access_token) {
+        if (data.success) {
             const response2 = await fetch('/api/identity/me');
             const data2 = await response2.json();
             console.log(data2);
