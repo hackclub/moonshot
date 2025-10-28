@@ -73,7 +73,8 @@ export async function POST(req: NextRequest) {
     });
 
     console.log("Successfully stored identity token for user:", session.user.id);
-    return NextResponse.json(data);
+    // Never expose tokens to the client - return success message only
+    return NextResponse.json({ success: true, message: 'Identity verification completed' });
   } catch (error) {
     console.error('Identity token exchange error:', error);
     return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : error }, { status: 500 });

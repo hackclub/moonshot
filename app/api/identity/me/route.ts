@@ -18,9 +18,14 @@ export async function GET() {
       });
     }
 
+    // Only fetch the minimal fields needed - identityToken for auth and isAdmin for bypass logic
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id,
+        },
+        select: {
+            identityToken: true,
+            isAdmin: true,
         },
     });
 
