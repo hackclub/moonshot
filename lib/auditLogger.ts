@@ -16,6 +16,7 @@ export enum AuditLogEventType {
   ShopOrderFulfilled = "ShopOrderFulfilled",
   ShopOrderRejected = "ShopOrderRejected",
   ShellModification = "ShellModification",
+  JournalEntryDeleted = "JournalEntryDeleted",
   OtherEvent = "OtherEvent"
 }
 

@@ -858,7 +858,21 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
     const timestamp = Date.now();
     const url = `/api/projects?isIslandMode=${isIslandMode}&_t=${timestamp}`;
     const response = await apiFetch(url);
+    
+    if (!response.ok) {
+      console.error('Failed to fetch projects:', response.status, response.statusText);
+      setProjects([]);
+      return;
+    }
+    
     const data = await response.json();
+    
+    // Ensure data is an array before setting it
+    if (!Array.isArray(data)) {
+      console.error('Projects API returned non-array data:', data);
+      setProjects([]);
+      return;
+    }
     
     // No client-side filtering needed - server already filtered
     setProjects(data);
@@ -1061,7 +1075,7 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
             </div>
             
             <div className="bg-black/50 text-white rounded-lg shadow border border-white/10">
-              {projects
+              {(Array.isArray(projects) ? projects : [])
                 .sort((a, b) => {
                   // Use hoursOverride if set, otherwise rawHours
                   const hoursA = typeof a.hoursOverride === 'number' ? a.hoursOverride : a.rawHours || 0;

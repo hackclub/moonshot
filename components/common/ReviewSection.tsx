@@ -9,6 +9,7 @@ import { useReviewMode } from '@/app/contexts/ReviewModeContext';
 import ProjectFlagsEditor, { ProjectFlags } from './ProjectFlagsEditor';
 import HackatimeLanguageStats from './HackatimeLanguageStats';
 import ReviewChecklist from './ReviewChecklist';
+import ReactMarkdown from 'react-markdown';
 
 interface ReviewerInfo {
   id: string;
@@ -796,7 +797,9 @@ export default function ReviewSection({
                         )}
                       </div>
                     </div>
-                    <p className="text-white whitespace-pre-wrap">{review.comment}</p>
+                    <div className="text-white prose prose-invert prose-sm max-w-none">
+                      <ReactMarkdown>{review.comment}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               </div>

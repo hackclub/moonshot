@@ -301,8 +301,8 @@ export default function ProjectFlagsEditor({
         {/* Viral option removed */}
       </div>
       
-      {/* Hackatime Hours Override Section */}
-      {hackatimeLinks && hackatimeLinks.length > 0 && (
+      {/* Time Tracking Section - show if there are Hackatime links OR journal entries */}
+      {((hackatimeLinks && hackatimeLinks.length > 0) || resolvedJournalRaw > 0 || resolvedJournalApproved > 0) && (
         <div className="mt-4 sm:mt-6">
           <h4 className="text-xs sm:text-sm font-bold text-white mb-2 sm:mb-3">Time Tracking</h4>
           
@@ -324,7 +324,7 @@ export default function ProjectFlagsEditor({
                 </tr>
               </thead>
               <tbody className="bg-transparent divide-y divide-white/10">
-                {hackatimeLinks.map((link) => (
+                {hackatimeLinks && hackatimeLinks.length > 0 && hackatimeLinks.map((link) => (
                   <tr key={link.id}>
                     <td className="px-2 py-2 sm:px-3 whitespace-nowrap text-xs sm:text-sm text-white max-w-[120px] sm:max-w-none truncate">
                       {link.hackatimeName}
@@ -341,7 +341,7 @@ export default function ProjectFlagsEditor({
                           onChange={(e) => handleInputChange(link.id, e.target.value)}
                           onBlur={(e) => handleInputBlur(link.id, e.target.value)}
                           placeholder="none"
-                          className="block w-12 sm:w-20 py-1 px-1 sm:px-2 text-center border-white/20 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 text-xs sm:text-sm bg-black/40 text-white placeholder-white/50"
+                          className="block w-12 sm:w-20 py-1 px-1 sm:px-2 text-center border border-black/20 rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 text-xs sm:text-sm bg-white text-black placeholder-black/50"
                         />
                         <span className="ml-0.5 sm:ml-1 text-white/60">h</span>
                       </div>
