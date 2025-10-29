@@ -421,7 +421,7 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
           <div className="flex items-center justify-between p-3 border-b border-white/10">
             <h2 className="text-lg font-semibold">Journal Entries</h2>
           </div>
-          <ProjectChatInline projectId={projectId} refreshTrigger={publishTick} isReviewOnly={isReviewOnly} />
+          <ProjectChatInline projectId={projectId} projectName={selectedProject?.name || ''} refreshTrigger={publishTick} isReviewOnly={isReviewOnly} />
         </div>
       </div>
       {/* Blocking upload modal */}
@@ -477,7 +477,7 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
 export default JournalEditorPage
 
 // Minimal inline chat viewer using existing chat APIs
-function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false }: { projectId: string; refreshTrigger?: number; isReviewOnly?: boolean }) {
+function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isReviewOnly = false }: { projectId: string; projectName: string; refreshTrigger?: number; isReviewOnly?: boolean }) {
   const { data: session } = useSession()
   const userRole = session?.user?.role
   const isAdmin = userRole === 'Admin' || session?.user?.isAdmin === true
@@ -490,6 +490,27 @@ function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false
   const [approvedDrafts, setApprovedDrafts] = useState<Record<string, string>>({})
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set())
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set())
+  const [projectInReview, setProjectInReview] = useState<boolean>(false)
+  // Load project to check review status
+  useEffect(() => {
+    (async () => {
+      if (!projectId) return
+      try {
+        const res = await apiFetch(`/api/projects?projectId=${encodeURIComponent(projectId)}`)
+        if (res.ok) {
+          const data = await res.json()
+          const project = Array.isArray(data) ? data.find((p: any) => p.projectID === projectId) : data
+          if (project) {
+            setProjectInReview(project.in_review || false)
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load project review status:', e)
+      }
+    })()
+  }, [projectId])
+  
   useEffect(() => {
     let timer: any
     const initialLoad = async () => {
@@ -573,6 +594,40 @@ function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false
       } catch {}
     })()
   }, [refreshTrigger, projectId])
+  
+  // Handle delete journal entry
+  const handleDelete = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this journal entry? This action cannot be undone.')) {
+      return
+    }
+    
+    setDeletingIds(prev => new Set(prev).add(messageId))
+    try {
+      const res = await apiFetch(`/api/projects/${projectId}/chat/messages?messageId=${encodeURIComponent(messageId)}`, {
+        method: 'DELETE'
+      })
+      
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({} as any))
+        alert(body?.error || 'Failed to delete journal entry')
+        return
+      }
+      
+      // Remove from local state
+      setMessages(prev => prev.filter(m => m.id !== messageId))
+      idsRef.current.delete(messageId)
+    } catch (e) {
+      console.error('Error deleting journal entry:', e)
+      alert('Failed to delete journal entry')
+    } finally {
+      setDeletingIds(prev => {
+        const next = new Set(prev)
+        next.delete(messageId)
+        return next
+      })
+    }
+  }
+  
   return (
     <div className="p-3">
       {loading ? (
@@ -582,8 +637,8 @@ function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false
       ) : (
         <div className="space-y-3">
           {messages.map(m => (
-            <div key={m.id} className="text-sm text-white/90">
-              <div className="text-white/50 text-xs mb-1 flex items-center gap-2">
+            <div key={m.id} id={`entry-${m.id}`} className="text-sm text-white/90 scroll-mt-24">
+              <div className="text-white/50 text-xs mb-1 flex items-center gap-2 flex-wrap">
                 <span>{new Date(m.createdAt).toLocaleString()}</span>
                 <span className="ml-2">hours</span>
                 <input
@@ -644,12 +699,37 @@ function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false
                             if (justification.trim().length > 0) {
                               const oldVal = m.approvedHours ?? 0
                               const newVal = upd.approvedHours ?? 0
-                              const deltaMsg = `Reviewer adjusted approved journal hours: ${oldVal}h → ${newVal}h. Justification: ${justification.trim()}`
+                              const rawHours = m.hours ?? 0
+                              
+                              // Determine approval status
+                              let status = 'Approved'
+                              if (newVal === 0) {
+                                status = 'Rejected'
+                              } else if (newVal < rawHours) {
+                                status = 'Partially approved'
+                              }
+                              
+                              // Create the message with links and status
+                              const journalEntryLink = `${window.location.origin}/launchpad/journal-editor/${encodeURIComponent(projectId)}?mode=review#entry-${m.id}`
+                              const projectLink = `${window.location.origin}/launchpad`
+                              
+                              const deltaMsg = `✅ ${status}\n\n` +
+                                `**Project:** [${projectName}](${projectLink})\n\n` +
+                                `**Journal Entry:** [View Entry](${journalEntryLink})\n\n` +
+                                `**Hours:** ${oldVal}h → ${newVal}h (${rawHours}h raw)\n\n` +
+                                `**Justification:** ${justification.trim()}`
+                              
                               try {
                                 await apiFetch('/api/reviews', {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ projectID: projectId, comment: deltaMsg, reviewType: 'HoursApproval', justification })
+                                  body: JSON.stringify({ 
+                                    projectID: projectId, 
+                                    comment: deltaMsg, 
+                                    reviewType: 'HoursApproval', 
+                                    justification,
+                                    result: newVal === 0 ? 'reject' : 'approve'
+                                  })
                                 })
                               } catch {}
                             }
@@ -672,6 +752,15 @@ function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false
                     className="w-16 px-2 py-0.5 bg-transparent border-0 focus:ring-0 focus:outline-none text-xs text-white/80"
                   />
                 )}
+                {/* Delete button - always visible, permission check on backend */}
+                <button
+                  className="ml-auto px-2 py-0.5 text-xs rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 transition-colors"
+                  disabled={deletingIds.has(m.id)}
+                  onClick={() => handleDelete(m.id)}
+                  title={projectInReview && !canApprove ? 'Cannot delete while project is in review (reviewers/admins can delete)' : 'Delete this journal entry'}
+                >
+                  {deletingIds.has(m.id) ? 'Deleting…' : 'Delete'}
+                </button>
               </div>
               <DynamicMarkdown source={m.content} />
             </div>

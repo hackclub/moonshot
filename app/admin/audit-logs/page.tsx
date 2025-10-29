@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { apiFetch } from '@/lib/apiFetch';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
+import ReactMarkdown from 'react-markdown';
 
 // Enum for audit log event types (matching Prisma schema)
 enum AuditLogEventType {
@@ -21,6 +22,8 @@ enum AuditLogEventType {
   ShopOrderCreated = "ShopOrderCreated",
   ShopOrderFulfilled = "ShopOrderFulfilled",
   ShopOrderRejected = "ShopOrderRejected",
+  ShellModification = "ShellModification",
+  JournalEntryDeleted = "JournalEntryDeleted",
   OtherEvent = "OtherEvent"
 }
 
@@ -221,6 +224,14 @@ export default function AuditLogsPage() {
         bgColor = 'bg-red-100';
         textColor = 'text-red-800';
         break;
+      case AuditLogEventType.ShellModification:
+        bgColor = 'bg-yellow-100';
+        textColor = 'text-yellow-800';
+        break;
+      case AuditLogEventType.JournalEntryDeleted:
+        bgColor = 'bg-orange-100';
+        textColor = 'text-orange-800';
+        break;
       default:
         // Keep default gray
         break;
@@ -389,7 +400,9 @@ export default function AuditLogsPage() {
                           {getEventTypeBadge(log.eventType)}
                         </td>
                         <td className="px-2 sm:px-6 py-3 sm:py-4 text-sm">
-                          <div className="text-sm text-white">{log.description}</div>
+                          <div className="text-sm text-white prose prose-invert prose-sm max-w-none">
+                            <ReactMarkdown>{log.description}</ReactMarkdown>
+                          </div>
                           
                           {/* Mobile-only: Show user info inline on mobile */}
                           <div className="sm:hidden mt-1">

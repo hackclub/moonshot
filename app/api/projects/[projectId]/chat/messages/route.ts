@@ -328,13 +328,20 @@ export async function PATCH(
         select: { userId: true, name: true }
       });
       if (projectOwner?.userId) {
+        // Construct link to the specific journal entry
+        const journalEntryUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/launchpad/journal-editor/${encodeURIComponent(projectId)}?mode=review#entry-${messageId}`;
+        
         await logProjectEvent({
           eventType: AuditLogEventType.ProjectReviewCompleted,
-          description: `Updated approved hours on chat message ${messageId} to ${nextApproved ?? 'null'}`,
+          description: `Updated approved hours for journal entry in "${projectOwner.name}" to ${nextApproved ?? 0}h. [View Entry](${journalEntryUrl})`,
           projectId,
           userId: projectOwner.userId,
           actorUserId: session.user.id,
-          metadata: { messageId, approvedHours: nextApproved }
+          metadata: { 
+            messageId, 
+            approvedHours: nextApproved,
+            journalEntryUrl
+          }
         });
       }
     } catch (e) {
@@ -348,7 +355,10 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete a chat message (admins or project owners only)
+// DELETE - Delete a chat message (journal entry)
+// - Users can delete ONLY if project has NOT been submitted for review
+// - Reviewers and admins can always delete
+// - All deletions are logged to audit log
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
@@ -366,32 +376,77 @@ export async function DELETE(
       return NextResponse.json({ error: 'messageId is required' }, { status: 400 });
     }
 
-    // Load project to check ownership
+    // Load project to check ownership and review status
     const project = await prisma.project.findUnique({
       where: { projectID: projectId },
-      select: { userId: true },
+      select: { 
+        userId: true,
+        in_review: true,
+        name: true
+      },
     });
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    // Permission: admins or project owner
-    const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
-    const isOwner = session.user.id === project.userId;
-    if (!isAdmin && !isOwner) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     // Ensure message exists and belongs to this project's room
     const message = await prisma.chatMessage.findUnique({
       where: { id: messageId },
-      select: { id: true, room: { select: { projectID: true } } },
+      select: { 
+        id: true, 
+        content: true,
+        hours: true,
+        approvedHours: true,
+        room: { select: { projectID: true } } 
+      },
     });
     if (!message || message.room.projectID !== projectId) {
       return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }
 
+    // Check permissions
+    const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
+    const isReviewer = session.user.role === 'Reviewer';
+    const isOwner = session.user.id === project.userId;
+    const canBypassReviewCheck = isAdmin || isReviewer;
+
+    // If project is in review and user is not admin/reviewer, deny deletion
+    if (project.in_review && !canBypassReviewCheck) {
+      return NextResponse.json({ 
+        error: 'Cannot delete journal entries while project is in review. Please contact a reviewer or admin for assistance.' 
+      }, { status: 403 });
+    }
+
+    // If not in review, only owner can delete (unless admin/reviewer)
+    if (!project.in_review && !isOwner && !canBypassReviewCheck) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Delete the message
     await prisma.chatMessage.delete({ where: { id: messageId } });
+
+    // Log the deletion to audit log
+    try {
+      await logProjectEvent({
+        eventType: AuditLogEventType.JournalEntryDeleted,
+        description: `Journal entry deleted from project "${project.name}". Hours: ${message.hours}, Approved Hours: ${message.approvedHours ?? 'N/A'}. Content preview: ${message.content.substring(0, 100)}...`,
+        projectId,
+        userId: project.userId,
+        actorUserId: session.user.id,
+        metadata: {
+          messageId,
+          hours: message.hours,
+          approvedHours: message.approvedHours,
+          deletedBy: session.user.id,
+          deletedByRole: session.user.role,
+          wasInReview: project.in_review
+        }
+      });
+    } catch (e) {
+      console.error('Failed to write audit log for journal entry deletion:', e);
+      // Continue even if audit log fails
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting chat message:', error);

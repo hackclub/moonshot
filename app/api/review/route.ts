@@ -147,6 +147,41 @@ export async function GET() {
       }
     }
 
+    // Fetch journal hours for all projects in review
+    const projectJournalHours: Record<string, { raw: number; approved: number }> = {};
+    
+    for (const project of projectsInReview) {
+      try {
+        // Get the chat room for this project
+        const chatRoom = await prisma.chatRoom.findFirst({
+          where: { projectID: project.projectID },
+          include: {
+            messages: {
+              select: {
+                hours: true,
+                approvedHours: true,
+              }
+            }
+          }
+        });
+        
+        if (chatRoom && chatRoom.messages) {
+          const rawHours = chatRoom.messages.reduce((sum, msg) => sum + (msg.hours || 0), 0);
+          const approvedHours = chatRoom.messages.reduce((sum, msg) => sum + (msg.approvedHours || 0), 0);
+          
+          projectJournalHours[project.projectID] = {
+            raw: rawHours,
+            approved: approvedHours
+          };
+        } else {
+          projectJournalHours[project.projectID] = { raw: 0, approved: 0 };
+        }
+      } catch (error) {
+        console.error(`Error calculating journal hours for project ${project.projectID}:`, error);
+        projectJournalHours[project.projectID] = { raw: 0, approved: 0 };
+      }
+    }
+
     // Format the response to include user's name and the latest review if any
     const formattedProjects = (projectsInReview || []).map((project: any) => {
       const latestReview = project.reviews.length > 0 ? project.reviews[0] : null;
@@ -156,6 +191,9 @@ export async function GET() {
         (sum: number, link: any) => sum + (typeof link.rawHours === 'number' ? link.rawHours : 0),
         0
       );
+
+      // Get journal hours for this project
+      const journalHours = projectJournalHours[project.projectID] || { raw: 0, approved: 0 };
 
       // Normalize screenshot: ensure valid http(s) URL or null
       const screenshot = typeof project.screenshot === 'string' && /^(https?:)?\/\//i.test(project.screenshot)
@@ -173,6 +211,8 @@ export async function GET() {
         reviewCount: project.reviews?.filter((review: { reviewerId: string }) => review.reviewerId === project.userId).length || 0,
         rawHours: rawHours,
         ownerApprovedHours: userProjectsMap[project.userId] || 0,
+        journalRawHours: journalHours.raw,
+        journalApprovedHours: journalHours.approved,
       };
     });
 
