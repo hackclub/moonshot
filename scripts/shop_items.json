@@ -3,7 +3,7 @@
     "name": "Apple AirPods Max",
     "description": "Finally, peace from unsolicited advice.",
     "image": "/img/shop/headphones.png",
-    "price": 1,
+    "price": 530,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -12,7 +12,7 @@
     "name": "Meta AI Classes (Wayfarer Gen 1)",
     "description": "Do you want to experience having an AI almost in your brain?",
     "image": "/img/shop/meta_glasses.png",
-    "price": 1,
+    "price": 117,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -21,7 +21,7 @@
     "name": "iPad + Apple pencil",
     "description": "Apple iPad 11-inch A16 chip 128GB + Apple Pencil (USB‑C)",
     "image": "/img/shop/ipad_combo.png",
-    "price": 1,
+    "price": 129,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -30,7 +30,7 @@
     "name": "Nintendo Switch 1",
     "description": "Portable adventures, anytime, anywhere.",
     "image": "/img/shop/switch.png",
-    "price": 1,
+    "price": 97,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -39,7 +39,7 @@
     "name": "Meta Oculus 3S",
     "description": "Step into your side quests.",
     "image": "/img/shop/oculus.png",
-    "price": 1,
+    "price": 94,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -48,7 +48,7 @@
     "name": "Bambu Lab A1 Mini",
     "description": "3D print your ideas, not just files.",
     "image": "/img/shop/printer.png",
-    "price": 1,
+    "price": 86,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -57,7 +57,16 @@
     "name": "SSD 1TB",
     "description": "Sandbox for side projects and secret sauce.",
     "image": "/img/shop/ssd.png",
-    "price": 1,
+    "price": 31,
+    "usdCost": 0,
+    "costType": "fixed",
+    "useRandomizedPricing": false
+  },
+  {
+    "name": "CMF Buds Pro 2",
+    "description": "Warning: could make you sing in public.",
+    "image": "/img/shop/CMF.png",
+    "price": 20,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -66,16 +75,7 @@
     "name": "Logitech G502 mouse",
     "description": "Emma's approved mouse for gaming.",
     "image": "/img/shop/mouse.png",
-    "price": 1,
-    "usdCost": 0,
-    "costType": "fixed",
-    "useRandomizedPricing": false
-  },
-  {
-    "name": "128GB dual USB",
-    "description": "Dual USB C | 150MB/s Type C 3.1",
-    "image": "/img/shop/usb.png",
-    "price": 1,
+    "price": 10,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -84,7 +84,16 @@
     "name": "Mario Neon Led",
     "description": "It's me, Mario!",
     "image": "/img/shop/lamp.png",
-    "price": 1,
+    "price": 6,
+    "usdCost": 0,
+    "costType": "fixed",
+    "useRandomizedPricing": false
+  },
+  {
+    "name": "128GB dual USB",
+    "description": "Dual USB C | 150MB/s Type C 3.1",
+    "image": "/img/shop/usb.png",
+    "price": 5,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -93,7 +102,7 @@
     "name": "Seal Pillow",
     "description": "Simply... fabulous.",
     "image": "/img/shop/plushie.png",
-    "price": 1,
+    "price": 3,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -102,7 +111,7 @@
     "name": "Soldering Iron",
     "description": "Build your own racket from scratch.",
     "image": "/img/shop/solder.png",
-    "price": 1,
+    "price": 3,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false
@@ -111,7 +120,7 @@
     "name": "$10 AI Credit",
     "description": "ChatGPT and Gemini will be your best friends.",
     "image": "/img/shop/AI.png",
-    "price": 1,
+    "price": 3,
     "usdCost": 0,
     "costType": "fixed",
     "useRandomizedPricing": false

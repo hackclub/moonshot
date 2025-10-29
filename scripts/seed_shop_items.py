@@ -5,7 +5,7 @@ INSTRUCTIONS:
 1. REPLACE base_url
 
 2. Create
-  - export NEXTAUTH_SESSION_TOKEN='paste-dev-cookie'
+  - export NEXTAUTH_SESSION_TOKEN=''
   - python3 scripts/seed_shop_items.py --from-file scripts/shop_items.json
 3. Delete all
   - python3 scripts/seed_shop_items.py --delete-all
@@ -83,7 +83,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    base_url = os.environ.get("BASE_URL", "https://moonshot-testing.hackclub.com").strip()
+    base_url = os.environ.get("BASE_URL", "https://moonshot.hackclub.com").strip()
     token = os.environ.get("NEXTAUTH_SESSION_TOKEN", "").strip()
     if not token:
         print("ERROR: NEXTAUTH_SESSION_TOKEN is required (copy it from your browser cookie).", file=sys.stderr)
