@@ -84,22 +84,31 @@ function JournalEditorPage() {
   if (status === 'unauthenticated') return <AccessDenied />
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="journal-font-sans max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-8">
+    <div className="min-h-screen text-white relative">
+      {/* Cosmic Background Layers */}
+      <div className="journal-stellar-background" aria-hidden="true">
+        <div className="journal-nebula-layer"></div>
+        <div className="journal-starfield-layer"></div>
+        <div className="journal-shooting-stars"></div>
+      </div>
+      <div className="journal-font-kavoon max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-8 relative z-10">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Journal Editor</h1>
+          <h1 className="journal-title-enhanced font-kavoon inline-flex items-center gap-3">
+            <span>Journal Editor</span>
+            <img src="/workingCat.png" alt="Journal icon" className="journal-title-icon" />
+          </h1>
           <Link
             href="/launchpad"
-            className="px-3 py-2 rounded bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="journal-back-button"
           >
-            Back to Launchpad
+            ← Back to Launchpad
           </Link>
         </div>
 
         {/* Hours worked at the top */}
         {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
         <div className="mb-4">
-          <label className="block text-sm text-white/80 mb-1">Hours worked</label>
+          <label className="block text-sm text-white/80 mb-2">Hours worked</label>
           <input
             type="number"
             step="0.25"
@@ -107,17 +116,17 @@ function JournalEditorPage() {
             value={hoursWorked}
             onChange={(e) => setHoursWorked(e.target.value)}
             placeholder="e.g. 1.5"
-            className="w-20 px-3 py-2 bg-white text-black placeholder:text-black/50 border border-black/20 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="journal-hours-input"
             required
           />
-          <div className="mt-1 text-xs text-white/60">Enter a positive number; partial hours allowed (e.g., 0.5).</div>
+          <div className="mt-6 text-xs text-white/60">Enter a positive number - partial hours allowed (e.g., 0.5).</div>
         </div>
         )}
 
         {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
         <div
           ref={containerRef}
-          className={`relative ${isDragging ? 'ring-2 ring-blue-500' : ''}`}
+          className={`journal-editor-container relative ${isDragging ? 'ring-2 ring-blue-500' : ''}`}
           data-color-mode="dark"
           onMouseDown={handleEditorMouseDown}
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
@@ -240,7 +249,7 @@ function JournalEditorPage() {
         {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
         <div className="mt-4 flex items-center gap-3">
           <button
-              className="px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="journal-publish-button"
               disabled={
                 isPublishing ||
                 isUploading ||
@@ -326,31 +335,472 @@ function JournalEditorPage() {
       )}
       {/* Scoped font overrides for markdown/editor for better readability */}
       <style jsx global>{`
-        /* Override site's decorative font inside the journal editor */
-        .journal-font-sans,
-        .journal-font-sans *,
-        .journal-font-sans .w-md-editor,
-        .journal-font-sans .w-md-editor *,
-        .journal-font-sans .wmde-markdown,
-        .journal-font-sans .wmde-markdown * {
+        /* Cosmic Background - Darker */
+        .journal-stellar-background {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          z-index: 0;
+          overflow: hidden;
+          background: linear-gradient(135deg, #0a0515 0%, #150920 20%, #1a0d25 40%, #1f112a 60%, #1a0d25 80%, #0a0515 100%);
+        }
+        
+        /* Darker Nebula layer with reduced brightness - static */
+        .journal-nebula-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(ellipse 800px 600px at 15% 25%, rgba(255, 215, 0, 0.2) 0%, transparent 60%),
+            radial-gradient(ellipse 700px 500px at 85% 15%, rgba(139, 92, 246, 0.25) 0%, transparent 55%),
+            radial-gradient(ellipse 600px 800px at 35% 75%, rgba(59, 130, 246, 0.22) 0%, transparent 60%),
+            radial-gradient(ellipse 900px 500px at 90% 85%, rgba(252, 211, 77, 0.2) 0%, transparent 55%),
+            radial-gradient(ellipse 700px 600px at 5% 50%, rgba(167, 139, 250, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse 800px 700px at 95% 60%, rgba(100, 181, 246, 0.18) 0%, transparent 55%);
+          opacity: 0.6;
+        }
+        
+        /* Enhanced starfield with many more stars - static background, twinkling stars */
+        .journal-starfield-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(5px 5px at 5% 10%, #ffffff, transparent),
+            radial-gradient(4px 4px at 15% 25%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 25% 5%, #ffffff, transparent),
+            radial-gradient(4px 4px at 35% 40%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 45% 20%, #ffffff, transparent),
+            radial-gradient(3px 3px at 55% 60%, #3b82f6, transparent),
+            radial-gradient(4px 4px at 65% 15%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 75% 80%, #ffffff, transparent),
+            radial-gradient(3px 3px at 85% 45%, #8b5cf6, transparent),
+            radial-gradient(4px 4px at 95% 70%, #3b82f6, transparent),
+            radial-gradient(5px 5px at 10% 50%, #ffffff, transparent),
+            radial-gradient(4px 4px at 20% 90%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 30% 30%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 40% 75%, #ffffff, transparent),
+            radial-gradient(4px 4px at 50% 10%, #3b82f6, transparent),
+            radial-gradient(3px 3px at 60% 55%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 70% 95%, #ffffff, transparent),
+            radial-gradient(4px 4px at 80% 35%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 90% 65%, #3b82f6, transparent),
+            radial-gradient(5px 5px at 12% 85%, #ffffff, transparent),
+            radial-gradient(4px 4px at 22% 15%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 32% 50%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 42% 90%, #ffffff, transparent),
+            radial-gradient(4px 4px at 52% 30%, #3b82f6, transparent),
+            radial-gradient(3px 3px at 62% 75%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 72% 5%, #ffffff, transparent),
+            radial-gradient(4px 4px at 82% 40%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 92% 20%, #3b82f6, transparent),
+            radial-gradient(5px 5px at 8% 30%, #ffffff, transparent),
+            radial-gradient(4px 4px at 18% 70%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 28% 95%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 38% 60%, #ffffff, transparent),
+            radial-gradient(4px 4px at 48% 85%, #3b82f6, transparent),
+            radial-gradient(3px 3px at 58% 25%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 68% 50%, #ffffff, transparent),
+            radial-gradient(4px 4px at 78% 10%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 88% 80%, #3b82f6, transparent);
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+          animation: journalStarTwinkle 4s ease-in-out infinite;
+          opacity: 1;
+        }
+        
+        @keyframes journalStarTwinkle {
+          0%, 100% {
+            opacity: 0.6;
+            filter: brightness(0.8);
+          }
+          25% {
+            opacity: 1;
+            filter: brightness(1.8);
+          }
+          50% {
+            opacity: 0.7;
+            filter: brightness(1.2);
+          }
+          75% {
+            opacity: 1;
+            filter: brightness(2);
+          }
+        }
+        
+        /* Shooting stars removed - no animation */
+        .journal-shooting-stars {
+          display: none;
+        }
+        
+        /* Enhanced Journal Title */
+        .journal-title-enhanced {
+          font-size: 2.5rem !important;
+          font-weight: bold !important;
+          color: #fcd34d !important;
+          text-shadow: 
+            0 0 10px rgba(252, 211, 77, 0.8),
+            0 0 20px rgba(252, 211, 77, 0.6),
+            0 0 30px rgba(252, 211, 77, 0.4),
+            0 0 40px rgba(252, 211, 77, 0.2) !important;
+          animation: titleGlow 3s ease-in-out infinite alternate;
+          letter-spacing: 0.05em !important;
+        }
+        
+        /* Title already inherits Kavoon from journal-font-kavoon */
+        .journal-title-enhanced {
+          /* Font inherited from parent */
+        }
+        
+        .journal-title-icon {
+          height: 4.5rem;
+          width: 4.5rem;
+          filter: drop-shadow(0 0 10px rgba(252, 211, 77, 0.6)) 
+                  drop-shadow(0 0 20px rgba(252, 211, 77, 0.4));
+          animation: iconFloat 2s ease-in-out infinite;
+          transition: transform 0.3s ease;
+        }
+        
+        .journal-title-icon:hover {
+          transform: scale(1.15) rotate(5deg);
+        }
+        
+        /* Enhanced Back Button */
+        .journal-back-button {
+          padding: 0.75rem 1.5rem;
+          border-radius: 0.5rem;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.9) 0%, rgba(245, 224, 24, 0.9) 100%);
+          color: #1a1a2e;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          animation: buttonPulse 2s ease-in-out infinite;
+        }
+        
+        .journal-back-button:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 20px rgba(252, 211, 77, 0.6);
+          background: linear-gradient(135deg, rgba(252, 211, 77, 1) 0%, rgba(245, 224, 24, 1) 100%);
+          color: white;
+        }
+        
+        .journal-back-button:active,
+        .journal-back-button:active:hover {
+          transform: translateY(0) scale(1) !important;
+          color: white !important;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.9) 0%, rgba(245, 224, 24, 0.9) 100%) !important;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.5) !important;
+          animation: none !important;
+        }
+        
+        /* Enhanced Hours Input */
+        .journal-hours-input {
+          width: 8rem;
+          padding: 0.75rem 1rem;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.15) 0%, rgba(245, 224, 24, 0.15) 100%);
+          border: 2px solid rgba(252, 211, 77, 0.5);
+          border-radius: 0.75rem;
+          color: #fcd34d;
+          font-size: 1.125rem;
+          font-weight: 600;
+          text-align: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 10px rgba(252, 211, 77, 0.2);
+        }
+        
+        .journal-hours-input::placeholder {
+          color: rgba(252, 211, 77, 0.5);
+        }
+        
+        .journal-hours-input:focus {
+          outline: none;
+          border-color: #fcd34d;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.25) 0%, rgba(245, 224, 24, 0.25) 100%);
+          box-shadow: 
+            0 4px 15px rgba(252, 211, 77, 0.4),
+            0 0 20px rgba(252, 211, 77, 0.3);
+          transform: scale(1.05);
+        }
+        
+        /* Enhanced Publish Button */
+        .journal-publish-button {
+          padding: 0.875rem 2rem;
+          border-radius: 0.75rem;
+          background: linear-gradient(135deg, #fcd34d 0%, #f5e018 100%);
+          color: #1a1a2e;
+          font-weight: 600;
+          font-size: 1rem;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          animation: buttonGlow 2.5s ease-in-out infinite;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .journal-publish-button::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.5s ease;
+        }
+        
+        .journal-publish-button:hover::before {
+          left: 100%;
+        }
+        
+        .journal-publish-button:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 25px rgba(252, 211, 77, 0.6), 0 0 30px rgba(252, 211, 77, 0.3);
+          background: linear-gradient(135deg, #fde047 0%, #fcd34d 100%);
+        }
+        
+        .journal-publish-button:active {
+          transform: translateY(0) scale(1);
+        }
+        
+        .journal-publish-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          animation: none;
+          transform: none;
+        }
+        
+        .journal-publish-button:disabled:hover {
+          transform: none;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+        }
+        
+        @keyframes titleGlow {
+          from {
+            text-shadow: 
+              0 0 10px rgba(252, 211, 77, 0.8),
+              0 0 20px rgba(252, 211, 77, 0.6),
+              0 0 30px rgba(252, 211, 77, 0.4),
+              0 0 40px rgba(252, 211, 77, 0.2);
+          }
+          to {
+            text-shadow: 
+              0 0 15px rgba(252, 211, 77, 1),
+              0 0 25px rgba(252, 211, 77, 0.8),
+              0 0 35px rgba(252, 211, 77, 0.6),
+              0 0 45px rgba(252, 211, 77, 0.4),
+              0 0 55px rgba(252, 211, 77, 0.2);
+          }
+        }
+        
+        @keyframes iconFloat {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
+        }
+        
+        @keyframes buttonPulse {
+          0%, 100% {
+            box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          }
+          50% {
+            box-shadow: 0 4px 20px rgba(252, 211, 77, 0.6);
+          }
+        }
+        
+        @keyframes buttonGlow {
+          0%, 100% {
+            box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          }
+          50% {
+            box-shadow: 0 4px 20px rgba(252, 211, 77, 0.6), 0 0 30px rgba(252, 211, 77, 0.3);
+          }
+        }
+        
+        /* Apply Kavoon font to all journal editor text by default */
+        .journal-font-kavoon {
+          font-family: var(--font-kavoon), 'Kavoon', cursive !important;
+        }
+        
+        .journal-font-kavoon * {
+          font-family: var(--font-kavoon), 'Kavoon', cursive !important;
+        }
+        
+        /* Enhanced Editor Container with animated glow */
+        .journal-editor-container {
+          border-radius: 1rem;
+          overflow: hidden;
+          box-shadow: 
+            0 0 30px rgba(252, 211, 77, 0.4),
+            0 0 60px rgba(139, 92, 246, 0.3),
+            0 0 90px rgba(252, 211, 77, 0.2),
+            inset 0 0 30px rgba(0, 0, 0, 0.3);
+          background: rgba(10, 5, 21, 0.7);
+          border: 2px solid rgba(252, 211, 77, 0.5);
+          transition: all 0.3s ease;
+          animation: editorGlowPulse 3s ease-in-out infinite;
+          position: relative;
+        }
+        
+        .journal-editor-container::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          border-radius: 1rem;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.3), rgba(139, 92, 246, 0.3), rgba(252, 211, 77, 0.3));
+          background-size: 200% 200%;
+          z-index: -1;
+          animation: editorBorderGlow 4s ease infinite;
+          opacity: 0.8;
+        }
+        
+        @keyframes editorGlowPulse {
+          0%, 100% {
+            box-shadow: 
+              0 0 30px rgba(252, 211, 77, 0.4),
+              0 0 60px rgba(139, 92, 246, 0.3),
+              0 0 90px rgba(252, 211, 77, 0.2),
+              inset 0 0 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(252, 211, 77, 0.5);
+          }
+          50% {
+            box-shadow: 
+              0 0 50px rgba(252, 211, 77, 0.6),
+              0 0 100px rgba(139, 92, 246, 0.5),
+              0 0 150px rgba(252, 211, 77, 0.3),
+              inset 0 0 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(252, 211, 77, 0.7);
+          }
+        }
+        
+        @keyframes editorBorderGlow {
+          0%, 100% {
+            background-position: 0% 50%;
+            opacity: 0.8;
+          }
+          50% {
+            background-position: 100% 50%;
+            opacity: 1;
+          }
+        }
+        
+        .journal-editor-container:hover {
+          border-color: rgba(252, 211, 77, 0.8);
+          animation: editorGlowPulseHover 2s ease-in-out infinite;
+        }
+        
+        @keyframes editorGlowPulseHover {
+          0%, 100% {
+            box-shadow: 
+              0 0 40px rgba(252, 211, 77, 0.6),
+              0 0 80px rgba(139, 92, 246, 0.5),
+              0 0 120px rgba(252, 211, 77, 0.4),
+              inset 0 0 50px rgba(0, 0, 0, 0.4);
+          }
+          50% {
+            box-shadow: 
+              0 0 60px rgba(252, 211, 77, 0.8),
+              0 0 120px rgba(139, 92, 246, 0.7),
+              0 0 180px rgba(252, 211, 77, 0.5),
+              inset 0 0 60px rgba(0, 0, 0, 0.5);
+          }
+        }
+        
+        .journal-editor-container:focus-within {
+          border-color: rgba(252, 211, 77, 1);
+          animation: editorGlowPulseFocus 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes editorGlowPulseFocus {
+          0%, 100% {
+            box-shadow: 
+              0 0 50px rgba(252, 211, 77, 0.7),
+              0 0 100px rgba(139, 92, 246, 0.6),
+              0 0 150px rgba(252, 211, 77, 0.5),
+              inset 0 0 60px rgba(0, 0, 0, 0.5);
+          }
+          50% {
+            box-shadow: 
+              0 0 70px rgba(252, 211, 77, 0.9),
+              0 0 140px rgba(139, 92, 246, 0.8),
+              0 0 200px rgba(252, 211, 77, 0.6),
+              inset 0 0 70px rgba(0, 0, 0, 0.6);
+          }
+        }
+        
+        /* Enhanced Editor Styling */
+        .journal-font-kavoon .w-md-editor {
+          background: rgba(10, 5, 21, 0.8) !important;
+          border: none !important;
+          border-radius: 0.875rem !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-text-textarea,
+        .journal-font-kavoon .w-md-editor-text-textarea textarea {
+          background: transparent !important;
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-toolbar {
+          background: rgba(20, 10, 35, 0.8) !important;
+          border-bottom: 1px solid rgba(252, 211, 77, 0.2) !important;
+          border-radius: 0.875rem 0.875rem 0 0 !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-toolbar button {
+          color: rgba(255, 255, 255, 0.7) !important;
+          transition: all 0.2s ease !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-toolbar button:hover {
+          color: #fcd34d !important;
+          background: rgba(252, 211, 77, 0.1) !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-text {
+          background: rgba(10, 5, 21, 0.6) !important;
+        }
+        
+        /* Keep editor and markdown preview with readable sans-serif */
+        .journal-font-kavoon .w-md-editor *,
+        .journal-font-kavoon .wmde-markdown,
+        .journal-font-kavoon .wmde-markdown *:not(code):not(pre) {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif !important;
           line-height: 1.6;
         }
+        
         /* Ensure typing/cursor metrics are correct in text inputs */
-        .journal-font-sans textarea,
-        .journal-font-sans .w-md-editor-text-input {
+        .journal-font-kavoon textarea,
+        .journal-font-kavoon .w-md-editor-text-input,
+        .journal-font-kavoon input[type="number"],
+        .journal-font-kavoon input[type="text"] {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif !important;
         }
+        
         /* Monospace for inline and block code */
-        .journal-font-sans code,
-        .journal-font-sans pre,
-        .journal-font-sans .wmde-markdown code,
-        .journal-font-sans .wmde-markdown pre {
+        .journal-font-kavoon code,
+        .journal-font-kavoon pre,
+        .journal-font-kavoon .wmde-markdown code,
+        .journal-font-kavoon .wmde-markdown pre {
           font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
         }
         .journal-video { width: 100%; height: auto; display: block; background: #000; border-radius: 8px; }
         /* Ensure markdown preview uses dark background */
-        .journal-font-sans .wmde-markdown { background-color: transparent !important; }
+        .journal-font-kavoon .wmde-markdown { background-color: transparent !important; }
       `}</style>
     </div>
   )
