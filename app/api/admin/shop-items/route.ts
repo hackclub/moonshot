@@ -15,6 +15,10 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
+    if (!items) {
+      return NextResponse.json({ error: 'Failed to fetch shop items' }, { status: 500 });
+    }
+
     // Calculate current inventory for each item dynamically
     const itemsWithInventory = await Promise.all(
       items.map(async (item) => {
@@ -53,6 +57,10 @@ export async function POST(request: NextRequest) {
     const authResult = await verifyShopItemAdminAccess();
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    }
+    
+    if (!authResult.user) {
+      return NextResponse.json({ error: 'User data not available' }, { status: 500 });
     }
     
     const user = authResult.user;
