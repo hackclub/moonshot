@@ -51,18 +51,18 @@ app.prepare().then(async () => {
       } catch {}
     }
     
-    // Debug: log what we're about to set (check path only, not full URL)
-    if (req.url && req.url.startsWith('/api/auth/')) {
-      console.log('[server.js] BEFORE header normalization:', {
-        url: req.url,
-        host: req.headers['host'],
-        xForwardedHost: req.headers['x-forwarded-host'],
-        xForwardedProto: req.headers['x-forwarded-proto'],
-        canonicalHost,
-        canonicalProto,
-        nextauthUrl
-      });
-    }
+    // // Debug: log what we're about to set (check path only, not full URL)
+    // if (req.url && req.url.startsWith('/api/auth/')) {
+    //   console.log('[server.js] BEFORE header normalization:', {
+    //     url: req.url,
+    //     host: req.headers['host'],
+    //     xForwardedHost: req.headers['x-forwarded-host'],
+    //     xForwardedProto: req.headers['x-forwarded-proto'],
+    //     canonicalHost,
+    //     canonicalProto,
+    //     nextauthUrl
+    //   });
+    // }
     
     if (canonicalHost) {
       req.headers['x-forwarded-host'] = canonicalHost;
@@ -75,15 +75,15 @@ app.prepare().then(async () => {
       req.headers['x-forwarded-port'] = '443';
     }
     
-    // Debug: log what we set
-    if (req.url && req.url.startsWith('/api/auth/')) {
-      console.log('[server.js] AFTER header normalization:', {
-        host: req.headers['host'],
-        xForwardedHost: req.headers['x-forwarded-host'],
-        xForwardedProto: req.headers['x-forwarded-proto'],
-        xForwardedPort: req.headers['x-forwarded-port']
-      });
-    }
+    // // Debug: log what we set
+    // if (req.url && req.url.startsWith('/api/auth/')) {
+    //   console.log('[server.js] AFTER header normalization:', {
+    //     host: req.headers['host'],
+    //     xForwardedHost: req.headers['x-forwarded-host'],
+    //     xForwardedProto: req.headers['x-forwarded-proto'],
+    //     xForwardedPort: req.headers['x-forwarded-port']
+    //   });
+    // }
 
     // Optional Basic HTTP Auth using BASICAUTH_USERNAME and BASICAUTH_PASSWORD
     const basicUser = process.env.BASICAUTH_USERNAME;

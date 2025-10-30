@@ -454,6 +454,8 @@ model ShopItem {
   active      Boolean  @default(true)
   useRandomizedPricing Boolean @default(true) // whether to apply price randomization
   config      Json?
+  maxInventory Int?    // Optional maximum inventory count (global across all users, null means unlimited)
+  maxPurchasesPerUser Int? // Optional maximum purchases per user (null means unlimited)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

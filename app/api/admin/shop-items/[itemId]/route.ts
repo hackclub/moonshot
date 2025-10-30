@@ -17,7 +17,7 @@ export async function PUT(
     const user = authResult.user;
 
     const { itemId } = params;
-    const { name, description, image, price, usdCost, costType, config, active, useRandomizedPricing } = await request.json();
+    const { name, description, image, price, usdCost, costType, config, active, useRandomizedPricing, maxInventory, maxPurchasesPerUser } = await request.json();
 
     // Validate required fields
     if (!name || !description || price === undefined || price === null) {
@@ -29,6 +29,19 @@ export async function PUT(
     if (price <= 0) {
       return NextResponse.json({ 
         error: 'Price must be greater than 0' 
+      }, { status: 400 });
+    }
+
+    // Validate inventory fields
+    if (maxInventory !== undefined && maxInventory !== null && maxInventory < 1) {
+      return NextResponse.json({ 
+        error: 'Max inventory must be 1 or greater' 
+      }, { status: 400 });
+    }
+
+    if (maxPurchasesPerUser !== undefined && maxPurchasesPerUser !== null && maxPurchasesPerUser < 1) {
+      return NextResponse.json({ 
+        error: 'Max purchases per user must be 1 or greater' 
       }, { status: 400 });
     }
 
@@ -47,6 +60,8 @@ export async function PUT(
         config: config || null,
         active: active !== undefined ? active : true,
         useRandomizedPricing: useRandomizedPricing !== undefined ? useRandomizedPricing : true,
+        maxInventory: maxInventory !== undefined ? maxInventory : undefined,
+        maxPurchasesPerUser: maxPurchasesPerUser !== undefined ? maxPurchasesPerUser : undefined,
       },
     });
 
@@ -60,6 +75,8 @@ export async function PUT(
       if (previousItem.costType !== costType) changedFields.costType = { old: previousItem.costType, new: costType };
       if (JSON.stringify(previousItem.config) !== JSON.stringify(config)) changedFields.config = { old: previousItem.config, new: config };
       if (previousItem.active !== active) changedFields.active = { old: previousItem.active, new: active };
+      if (previousItem.maxInventory !== maxInventory) changedFields.maxInventory = { old: previousItem.maxInventory, new: maxInventory };
+      if (previousItem.maxPurchasesPerUser !== maxPurchasesPerUser) changedFields.maxPurchasesPerUser = { old: previousItem.maxPurchasesPerUser, new: maxPurchasesPerUser };
     }
 
     await createAuditLog({

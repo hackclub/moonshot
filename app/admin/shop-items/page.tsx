@@ -16,6 +16,10 @@ interface ShopItem {
   usdCost?: number;
   costType?: 'fixed' | 'config';
   config?: unknown;
+  maxInventory?: number | null;
+  maxPurchasesPerUser?: number | null;
+  availableInventory?: number | null;  // Calculated dynamically from orders
+  soldQuantity?: number;                // Total sold (from orders)
   createdAt: string;
   updatedAt: string;
 }
@@ -79,6 +83,8 @@ export default function ShopItemsPage() {
     costType: 'fixed' | 'config';
     config: string;
     useRandomizedPricing: boolean;
+    maxInventory: string;
+    maxPurchasesPerUser: string;
   }>({
     name: '',
     description: '',
@@ -88,6 +94,8 @@ export default function ShopItemsPage() {
     costType: 'fixed',
     config: '',
     useRandomizedPricing: true,
+    maxInventory: '',
+    maxPurchasesPerUser: '',
   });
   const [orders, setOrders] = useState<ShopOrder[]>([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
@@ -338,6 +346,8 @@ export default function ShopItemsPage() {
         costType: formData.costType,
         config,
         useRandomizedPricing: formData.useRandomizedPricing,
+        maxInventory: formData.maxInventory ? parseInt(formData.maxInventory) : null,
+        maxPurchasesPerUser: formData.maxPurchasesPerUser ? parseInt(formData.maxPurchasesPerUser) : null,
       };
 
       const url = editingItem 
@@ -358,7 +368,7 @@ export default function ShopItemsPage() {
       }
 
       // Reset form and close modal
-      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true });
+      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '' });
       setEditingItem(null);
       setShowAddModal(false);
       
@@ -380,6 +390,8 @@ export default function ShopItemsPage() {
       costType: item.costType || 'fixed',
       config: item.config ? JSON.stringify(item.config, null, 2) : '',
       useRandomizedPricing: item.useRandomizedPricing ?? true,
+      maxInventory: (item.maxInventory !== null && item.maxInventory !== undefined) ? item.maxInventory.toString() : '',
+      maxPurchasesPerUser: (item.maxPurchasesPerUser !== null && item.maxPurchasesPerUser !== undefined) ? item.maxPurchasesPerUser.toString() : '',
     });
     setShowAddModal(true);
   };
@@ -416,6 +428,8 @@ export default function ShopItemsPage() {
           costType: item.costType,
           config: item.config,
           active: !item.active,
+          maxInventory: item.maxInventory,
+          maxPurchasesPerUser: item.maxPurchasesPerUser,
         }),
       });
 
@@ -450,7 +464,7 @@ export default function ShopItemsPage() {
         <button
           onClick={() => {
             setEditingItem(null);
-            setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true });
+            setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '' });
             setShowAddModal(true);
           }}
           className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
@@ -559,6 +573,9 @@ export default function ShopItemsPage() {
                 Pricing Mode
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
+                Inventory
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">
@@ -610,6 +627,24 @@ export default function ShopItemsPage() {
                   }`}>
                     {item.useRandomizedPricing ? 'Randomized' : 'Static'}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {item.maxInventory !== null && item.maxInventory !== undefined ? (
+                    <div className="flex flex-col">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        (item.availableInventory ?? 0) === 0
+                          ? 'bg-red-100 text-red-800'
+                          : (item.availableInventory ?? 0) < 10
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {item.availableInventory ?? 0} left of {item.maxInventory}
+                      </span>
+                      <span className="text-xs text-white/50 mt-1">({item.soldQuantity ?? 0} sold)</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-white/70">Unlimited</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
@@ -786,13 +821,43 @@ export default function ShopItemsPage() {
                   }
                   return null;
                 })()}
+                <div>
+                  <label className="block text-sm font-medium text-white">Max Inventory (optional)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={formData.maxInventory}
+                    onChange={(e) => setFormData({ ...formData, maxInventory: e.target.value })}
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
+                    placeholder="Leave empty for unlimited"
+                  />
+                  <p className="text-xs text-white/70 mt-1">
+                    Maximum number of this item that can be sold globally across all users. Available inventory is calculated automatically from orders. Leave empty for unlimited inventory.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white">Max Purchases Per User (optional)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={formData.maxPurchasesPerUser}
+                    onChange={(e) => setFormData({ ...formData, maxPurchasesPerUser: e.target.value })}
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
+                    placeholder="Leave empty for unlimited"
+                  />
+                  <p className="text-xs text-white/70 mt-1">
+                    Maximum number of this item that each individual user can purchase. Leave empty for unlimited purchases per user.
+                  </p>
+                </div>
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddModal(false);
                       setEditingItem(null);
-                      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true });
+                      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '' });
                     }}
                     className="px-4 py-2 border border-white/20 rounded-md text-white hover:bg-white/10"
                   >
