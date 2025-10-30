@@ -20,7 +20,7 @@ import argparse
 import json
 import os
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 try:
     import requests  # type: ignore
@@ -39,10 +39,10 @@ DEFAULT_PRESET_ITEMS: List[Dict[str, Any]] = [
         "name": "Test",
         "description": "A collection of exclusive Moonshot stickers.",
         "image": "/stardust.png",
-        "price": 50,
+        # Provide only USD cost; script will compute price using dollars/hour
         "usdCost": 5.00,
         "costType": "fixed",
-        "useRandomizedPricing": False,
+        "useRandomizedPricing": True,
     },
 ]
 
@@ -68,6 +68,30 @@ def create_item(session: requests.Session, base_url: str, item: Dict[str, Any]) 
     return session.post(url, json=item, headers={"Content-Type": "application/json"}, timeout=30)
 
 
+def fetch_global_config(session: "requests.Session", base_url: str) -> Dict[str, str]:
+    """Fetch global config key/value map from the server."""
+    url = f"{base_url.rstrip('/')}/api/admin/global-config"
+    resp = session.get(url, timeout=30)
+    if 200 <= resp.status_code < 300:
+        try:
+            data = resp.json()
+            return data.get("config", {}) or {}
+        except Exception:
+            return {}
+    return {}
+
+
+def calculate_currency_price(usd_cost: float, dollars_per_hour: float) -> int:
+    """Replicates lib/shop-utils.ts calculateCurrencyPrice.
+
+    Formula: currency = round((usdCost / dollarsPerHour) * 256)
+    """
+    if dollars_per_hour <= 0:
+        return 0
+    hours = usd_cost / dollars_per_hour
+    return int(round(hours * 256))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Manage Moonshot shop items via API")
     parser.add_argument(
@@ -81,9 +105,16 @@ def main() -> int:
         action="store_true",
         help="Delete ALL shop items (admin + whitelist required)",
     )
+    parser.add_argument(
+        "--dollars-per-hour",
+        dest="dollars_per_hour",
+        type=float,
+        default=None,
+        help="Override global dollars per hour when computing item price",
+    )
     args = parser.parse_args()
 
-    base_url = os.environ.get("BASE_URL", "https://moonshot.hackclub.com").strip()
+    base_url = os.environ.get("BASE_URL", "http://localhost:3000").strip()
     token = os.environ.get("NEXTAUTH_SESSION_TOKEN", "").strip()
     if not token:
         print("ERROR: NEXTAUTH_SESSION_TOKEN is required (copy it from your browser cookie).", file=sys.stderr)
@@ -111,12 +142,72 @@ def main() -> int:
         else:
             items = DEFAULT_PRESET_ITEMS
 
+        # Determine dollars per hour to use
+        override_dph: Optional[float] = args.dollars_per_hour
+        if override_dph is None:
+            try:
+                cfg = fetch_global_config(session, base_url)
+                dph_str = cfg.get("dollars_per_hour", "")
+                override_dph = float(dph_str) if dph_str else None
+            except Exception:
+                override_dph = None
+
+        # Fallback to 10 (same default used server-side in purchase route) to avoid failures
+        if override_dph is None or override_dph <= 0:
+            override_dph = 10.0
+
         print(f"Creating {len(items)} item(s)...\n")
 
         successes = 0
         for idx, item in enumerate(items, start=1):
             try:
-                resp = create_item(session, base_url, item)
+                # Normalize input: treat existing 'price' as usdCost if usdCost missing
+                if "usdCost" not in item or item.get("usdCost") in (None, 0, ""):
+                    if "price" in item and item.get("price") not in (None, ""):
+                        item["usdCost"] = float(item["price"])  # previous JSON used price for USD
+                    # remove legacy field to avoid confusion; API requires computed price anyway
+                item.pop("price", None)
+
+                # Default cost type and randomized pricing
+                item.setdefault("costType", "fixed")
+                item.setdefault("useRandomizedPricing", True)
+
+                # Compute shell price from usdCost using dollars/hour
+                usd_cost_val = float(item.get("usdCost", 0) or 0)
+                # Determine dollars/hour: prefer per-item config override for dynamic items
+                dollars_per_hour = override_dph if override_dph is not None else 0.0
+                if str(item.get("costType", "fixed")) == "config":
+                    cfg = item.get("config") or {}
+                    if isinstance(cfg, dict) and "dollars_per_hour" in cfg:
+                        try:
+                            dollars_per_hour = float(cfg["dollars_per_hour"])  # type: ignore
+                        except Exception:
+                            pass
+                computed_price = calculate_currency_price(usd_cost_val, dollars_per_hour)
+
+                if computed_price <= 0:
+                    # As a last resort, use default 10 $/hour to compute a positive price
+                    computed_price = calculate_currency_price(usd_cost_val, 10.0)
+
+                # Build payload expected by the API
+                payload = {
+                    "name": item.get("name"),
+                    "description": item.get("description"),
+                    "image": item.get("image") or None,
+                    "price": computed_price,
+                    "usdCost": usd_cost_val,
+                    "costType": item.get("costType", "fixed"),
+                    "config": item.get("config") or None,
+                    "useRandomizedPricing": bool(item.get("useRandomizedPricing", True)),
+                }
+
+                # Optional inventory constraints
+                if "maxInventory" in item and item["maxInventory"] not in (None, ""):
+                    payload["maxInventory"] = int(item["maxInventory"])  # type: ignore
+                if "maxPurchasesPerUser" in item and item["maxPurchasesPerUser"] not in (None, ""):
+                    payload["maxPurchasesPerUser"] = int(item["maxPurchasesPerUser"])  # type: ignore
+
+                resp = create_item(session, base_url, payload)
                 ok = 200 <= resp.status_code < 300
                 status = resp.status_code
                 body = {}
