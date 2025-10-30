@@ -125,6 +125,70 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Calculate available inventory dynamically (this ALWAYS takes precedence)
+    // This approach automatically handles refunds/cancellations correctly
+    let availableInventory: number | null = null;
+    if (item.maxInventory !== null && item.maxInventory !== undefined) {
+      // Count total quantity of this item that has been ordered (all orders, any status)
+      const totalOrdered = await prisma.shopOrder.aggregate({
+        where: {
+          itemId: item.id,
+        },
+        _sum: {
+          quantity: true,
+        },
+      });
+
+      const quantitySold = totalOrdered._sum.quantity || 0;
+      availableInventory = item.maxInventory - quantitySold;
+
+      if (availableInventory < quantity) {
+        return NextResponse.json({ 
+          error: 'Insufficient inventory', 
+          availableInventory: availableInventory,
+          requestedQuantity: quantity
+        }, { status: 400 });
+      }
+    }
+
+    // Check per-user purchase limit (but inventory always trumps this)
+    if (item.maxPurchasesPerUser !== null && item.maxPurchasesPerUser !== undefined) {
+      // Count how many of this item the user has already purchased
+      const userPurchaseCount = await prisma.shopOrder.aggregate({
+        where: {
+          userId: user.id,
+          itemId: item.id,
+        },
+        _sum: {
+          quantity: true,
+        },
+      });
+
+      const totalPurchased = userPurchaseCount._sum.quantity || 0;
+      let remainingAllowance = item.maxPurchasesPerUser - totalPurchased;
+
+      // IMPORTANT: Global inventory always trumps per-user limit
+      // If there's less inventory available than the user's remaining allowance, cap it
+      if (availableInventory !== null) {
+        remainingAllowance = Math.min(remainingAllowance, availableInventory);
+      }
+
+      if (quantity > remainingAllowance) {
+        // Determine which limit was hit for better error message
+        const hitInventoryLimit = availableInventory !== null && 
+                                   availableInventory < (item.maxPurchasesPerUser - totalPurchased);
+        
+        return NextResponse.json({ 
+          error: hitInventoryLimit ? 'Insufficient inventory (less than your purchase limit)' : 'Purchase limit exceeded',
+          maxPurchasesPerUser: item.maxPurchasesPerUser,
+          alreadyPurchased: totalPurchased,
+          remainingAllowance: remainingAllowance,
+          requestedQuantity: quantity,
+          ...(availableInventory !== null && { availableInventory })
+        }, { status: 400 });
+      }
+    }
+
     // Prepare order config for dynamic items
     function safeConfigObject(config: unknown) {
       return (config && typeof config === 'object' && !Array.isArray(config)) ? config : {};
@@ -138,27 +202,35 @@ export async function POST(request: NextRequest) {
       // Add more dynamic item types as needed
     }
 
-    // Create shop order
-    const order = await prisma.shopOrder.create({
-      data: {
-        userId: user.id,
-        itemId: item.id,
-        itemName: item.name,
-        price: totalPrice,
-        quantity,
-        config: orderConfig,
-      },
-    });
+    // Use transaction to atomically create order, update user currency, and decrement inventory
+    const order = await prisma.$transaction(async (tx) => {
+      // Create shop order
+      const newOrder = await tx.shopOrder.create({
+        data: {
+          userId: user.id,
+          itemId: item.id,
+          itemName: item.name,
+          price: totalPrice,
+          quantity,
+          config: orderConfig,
+        },
+      });
 
-    // Update user's total currency spent (progress will be applied when order is fulfilled)
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        totalCurrencySpent: {
-          increment: totalPrice
+      // Update user's total currency spent
+      await tx.user.update({
+        where: { id: user.id },
+        data: {
+          totalCurrencySpent: {
+            increment: totalPrice
+          }
+          // Note: purchasedProgressHours is NOT incremented here - it will be applied when the order is fulfilled
         }
-        // Note: purchasedProgressHours is NOT incremented here - it will be applied when the order is fulfilled
-      }
+      });
+
+      // No need to decrement inventory - it's calculated dynamically from orders!
+      // This automatically handles refunds/cancellations correctly
+
+      return newOrder;
     });
 
     // Log audit event
