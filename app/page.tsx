@@ -1,559 +1,1019 @@
-"use client";
-import { useState, useEffect, Suspense } from "react";
-import LoadingModal from "@/components/common/LoadingModal";
-import Link from "next/link";
-import Image from "next/image";
-import { useSearchParams } from 'next/navigation';
+'use client'
 
-const loadingMessages = [
-  "Fueling the rocket...",
-  "Running preflight checks...",
-  "Plotting a course to the Moon...",
-  "Calibrating star trackers...",
-  "Docking with the ISS...",
-  "Counting down to liftoff...",
-  "Aligning orbits...",
-  "Cooling liquid oxygen tanks...",
-  "Checking spacesuit seals...",
-  "Deploying solar arrays...",
-  "Queuing for Hogsmeade...",
-  "Practicing Wingardium Leviosa...",
-  "Sipping Butterbeer...",
-  "Dodging Dementors on the Forbidden Journey...",
-  "Polishing the Elder Wand...",
-  "Wrangling mischievous Minions...",
-  "Loading bananas for the Minions...",
-  "Starting the Gringotts cart...",
-  "Racing through Diagon Alley...",
-  "Boarding the Hogwarts Express...",
-];
+import Link from 'next/link'
+import { useEffect, useRef, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import remarkGfm from 'remark-gfm'
+import LoadingOverlay from '@/components/common/LoadingOverlay'
+import AccessDenied from '@/components/common/AccessDenied'
+import { useSession } from 'next-auth/react'
+import { apiFetch } from '@/lib/apiFetch'
 
-function RSVPLink() {
-  const searchParams = useSearchParams();
-  const launchpadLink = searchParams.toString() ? `/launchpad?${searchParams.toString()}` : '/launchpad';
-  const [isLaunching, setIsLaunching] = useState(false);
-  
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log('Button clicked, starting rocket animation');
-    setIsLaunching(true);
-    
-    // Start rocket animation immediately
-    setTimeout(() => {
-      console.log('Rocket animation complete, navigating to Launchpad');
-      window.location.href = launchpadLink;
-    }, 2000);
-  };
-  
-  return (
-    <>
-      <a
-        href={launchpadLink}
-        onClick={handleClick}
-        className={`rsvp-btn ${isLaunching ? 'launching' : 'animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused]'} font-kavoon tracking-wide uppercase transition-all duration-300 ease-out rounded-2xl border-2 border-white/80 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(147,51,234,0.3)] hover:brightness-125 hover:shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_40px_rgba(59,130,246,0.6),0_0_80px_rgba(147,51,234,0.5)] active:translate-y-0.5 inline-block overflow-hidden`}
-        style={{
-          background: isLaunching ? 'linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FFD23F 100%)' : 'linear-gradient(135deg, #0B0F1A 0%, #111827 50%, #0B1220 100%)',
-          textShadow: '0 0 15px rgba(255,255,255,0.5), 0 0 30px rgba(59,130,246,0.3)'
-        }}
-      >
-        <span className="relative z-10">
-          {isLaunching ? '🚀 LAUNCHING...' : 'Land on Moonshot'}
-        </span>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
-        {isLaunching && (
-          <div className="absolute inset-0 bg-gradient-to-t from-orange-500/30 via-yellow-400/20 to-transparent animate-pulse"></div>
-        )}
-      </a>
-      
-      {/* Rocket Animation */}
-      {isLaunching && (
-        <div className="rocket-container">
-          <div className="rocket">🚀</div>
-        </div>
-      )}
-    </>
-  );
-}
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
+const DynamicMarkdown = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false })
 
-export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [scrollPercent, setScrollPercent] = useState(0);
-  const isLocalEnv = process.env.NODE_ENV === 'development';
-  const percentage = 50
-
-  const handleLoadComplete = () => {
-    setIsLoading(false);
-  };
+function JournalEditorPage() {
+  const { data: session, status } = useSession()
+  const [content, setContent] = useState<string>('')
+  const searchParams = useSearchParams()
+  const initialProjectId = searchParams.get('projectId') || ''
+  const modeParam = searchParams.get('mode') || ''
+  const isReviewOnly = modeParam === 'review'
+  const [projectId, setProjectId] = useState<string>(initialProjectId)
+  const [projects, setProjects] = useState<Array<{ projectID: string; name: string; in_review?: boolean; chat_enabled?: boolean }>>([])
+  const [isLoadingProjects, setIsLoadingProjects] = useState<boolean>(true)
+  const [isDragging, setIsDragging] = useState<boolean>(false)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
+  const [showUploadModal, setShowUploadModal] = useState<boolean>(false)
+  const [uploadTotalFiles, setUploadTotalFiles] = useState<number>(0)
+  const [uploadCompletedFiles, setUploadCompletedFiles] = useState<number>(0)
+  const [isPublishing, setIsPublishing] = useState<boolean>(false)
+  const [publishTick, setPublishTick] = useState<number>(0)
+  const [hoursWorked, setHoursWorked] = useState<string>('')
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      const effectiveScrollHeight = scrollHeight - clientHeight;
-      setScrollPercent(effectiveScrollHeight > 0 ? scrollTop / effectiveScrollHeight : 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-
-  // Minimal markdown -> HTML for headings, lists, and paragraphs
-  const markdownToHtml = (md: string): string => {
-    const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const italic = (s: string) => s.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    const linkify = (s: string) =>
-      s
-        // Markdown-style links [text](url|mailto:)
-        .replace(/\[([^\]]+)\]\(((?:https?:\/\/|mailto:)[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1<\/a>')
-        // Plain URLs
-        .replace(/(?<![\">])(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1<\/a>')
-        // Plain emails
-        .replace(/(?<![\w@.>])(\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b)/g, '<a href="mailto:$1">$1<\/a>');
-    const lines = md.split(/\r?\n/);
-    let html = '';
-    let inList = false;
-    let inSection = false;
-    const flushList = () => { if (inList) { html += '</ul>'; inList = false; } };
-    const openSection = () => { if (!inSection) { html += '<div class="faq-section">'; inSection = true; } };
-    const closeSection = () => { flushList(); if (inSection) { html += '</div>'; inSection = false; } };
-    for (let raw of lines) {
-      const line = raw.replace(/\s+$/,'');
-      if (/^\s*$/.test(line)) { flushList(); continue; }
-      const h = line.match(/^(#{1,6})\s+(.+)/);
-      if (h) {
-        const level = h[1].length;
-        const text = linkify(italic(esc(h[2])));
-        if (level === 1) { // top heading
-          closeSection();
-          html += `<h2 class="faq-title">${text}</h2>`;
-        } else if (level >= 3) { // treat ### as question headers
-          closeSection();
-          html += `<h3 class="faq-question">${text}</h3>`;
-          openSection();
-        } else {
-          closeSection();
-          html += `<h3>${text}</h3>`;
-        }
-        continue;
-      }
-      const li = line.match(/^[-*]\s+(.+)/);
-      if (li) {
-        openSection();
-        if (!inList) { html += '<ul class="faq-list">'; inList = true; }
-        html += `<li>${linkify(italic(esc(li[1])))}</li>`;
-        continue;
-      }
-      openSection();
-      const withBreaks = linkify(italic(esc(line))).replace(/\s\s$/,'<br/>');
-      html += `<p class="faq-paragraph">${withBreaks}</p>`;
+    // Find UIW inner textarea for caret insertion
+    if (!containerRef.current) return
+    const el = containerRef.current.querySelector('.w-md-editor-text-input') as HTMLTextAreaElement | null
+    if (el) {
+      textareaRef.current = el
     }
-    closeSection();
-    return html;
-  };
+  })
 
-  const bannerOpacity = Math.max(0, Math.min(1, (0.75 - scrollPercent) / 0.1));
-
-  const imageUrls = [
-    "/logo.svg",
-    "/star-tile.png",
-    "/off-to-moonshot-overlay.webp",
-    "/moonpheus-nosticker.webp",
-    "/topright-cloud.webp",
-    "/bottom-clouds.webp",
-    "/roller-coaster.webp",
-    "/more-bottom-clouds.webp",
-    "/cat-stronaut.webp",
-    "/orph.webp",
-    "/character.webp",
-    "https://assets.hackclub.com/banners/2025.svg",
-  ];
-
-  if (isLoading) {
-    return (
-      <LoadingModal
-        titles={loadingMessages}
-        imageUrls={imageUrls}
-        onLoadComplete={handleLoadComplete}
-      />
-    );
+  // Ensure clicks anywhere in the editor area place the caret in the text input
+  const handleEditorMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    // Let toolbar and textarea clicks behave natively
+    if (target.closest('.w-md-editor-toolbar')) return
+    if (target.tagName === 'TEXTAREA' || target.closest('.w-md-editor-text-input')) return
+    // For clicks on the empty container/background, just focus without changing caret
+    if (textareaRef.current) {
+      const el = textareaRef.current
+      requestAnimationFrame(() => {
+        try { el.focus() } catch {}
+      })
+    }
   }
 
-  return (
-    <div className="theme-reset">
-      <main className="h-[100svh] overflow-hidden bg-[#130B2C] text-sand" style={{ fontFamily: 'var(--font-kavoon), Kavoon, cursive' }}>
-        {/* Global FAQ button (visible on both hero and RSVP views) */}
-        <Link
-          href="/faq"
-          className="fixed top-4 right-4 z-[200] font-kavoon uppercase tracking-wide text-white bg-black/70 hover:bg-black/80 transition px-4 py-2 rounded-lg border-2 border-white/90 shadow-[0_4px_12px_rgba(0,0,0,0.5)] ring-2 ring-black/30"
-        >
-          FAQ
-        </Link>
-        {bannerOpacity > 0 && (
-          <Link href="https://hackclub.com">
-            <img
-              style={{
-                position: "absolute",
-                top: "20px",
-                left: "0",
-                border: "0",
-                zIndex: "999",
-                opacity: bannerOpacity,
-                transition: "opacity 0.2s ease-out"
-              }}
-              className="hack-flag"
-              src="https://assets.hackclub.com/banners/2025.svg"
-              alt="Hack Club"
-            />
-          </Link>
-        )}
-        {isLocalEnv && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: "20px",
-              right: "20px",
-              backgroundColor: "rgba(0, 0, 0, 0.7)",
-              color: "white",
-              padding: "8px 16px",
-              borderRadius: "4px",
-              fontSize: "14px",
-              zIndex: "999",
-              fontFamily: "var(--font-kavoon)"
-            }}
-          >
-            LOCAL
-          </div>
-        )}
-        <div
-            className="relative w-screen h-full flex items-center justify-center overflow-hidden"
-            style={{
-              backgroundImage: 'url("/star-tile.png")',
-              backgroundRepeat: 'repeat',
-              backgroundSize: '256px 256px',
-              backgroundColor: '#130B2C'
-            }}
-          >
-          {/* Title overlay */}
-          <Image
-            src="/off-to-moonshot-overlay.webp"
-            alt="Off to Moonshot!"
-            width={1200}
-            height={400}
-            priority
-            sizes="80vw"
-            className="pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-[80px] w-[80vw] max-w-[900px] h-auto z-50 hero-title"
-          />
-          {/* Moon (moonpheus) behind top-right clouds */}
-          <Image
-            src="/moonpheus-nosticker.webp"
-            alt="Moon"
-            width={400}
-            height={400}
-            priority
-            sizes="25vw"
-            className="pointer-events-none select-none absolute top-6 right-[12vw] w-[105px] md:w-[150px] xl:w-[220px] xl:right-[20vw] h-auto z-0 opacity-90 spin-slow"
-          />
-          
-          {/* Top-right clouds overlay */}
-          <Image
-            src="/topright-cloud.webp"
-            alt=""
-            width={1200}
-            height={800}
-            priority
-            sizes="50vw"
-            className="pointer-events-none select-none absolute top-0 right-0 max-w-[75vw] md:max-w-[60vw] w-auto h-auto z-35 opacity-90 cloud-tr ultra-hide"
-          />
-          {/* Simple bottom clouds: no scaling, raw images anchored to bottom */}
-          <Image
-            src="/bottom-clouds.webp"
-            alt=""
-            width={1600}
-            height={800}
-            priority
-            sizes="200vw"
-            className="pointer-events-none select-none absolute bottom-0 left-1/2 -translate-x-1/2 z-20 w-[220vw] md:w-[200vw] h-auto opacity-50 cloud-back"
-          />
-          {/* Rollercoaster anchored to bottom, between back and front clouds */}
-          <div className="pointer-events-none select-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[140vw] md:w-[120vw] max-w-[1400px]" style={{ zIndex: 25 }}>
-            <Image
-              src="/roller-coaster.webp"
-              alt=""
-              width={1600}
-              height={800}
-              priority
-              sizes="1600px"
-              className="w-full h-auto"
-            />
-          </div>
-          <Image
-            src="/more-bottom-clouds.webp"
-            alt=""
-            width={1600}
-            height={800}
-            priority
-            sizes="220vw"
-            className="pointer-events-none select-none absolute -bottom-6 left-1/2 -translate-x-1/2 z-30 w-[240vw] md:w-[220vw] h-auto opacity-50 cloud-front"
-          />
-          
-          {/* Decorative astronauts with gentle wiggle */}
-          <Image
-            src="/cat-stronaut.webp"
-            alt="Cat-stronaut"
-            width={200}
-            height={200}
-            priority
-            sizes="20vw"
-            className="pointer-events-none select-none absolute top-28 md:top-32 xl:top-48 left-6 w-[180px] md:w-[270px] xl:w-[360px] h-auto z-40 wiggle-slow"
-          />
-          <Image
-            src="/orph.webp"
-            alt="Orph astronaut"
-            width={220}
-            height={220}
-            priority
-            sizes="20vw"
-            className="pointer-events-none select-none absolute bottom-[12vh] md:bottom-[14vh] xl:bottom-[22vh] right-6 w-[202px] md:w-[294px] xl:w-[360px] h-auto z-40 wiggle-slow ultra-hide"
-          />
-          
-          <p className="font-quintessential absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[10%] w-11/12 md:w-auto max-w-xl text-center text-xl md:text-2xl text-black">
-            
-          </p>
-          <Suspense fallback={
-            <a
-              href="/launchpad"
-              className="rsvp-btn animate-bounce hover:[animation-play-state:paused] focus:[animation-play-state:paused] font-kavoon tracking-wide uppercase transition-all duration-300 ease-out rounded-2xl border-2 border-white/80 bg-gradient-to-b from-[#0B0F1A] via-[#111827] to-[#0B1220] text-white px-6 py-3 md:px-10 md:py-4 text-2xl md:text-4xl shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(147,51,234,0.3)] hover:brightness-125 hover:shadow-[0_10px_0_rgba(0,0,0,0.4),0_0_40px_rgba(59,130,246,0.6),0_0_80px_rgba(147,51,234,0.5)] active:translate-y-0.5 inline-block overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, #0B0F1A 0%, #111827 50%, #0B1220 100%)',
-                textShadow: '0 0 15px rgba(255,255,255,0.5), 0 0 30px rgba(59,130,246,0.3)'
-              }}
-            >
-              <span className="relative z-10">Land on Moonshot</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
-            </a>
-          }>
-            <RSVPLink />
-          </Suspense>
+  // Load user's projects for selection
+  useEffect(() => {
+    (async () => {
+      if (status !== 'authenticated') return
+      try {
+        setIsLoadingProjects(true)
+        const res = await apiFetch('/api/projects')
+        if (res.ok) {
+          const data = await res.json()
+          setProjects(Array.isArray(data) ? data : [])
+          if (!initialProjectId && Array.isArray(data) && data.length > 0) {
+            setProjectId(data[0].projectID)
+          }
+        } else {
+          setProjects([])
+        }
+      } finally {
+        setIsLoadingProjects(false)
+      }
+    })()
+  }, [status, initialProjectId])
 
-          {/* Bottom-center scrolling MOTD ticker */}
-          <div className="pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-3 z-[95] bg-black/40 text-white rounded-full px-4 py-1 backdrop-blur-sm motd-container">
-            <div className="motd-track overflow-hidden w-[41vw] max-w-[450px]">
-              <div className="motd-ticker ticker-text inline-block whitespace-nowrap text-sm md:text-base tracking-wide font-kavoon">
-                <span>
-                  Come join us in Florida!  Visit NASA KSC and explore Universal Studios!  Teens only, you must be 13-18 to participate!  Totally free!!!
-                </span>
-              </div>
+  if (status === 'loading') return <LoadingOverlay />
+  if (status === 'unauthenticated') return <AccessDenied />
+
+  return (
+    <div className="min-h-screen text-white relative">
+      {/* Cosmic Background Layers */}
+      <div className="journal-stellar-background" aria-hidden="true">
+        <div className="journal-nebula-layer"></div>
+        <div className="journal-starfield-layer"></div>
+        <div className="journal-shooting-stars"></div>
+      </div>
+      <div className="journal-font-kavoon max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-8 relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="journal-title-enhanced font-kavoon inline-flex items-center gap-3">
+            <span>Journal Editor</span>
+            <img src="/workingCat.png" alt="Journal icon" className="journal-title-icon" />
+          </h1>
+          <Link
+            href="/launchpad"
+            className="journal-back-button"
+          >
+            ← Back to Launchpad
+          </Link>
+        </div>
+
+        {/* Hours worked at the top */}
+        {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
+        <div className="mb-4">
+          <label className="block text-sm text-white/80 mb-2">Hours worked</label>
+          <input
+            type="number"
+            step="0.25"
+            min="0"
+            value={hoursWorked}
+            onChange={(e) => setHoursWorked(e.target.value)}
+            placeholder="e.g. 1.5"
+            className="journal-hours-input"
+            required
+          />
+          <div className="mt-6 text-xs text-white/60">Enter a positive number - partial hours allowed (e.g., 0.5).</div>
+        </div>
+        )}
+
+        {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
+        <div
+          ref={containerRef}
+          className={`journal-editor-container relative ${isDragging ? 'ring-2 ring-blue-500' : ''}`}
+          data-color-mode="dark"
+          onMouseDown={handleEditorMouseDown}
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={async (e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const files = Array.from(e.dataTransfer.files || [])
+            if (files.length === 0) return;
+            setUploadTotalFiles(files.length)
+            setUploadCompletedFiles(0)
+            setShowUploadModal(true)
+            setIsUploading(true)
+
+            for (const file of files) {
+              try {
+                // 1) Upload to temp storage
+                const form = new FormData()
+                form.append('file', file)
+                const presignRes = await apiFetch('/api/uploads', { method: 'POST', body: form })
+                if (!presignRes.ok) {
+                  setUploadCompletedFiles((n) => n + 1)
+                  continue
+                }
+                const { tempUrl } = await presignRes.json()
+
+                // 2) Ask CDN to ingest
+                const cdnRes = await apiFetch('/api/cdn/ingest', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ tempPath: tempUrl })
+                })
+                if (!cdnRes.ok) {
+                  let errMsg = 'Failed to upload to CDN'
+                  try {
+                    const body = await cdnRes.json()
+                    if (body?.error) errMsg += `: ${body.error}`
+                    if (body?.details) errMsg += ` — ${body.details}`
+                  } catch {}
+                  alert(errMsg)
+                  setUploadCompletedFiles((n) => n + 1)
+                  continue
+                }
+                const cdn = await cdnRes.json()
+                const deployedUrl = cdn?.deployedUrl || `${location.origin}${tempUrl}`
+
+                // 3) Insert media at caret (or append)
+                let markdown = ''
+                if (file.type.startsWith('image')) {
+                  markdown = `![](${deployedUrl})`
+                } else if (file.type.startsWith('video')) {
+                  // Try to discover natural aspect ratio
+                  let aspect = '16/9'
+                  try {
+                    const probe = document.createElement('video')
+                    probe.preload = 'metadata'
+                    probe.src = deployedUrl
+                    await new Promise<void>((resolve, reject) => {
+                      probe.onloadedmetadata = () => {
+                        const w = probe.videoWidth || 16
+                        const h = probe.videoHeight || 9
+                        if (w > 0 && h > 0) aspect = `${w}/${h}`
+                        resolve()
+                      }
+                      probe.onerror = () => resolve()
+                    })
+                  } catch {}
+                  markdown = `<video class="journal-video" controls playsinline style="aspect-ratio: ${aspect};" src="${deployedUrl}"></video>`
+                } else {
+                  markdown = `[${file.name}](${deployedUrl})`
+                }
+                const el = textareaRef.current
+                if (el) {
+                  const start = el.selectionStart ?? content.length
+                  const end = el.selectionEnd ?? content.length
+                  const before = content.slice(0, start)
+                  const after = content.slice(end)
+                  const next = `${before}${markdown}${after}`
+                  setContent(next)
+                  setTimeout(() => {
+                    try { el.focus(); const pos = (before + markdown).length; el.setSelectionRange(pos, pos) } catch {}
+                  })
+                } else {
+                  setContent((prev) => `${prev}\n\n${markdown}`)
+                }
+              } catch (_) {
+                // ignore per-file errors
+              } finally {
+                setUploadCompletedFiles((n) => n + 1)
+              }
+            }
+            setShowUploadModal(false)
+            setIsUploading(false)
+          }}
+        >
+          {isDragging && (
+            <div className="pointer-events-none absolute inset-0 bg-blue-500/10 border-2 border-dashed border-blue-400 rounded-lg flex items-center justify-center text-blue-200 text-sm">
+              Drop files to upload
+            </div>
+          )}
+          <MDEditor
+            value={content}
+            onChange={(v) => setContent(v || '')}
+            height={500}
+            preview="edit"
+            previewOptions={{ remarkPlugins: [remarkGfm] }}
+          />
+        </div>
+        )}
+
+        {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
+          <>
+            <h4 className="mt-6 text-sm font-semibold text-white/80">Markdown preview</h4>
+            <div className="mt-2 bg-black/60 border border-white/10 rounded-lg p-4 prose prose-invert max-w-none" data-color-mode="dark">
+              <DynamicMarkdown source={content} />
+            </div>
+          </>
+        )}
+
+        {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
+        <div className="mt-4 flex items-center gap-3">
+          <button
+              className="journal-publish-button"
+              disabled={
+                isPublishing ||
+                isUploading ||
+                !projectId ||
+                content.trim().length === 0 ||
+                content.trim().length > 10000 ||
+                hoursWorked === '' ||
+                isNaN(Number(hoursWorked)) ||
+                Number(hoursWorked) <= 0 ||
+                Number(hoursWorked) > 24
+              }
+            onClick={async () => {
+              const text = content.trim()
+                if (!projectId || text.length === 0) return
+                const hoursNum = Number(hoursWorked)
+                if (
+                  hoursWorked === '' ||
+                  isNaN(hoursNum) ||
+                  hoursNum <= 0 ||
+                  hoursNum > 24
+                ) {
+                  alert('Please enter hours worked between 0 and 24.')
+                  return
+                }
+              if (text.length > 10000) {
+                alert('Message too long. Maximum 10,000 characters allowed.')
+                return
+              }
+              try {
+                setIsPublishing(true)
+                const res = await apiFetch(`/api/projects/${projectId}/chat/messages`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: text, hours: hoursNum }),
+                })
+                if (!res.ok) {
+                  const body = await res.json().catch(() => ({} as any))
+                  alert(body?.error || 'Failed to publish entry')
+                  return
+                }
+                setPublishTick(t => t + 1)
+                setContent('')
+                  setHoursWorked('')
+                // Scroll editor into view after publish
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              } catch (e) {
+                alert('Failed to publish entry')
+              } finally {
+                setIsPublishing(false)
+              }
+            }}
+          >
+            {isPublishing ? 'Publishing…' : 'Publish'}
+          </button>
+        </div>
+        )}
+
+        {/* Project Chat Panel */}
+        <div className="mt-8 bg-black/60 border border-white/10 rounded-lg">
+          <div className="flex items-center justify-between p-3 border-b border-white/10">
+            <h2 className="text-lg font-semibold">Journal Entries</h2>
+          </div>
+          <ProjectChatInline projectId={projectId} refreshTrigger={publishTick} isReviewOnly={isReviewOnly} />
+        </div>
+      </div>
+      {/* Blocking upload modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+          <div className="w-full max-w-sm bg-black border border-white/10 rounded-lg p-5 text-white">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              <div className="text-sm">Uploading media to CDN…</div>
+            </div>
+            <div className="text-xs text-white/60 mb-2">{uploadCompletedFiles} / {uploadTotalFiles} completed</div>
+            <div className="w-full h-2 bg-white/10 rounded">
+              <div
+                className="h-2 bg-blue-500 rounded transition-all"
+                style={{ width: `${uploadTotalFiles > 0 ? Math.min(100, Math.round((uploadCompletedFiles / uploadTotalFiles) * 100)) : 0}%` }}
+              />
             </div>
           </div>
         </div>
-
-      </main>
+      )}
+      {/* Scoped font overrides for markdown/editor for better readability */}
       <style jsx global>{`
-        @keyframes slow-wiggle {
-          0% { transform: rotate(-2deg) translateY(0); }
-          50% { transform: rotate(2deg) translateY(4px); }
-          100% { transform: rotate(-2deg) translateY(0); }
-        }
-        .wiggle-slow { animation: slow-wiggle 7s ease-in-out infinite; }
-        @keyframes spin-slow-kf { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .spin-slow { animation: spin-slow-kf 60s linear infinite; transform-origin: center center; }
-        .font-luckiest { font-family: var(--font-kavoon), 'Kavoon', cursive !important; }
-        .ticker-text, .ticker-text * { font-family: var(--font-kavoon), 'Kavoon', cursive !important; }
-        .ticker-text { letter-spacing: 0.02em; text-transform: uppercase; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        @keyframes motd-scroll-kf { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .motd-ticker { animation: motd-scroll-kf 20s linear infinite; }
-        .motd-container { border: 1px solid rgba(255,255,255,0.15); }
-        @keyframes wiggle-scale-kf {
-          0% { transform: rotate(-4deg) scale(1); }
-          50% { transform: rotate(4deg) scale(1.08); }
-          100% { transform: rotate(-4deg) scale(1); }
-        }
-        .wiggle-scale { animation: wiggle-scale-kf 2.6s ease-in-out infinite; transform-origin: center; }
-        .hack-flag { width: 180px; }
-        @media (max-aspect-ratio: 16/9) { .hack-flag { width: 140px !important; } }
-        @media (max-aspect-ratio: 4/3) { .hack-flag { width: 110px !important; } }
-        @media (max-aspect-ratio: 1/1) { .hack-flag { width: 90px !important; } }
-        @media (max-width: 480px) { .hack-flag { width: 90px !important; } }
-        /* Landscape mobile: reduce an additional ~25% to avoid overlap */
-        @media (orientation: landscape) and (max-height: 480px) {
-          .hack-flag { width: 105px !important; }
-        }
-        
-        .cloud-tr { transform: scale(0.67); transform-origin: top right; }
-        /* Very wide viewports (>= 21:9): hide Orph and top-right cloud; adjust title/button */
-        @media (min-aspect-ratio: 21/9) {
-          .ultra-hide { display: none !important; }
-          .hero-title { top: 24px !important; }
-          .rsvp-btn { top: 62% !important; }
-        }
-        /* Very short landscape heights */
-        @media (orientation: landscape) and (max-height: 400px) {
-          .ultra-hide { display: none !important; }
-          .hero-title { top: 16px !important; }
-          .rsvp-btn { top: 64% !important; }
-        }
-        
-        /* FAQ styling */
-        .faq-title { font-size: 1.25rem; margin-bottom: 0.75rem; }
-        .faq-question { font-size: 1.125rem; margin-top: 1rem; margin-bottom: 0.5rem; text-decoration: underline; }
-        .faq-paragraph { margin: 0.25rem 0; }
-        .faq-list { list-style: disc; margin-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
-        .faq-content a { color: #ef4444; text-decoration: underline; }
-        
-        /* Enhanced shiny button effects */
-        @keyframes shimmer {
-          0% { transform: translateX(-100%) skewX(-12deg); }
-          100% { transform: translateX(100%) skewX(-12deg); }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
-          50% { transform: translate(-50%, -50%) translateY(-10px); }
-        }
-        
-        @keyframes rotate-glow {
-          0% { 
-            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 30px rgba(59,130,246,0.4), 0 0 60px rgba(147,51,234,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-          }
-          25% { 
-            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 40px rgba(147,51,234,0.5), 0 0 70px rgba(236,72,153,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-          }
-          50% { 
-            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 50px rgba(236,72,153,0.6), 0 0 80px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
-          }
-          75% { 
-            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 40px rgba(59,130,246,0.5), 0 0 70px rgba(147,51,234,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-          }
-          100% { 
-            box-shadow: 0 10px 0 rgba(0,0,0,0.4), 0 0 30px rgba(59,130,246,0.4), 0 0 60px rgba(147,51,234,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-          }
-        }
-        
-        @keyframes sparkle {
-          0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
-          50% { opacity: 1; transform: scale(1) rotate(180deg); }
-        }
-        
-        .rsvp-btn {
-          position: fixed !important;
-          left: 50% !important;
-          top: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          z-index: 100 !important;
+        /* Cosmic Background - Darker */
+        .journal-stellar-background {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          z-index: 0;
           overflow: hidden;
-          animation: float 3s ease-in-out infinite, rotate-glow 4s ease-in-out infinite;
+          background: linear-gradient(135deg, #0a0515 0%, #150920 20%, #1a0d25 40%, #1f112a 60%, #1a0d25 80%, #0a0515 100%);
         }
         
-        .rsvp-btn::before {
+        /* Darker Nebula layer with reduced brightness - static */
+        .journal-nebula-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(ellipse 800px 600px at 15% 25%, rgba(255, 215, 0, 0.2) 0%, transparent 60%),
+            radial-gradient(ellipse 700px 500px at 85% 15%, rgba(139, 92, 246, 0.25) 0%, transparent 55%),
+            radial-gradient(ellipse 600px 800px at 35% 75%, rgba(59, 130, 246, 0.22) 0%, transparent 60%),
+            radial-gradient(ellipse 900px 500px at 90% 85%, rgba(252, 211, 77, 0.2) 0%, transparent 55%),
+            radial-gradient(ellipse 700px 600px at 5% 50%, rgba(167, 139, 250, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse 800px 700px at 95% 60%, rgba(100, 181, 246, 0.18) 0%, transparent 55%);
+          opacity: 0.6;
+        }
+        
+        /* Enhanced starfield with many more stars - static background, twinkling stars */
+        .journal-starfield-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: 
+            radial-gradient(5px 5px at 5% 10%, #ffffff, transparent),
+            radial-gradient(4px 4px at 15% 25%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 25% 5%, #ffffff, transparent),
+            radial-gradient(4px 4px at 35% 40%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 45% 20%, #ffffff, transparent),
+            radial-gradient(3px 3px at 55% 60%, #3b82f6, transparent),
+            radial-gradient(4px 4px at 65% 15%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 75% 80%, #ffffff, transparent),
+            radial-gradient(3px 3px at 85% 45%, #8b5cf6, transparent),
+            radial-gradient(4px 4px at 95% 70%, #3b82f6, transparent),
+            radial-gradient(5px 5px at 10% 50%, #ffffff, transparent),
+            radial-gradient(4px 4px at 20% 90%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 30% 30%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 40% 75%, #ffffff, transparent),
+            radial-gradient(4px 4px at 50% 10%, #3b82f6, transparent),
+            radial-gradient(3px 3px at 60% 55%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 70% 95%, #ffffff, transparent),
+            radial-gradient(4px 4px at 80% 35%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 90% 65%, #3b82f6, transparent),
+            radial-gradient(5px 5px at 12% 85%, #ffffff, transparent),
+            radial-gradient(4px 4px at 22% 15%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 32% 50%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 42% 90%, #ffffff, transparent),
+            radial-gradient(4px 4px at 52% 30%, #3b82f6, transparent),
+            radial-gradient(3px 3px at 62% 75%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 72% 5%, #ffffff, transparent),
+            radial-gradient(4px 4px at 82% 40%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 92% 20%, #3b82f6, transparent),
+            radial-gradient(5px 5px at 8% 30%, #ffffff, transparent),
+            radial-gradient(4px 4px at 18% 70%, #fcd34d, transparent),
+            radial-gradient(3px 3px at 28% 95%, #8b5cf6, transparent),
+            radial-gradient(5px 5px at 38% 60%, #ffffff, transparent),
+            radial-gradient(4px 4px at 48% 85%, #3b82f6, transparent),
+            radial-gradient(3px 3px at 58% 25%, #fcd34d, transparent),
+            radial-gradient(5px 5px at 68% 50%, #ffffff, transparent),
+            radial-gradient(4px 4px at 78% 10%, #8b5cf6, transparent),
+            radial-gradient(3px 3px at 88% 80%, #3b82f6, transparent);
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
+          animation: journalStarTwinkle 4s ease-in-out infinite;
+          opacity: 1;
+        }
+        
+        @keyframes journalStarTwinkle {
+          0%, 100% {
+            opacity: 0.6;
+            filter: brightness(0.8);
+          }
+          25% {
+            opacity: 1;
+            filter: brightness(1.8);
+          }
+          50% {
+            opacity: 0.7;
+            filter: brightness(1.2);
+          }
+          75% {
+            opacity: 1;
+            filter: brightness(2);
+          }
+        }
+        
+        /* Shooting stars removed - no animation */
+        .journal-shooting-stars {
+          display: none;
+        }
+        
+        /* Enhanced Journal Title */
+        .journal-title-enhanced {
+          font-size: 2.5rem !important;
+          font-weight: bold !important;
+          color: #fcd34d !important;
+          text-shadow: 
+            0 0 10px rgba(252, 211, 77, 0.8),
+            0 0 20px rgba(252, 211, 77, 0.6),
+            0 0 30px rgba(252, 211, 77, 0.4),
+            0 0 40px rgba(252, 211, 77, 0.2) !important;
+          animation: titleGlow 3s ease-in-out infinite alternate;
+          letter-spacing: 0.05em !important;
+        }
+        
+        /* Title already inherits Kavoon from journal-font-kavoon */
+        .journal-title-enhanced {
+          /* Font inherited from parent */
+        }
+        
+        .journal-title-icon {
+          height: 4.5rem;
+          width: 4.5rem;
+          filter: drop-shadow(0 0 10px rgba(252, 211, 77, 0.6)) 
+                  drop-shadow(0 0 20px rgba(252, 211, 77, 0.4));
+          animation: iconFloat 2s ease-in-out infinite;
+          transition: transform 0.3s ease;
+        }
+        
+        .journal-title-icon:hover {
+          transform: scale(1.15) rotate(5deg);
+        }
+        
+        /* Enhanced Back Button */
+        .journal-back-button {
+          padding: 0.75rem 1.5rem;
+          border-radius: 0.5rem;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.9) 0%, rgba(245, 224, 24, 0.9) 100%);
+          color: #1a1a2e;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          animation: buttonPulse 2s ease-in-out infinite;
+        }
+        
+        .journal-back-button:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 20px rgba(252, 211, 77, 0.6);
+          background: linear-gradient(135deg, rgba(252, 211, 77, 1) 0%, rgba(245, 224, 24, 1) 100%);
+          color: white;
+        }
+        
+        .journal-back-button:active,
+        .journal-back-button:active:hover {
+          transform: translateY(0) scale(1) !important;
+          color: white !important;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.9) 0%, rgba(245, 224, 24, 0.9) 100%) !important;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.5) !important;
+          animation: none !important;
+        }
+        
+        /* Enhanced Hours Input */
+        .journal-hours-input {
+          width: 8rem;
+          padding: 0.75rem 1rem;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.15) 0%, rgba(245, 224, 24, 0.15) 100%);
+          border: 2px solid rgba(252, 211, 77, 0.5);
+          border-radius: 0.75rem;
+          color: #fcd34d;
+          font-size: 1.125rem;
+          font-weight: 600;
+          text-align: center;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 10px rgba(252, 211, 77, 0.2);
+        }
+        
+        .journal-hours-input::placeholder {
+          color: rgba(252, 211, 77, 0.5);
+        }
+        
+        .journal-hours-input:focus {
+          outline: none;
+          border-color: #fcd34d;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.25) 0%, rgba(245, 224, 24, 0.25) 100%);
+          box-shadow: 
+            0 4px 15px rgba(252, 211, 77, 0.4),
+            0 0 20px rgba(252, 211, 77, 0.3);
+          transform: scale(1.05);
+        }
+        
+        /* Enhanced Publish Button */
+        .journal-publish-button {
+          padding: 0.875rem 2rem;
+          border-radius: 0.75rem;
+          background: linear-gradient(135deg, #fcd34d 0%, #f5e018 100%);
+          color: #1a1a2e;
+          font-weight: 600;
+          font-size: 1rem;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          animation: buttonGlow 2.5s ease-in-out infinite;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .journal-publish-button::before {
           content: '';
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          transition: left 0.6s ease-out;
-          z-index: 1;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.5s ease;
         }
         
-        .rsvp-btn::after {
-          content: '✨';
-          position: absolute;
-          top: -10px;
-          right: -10px;
-          font-size: 20px;
-          animation: sparkle 2s ease-in-out infinite;
-          z-index: 2;
-        }
-        
-        .rsvp-btn:hover::before {
+        .journal-publish-button:hover::before {
           left: 100%;
         }
         
-        .rsvp-btn:hover {
-          transform: translate(-50%, -50%) translateY(-5px) scale(1.05);
-          animation-play-state: paused;
+        .journal-publish-button:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 25px rgba(252, 211, 77, 0.6), 0 0 30px rgba(252, 211, 77, 0.3);
+          background: linear-gradient(135deg, #fde047 0%, #fcd34d 100%);
         }
         
-        .rsvp-btn:active {
-          transform: translate(-50%, -50%) translateY(2px) scale(0.98);
+        .journal-publish-button:active {
+          transform: translateY(0) scale(1);
         }
         
-        /* Simplified Rocket Animation */
-        .rocket-container {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 9999;
+        .journal-publish-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          animation: none;
+          transform: none;
         }
         
-        .rocket {
-          position: absolute;
-          font-size: 50px;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          animation: rocket-fly 2s ease-out forwards;
+        .journal-publish-button:disabled:hover {
+          transform: none;
+          box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
         }
         
-        @keyframes rocket-fly {
-          0% {
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
+        @keyframes titleGlow {
+          from {
+            text-shadow: 
+              0 0 10px rgba(252, 211, 77, 0.8),
+              0 0 20px rgba(252, 211, 77, 0.6),
+              0 0 30px rgba(252, 211, 77, 0.4),
+              0 0 40px rgba(252, 211, 77, 0.2);
+          }
+          to {
+            text-shadow: 
+              0 0 15px rgba(252, 211, 77, 1),
+              0 0 25px rgba(252, 211, 77, 0.8),
+              0 0 35px rgba(252, 211, 77, 0.6),
+              0 0 45px rgba(252, 211, 77, 0.4),
+              0 0 55px rgba(252, 211, 77, 0.2);
+          }
+        }
+        
+        @keyframes iconFloat {
+          0%, 100% {
+            transform: translateY(0px);
           }
           50% {
-            left: 75%;
-            top: 25%;
-            transform: translate(-50%, -50%) scale(1.5);
-            opacity: 1;
-          }
-          100% {
-            left: 100%;
-            top: 0%;
-            transform: translate(-50%, -50%) scale(2);
-            opacity: 0;
+            transform: translateY(-5px);
           }
         }
         
-        .rsvp-btn.launching {
-          animation: button-launch 2s ease-out forwards !important;
-          pointer-events: none !important;
+        @keyframes buttonPulse {
+          0%, 100% {
+            box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
+          }
+          50% {
+            box-shadow: 0 4px 20px rgba(252, 211, 77, 0.6);
+          }
         }
         
-        @keyframes button-launch {
-          0% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
+        @keyframes buttonGlow {
+          0%, 100% {
+            box-shadow: 0 4px 15px rgba(252, 211, 77, 0.4);
           }
-          20% {
-            transform: translate(-50%, -50%) scale(1.1);
-            opacity: 0.9;
+          50% {
+            box-shadow: 0 4px 20px rgba(252, 211, 77, 0.6), 0 0 30px rgba(252, 211, 77, 0.3);
           }
-          40% {
-            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        /* Apply Kavoon font to all journal editor text by default */
+        .journal-font-kavoon {
+          font-family: var(--font-kavoon), 'Kavoon', cursive !important;
+        }
+        
+        .journal-font-kavoon * {
+          font-family: var(--font-kavoon), 'Kavoon', cursive !important;
+        }
+        
+        /* Enhanced Editor Container with animated glow */
+        .journal-editor-container {
+          border-radius: 1rem;
+          overflow: hidden;
+          box-shadow: 
+            0 0 30px rgba(252, 211, 77, 0.4),
+            0 0 60px rgba(139, 92, 246, 0.3),
+            0 0 90px rgba(252, 211, 77, 0.2),
+            inset 0 0 30px rgba(0, 0, 0, 0.3);
+          background: rgba(10, 5, 21, 0.7);
+          border: 2px solid rgba(252, 211, 77, 0.5);
+          transition: all 0.3s ease;
+          animation: editorGlowPulse 3s ease-in-out infinite;
+          position: relative;
+        }
+        
+        .journal-editor-container::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          border-radius: 1rem;
+          background: linear-gradient(135deg, rgba(252, 211, 77, 0.3), rgba(139, 92, 246, 0.3), rgba(252, 211, 77, 0.3));
+          background-size: 200% 200%;
+          z-index: -1;
+          animation: editorBorderGlow 4s ease infinite;
+          opacity: 0.8;
+        }
+        
+        @keyframes editorGlowPulse {
+          0%, 100% {
+            box-shadow: 
+              0 0 30px rgba(252, 211, 77, 0.4),
+              0 0 60px rgba(139, 92, 246, 0.3),
+              0 0 90px rgba(252, 211, 77, 0.2),
+              inset 0 0 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(252, 211, 77, 0.5);
+          }
+          50% {
+            box-shadow: 
+              0 0 50px rgba(252, 211, 77, 0.6),
+              0 0 100px rgba(139, 92, 246, 0.5),
+              0 0 150px rgba(252, 211, 77, 0.3),
+              inset 0 0 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(252, 211, 77, 0.7);
+          }
+        }
+        
+        @keyframes editorBorderGlow {
+          0%, 100% {
+            background-position: 0% 50%;
             opacity: 0.8;
           }
-          60% {
-            transform: translate(-50%, -50%) scale(1.3);
-            opacity: 0.6;
-          }
-          80% {
-            transform: translate(-50%, -50%) scale(1.4);
-            opacity: 0.4;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(1.5);
-            opacity: 0;
+          50% {
+            background-position: 100% 50%;
+            opacity: 1;
           }
         }
-
+        
+        .journal-editor-container:hover {
+          border-color: rgba(252, 211, 77, 0.8);
+          animation: editorGlowPulseHover 2s ease-in-out infinite;
+        }
+        
+        @keyframes editorGlowPulseHover {
+          0%, 100% {
+            box-shadow: 
+              0 0 40px rgba(252, 211, 77, 0.6),
+              0 0 80px rgba(139, 92, 246, 0.5),
+              0 0 120px rgba(252, 211, 77, 0.4),
+              inset 0 0 50px rgba(0, 0, 0, 0.4);
+          }
+          50% {
+            box-shadow: 
+              0 0 60px rgba(252, 211, 77, 0.8),
+              0 0 120px rgba(139, 92, 246, 0.7),
+              0 0 180px rgba(252, 211, 77, 0.5),
+              inset 0 0 60px rgba(0, 0, 0, 0.5);
+          }
+        }
+        
+        .journal-editor-container:focus-within {
+          border-color: rgba(252, 211, 77, 1);
+          animation: editorGlowPulseFocus 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes editorGlowPulseFocus {
+          0%, 100% {
+            box-shadow: 
+              0 0 50px rgba(252, 211, 77, 0.7),
+              0 0 100px rgba(139, 92, 246, 0.6),
+              0 0 150px rgba(252, 211, 77, 0.5),
+              inset 0 0 60px rgba(0, 0, 0, 0.5);
+          }
+          50% {
+            box-shadow: 
+              0 0 70px rgba(252, 211, 77, 0.9),
+              0 0 140px rgba(139, 92, 246, 0.8),
+              0 0 200px rgba(252, 211, 77, 0.6),
+              inset 0 0 70px rgba(0, 0, 0, 0.6);
+          }
+        }
+        
+        /* Enhanced Editor Styling */
+        .journal-font-kavoon .w-md-editor {
+          background: rgba(10, 5, 21, 0.8) !important;
+          border: none !important;
+          border-radius: 0.875rem !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-text-textarea,
+        .journal-font-kavoon .w-md-editor-text-textarea textarea {
+          background: transparent !important;
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-toolbar {
+          background: rgba(20, 10, 35, 0.8) !important;
+          border-bottom: 1px solid rgba(252, 211, 77, 0.2) !important;
+          border-radius: 0.875rem 0.875rem 0 0 !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-toolbar button {
+          color: rgba(255, 255, 255, 0.7) !important;
+          transition: all 0.2s ease !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-toolbar button:hover {
+          color: #fcd34d !important;
+          background: rgba(252, 211, 77, 0.1) !important;
+        }
+        
+        .journal-font-kavoon .w-md-editor-text {
+          background: rgba(10, 5, 21, 0.6) !important;
+        }
+        
+        /* Keep editor and markdown preview with readable sans-serif */
+        .journal-font-kavoon .w-md-editor *,
+        .journal-font-kavoon .wmde-markdown,
+        .journal-font-kavoon .wmde-markdown *:not(code):not(pre) {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif !important;
+          line-height: 1.6;
+        }
+        
+        /* Ensure typing/cursor metrics are correct in text inputs */
+        .journal-font-kavoon textarea,
+        .journal-font-kavoon .w-md-editor-text-input,
+        .journal-font-kavoon input[type="number"],
+        .journal-font-kavoon input[type="text"] {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif !important;
+        }
+        
+        /* Monospace for inline and block code */
+        .journal-font-kavoon code,
+        .journal-font-kavoon pre,
+        .journal-font-kavoon .wmde-markdown code,
+        .journal-font-kavoon .wmde-markdown pre {
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace !important;
+        }
+        .journal-video { width: 100%; height: auto; display: block; background: #000; border-radius: 8px; }
+        /* Ensure markdown preview uses dark background */
+        .journal-font-kavoon .wmde-markdown { background-color: transparent !important; }
       `}</style>
     </div>
-  );
+  )
 }
 
+export default function JournalEditorPageWrapper() {
+  return (
+    <Suspense fallback={<div />}> 
+      <JournalEditorPage />
+    </Suspense>
+  )
+}
+
+// Minimal inline chat viewer using existing chat APIs
+function ProjectChatInline({ projectId, refreshTrigger = 0, isReviewOnly = false }: { projectId: string; refreshTrigger?: number; isReviewOnly?: boolean }) {
+  const { data: session } = useSession()
+  const userRole = session?.user?.role
+  const canApprove = userRole === 'Admin' || userRole === 'Reviewer'
+  const [messages, setMessages] = useState<Array<{ id: string; content: string; createdAt: string; hours?: number | null; approvedHours?: number | null }>>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const lastTsRef = useRef<string>('')
+  const idsRef = useRef<Set<string>>(new Set())
+  const [approvedDrafts, setApprovedDrafts] = useState<Record<string, string>>({})
+  const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set())
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
+  useEffect(() => {
+    let timer: any
+    const initialLoad = async () => {
+      if (!projectId) return
+      setLoading(true)
+      try {
+        const res = await apiFetch(`/api/projects/${projectId}/chat/messages`)
+        if (res.ok) {
+          const data = await res.json()
+          // Display newest first in the UI
+          if (Array.isArray(data)) {
+            const newestFirst = data.slice().reverse()
+            idsRef.current = new Set(newestFirst.map((m: any) => m.id))
+            setMessages(newestFirst)
+          } else {
+            idsRef.current = new Set()
+            setMessages([])
+          }
+          if (Array.isArray(data) && data.length > 0) {
+            lastTsRef.current = data[data.length - 1]?.createdAt || ''
+          } else {
+            lastTsRef.current = ''
+          }
+        }
+      } finally { setLoading(false) }
+    }
+    const poll = async () => {
+      if (!projectId) return
+      try {
+        let url = `/api/projects/${projectId}/chat/messages`
+        if (lastTsRef.current) url += `?since=${encodeURIComponent(lastTsRef.current)}`
+        const res = await apiFetch(url)
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            // Prepend new items (so newest stays at the top). Data is oldest->newest; reverse before prepending
+            const newItems = data.slice().reverse()
+            setMessages(prev => {
+              const existing = new Set(idsRef.current)
+              const filtered = newItems.filter((m: any) => !existing.has(m.id))
+              filtered.forEach((m: any) => existing.add(m.id))
+              idsRef.current = existing
+              return [...filtered, ...prev]
+            })
+            lastTsRef.current = data[data.length - 1]?.createdAt || lastTsRef.current
+          }
+        }
+      } catch {}
+    }
+    // reset on project change
+    setMessages([])
+    lastTsRef.current = ''
+    initialLoad()
+    timer = setInterval(poll, 5000)
+    return () => clearInterval(timer)
+  }, [projectId])
+  // react to explicit refresh (publish) - skip initial mount to avoid duplicate initial fetch
+  useEffect(() => {
+    if (!projectId) return
+    if (!refreshTrigger) return
+    // Try a quick poll for any new content since lastTs
+    (async () => {
+      try {
+        let url = `/api/projects/${projectId}/chat/messages`
+        if (lastTsRef.current) url += `?since=${encodeURIComponent(lastTsRef.current)}`
+        const res = await apiFetch(url)
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            const newItems = data.slice().reverse()
+            setMessages(prev => {
+              const existing = new Set(idsRef.current)
+              const filtered = newItems.filter((m: any) => !existing.has(m.id))
+              filtered.forEach((m: any) => existing.add(m.id))
+              idsRef.current = existing
+              return [...filtered, ...prev]
+            })
+            lastTsRef.current = data[data.length - 1]?.createdAt || lastTsRef.current
+          }
+        }
+      } catch {}
+    })()
+  }, [refreshTrigger, projectId])
+  return (
+    <div className="p-3">
+      {loading ? (
+        <div className="text-white/60 text-sm">Loading…</div>
+      ) : messages.length === 0 ? (
+        <div className="text-white/60 text-sm">No messages yet.</div>
+      ) : (
+        <div className="space-y-3">
+          {messages.map(m => (
+            <div key={m.id} className="text-sm text-white/90">
+              <div className="text-white/50 text-xs mb-1 flex items-center gap-2">
+                <span>{new Date(m.createdAt).toLocaleString()}</span>
+                <span className="ml-2">hours</span>
+                <input
+                  type="text"
+                  readOnly
+                  value={`${m.hours ?? 0}`}
+                  className="w-16 px-2 py-0.5 bg-transparent border-0 focus:ring-0 focus:outline-none text-xs text-white/80"
+                />
+                <span className="ml-2">approved</span>
+                {canApprove ? (
+                  <>
+                    <input
+                      type="number"
+                      min={0}
+                      max={24}
+                      step={0.25}
+                      value={approvedDrafts[m.id] ?? (m.approvedHours ?? '')}
+                      onChange={(e) => {
+                        const val = e.currentTarget.value
+                        setApprovedDrafts(prev => ({ ...prev, [m.id]: val }))
+                        const base = m.approvedHours == null ? '' : String(m.approvedHours)
+                        setDirtyIds(prev => {
+                          const next = new Set(prev)
+                          if (val !== base) next.add(m.id); else next.delete(m.id)
+                          return next
+                        })
+                      }}
+                      className="w-20 px-2 py-0.5 bg-white text-black border border-black/20 rounded text-xs"
+                    />
+                    {dirtyIds.has(m.id) && (
+                      <button
+                        className="ml-2 px-2 py-0.5 text-xs rounded bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                        disabled={savingIds.has(m.id)}
+                        onClick={async () => {
+                          const val = approvedDrafts[m.id]
+                          setSavingIds(prev => new Set(prev).add(m.id))
+                          try {
+                            let justification = ''
+                            try {
+                              justification = window.prompt('Add a short justification for this approval change (required):', '') || ''
+                            } catch {}
+                            const res = await apiFetch(`/api/projects/${projectId}/chat/messages`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ messageId: m.id, approvedHours: val === '' ? null : Number(val) })
+                            })
+                            if (!res.ok) {
+                              const body = await res.json().catch(() => ({} as any))
+                              alert(body?.error || 'Failed to update approved hours')
+                              return
+                            }
+                            const upd = await res.json()
+                            setMessages(prev => prev.map(pm => pm.id === m.id ? { ...pm, approvedHours: upd.approvedHours } : pm))
+                            setApprovedDrafts(prev => ({ ...prev, [m.id]: upd.approvedHours == null ? '' : String(upd.approvedHours) }))
+                            setDirtyIds(prev => { const next = new Set(prev); next.delete(m.id); return next })
+
+                            // Create a review comment noting the change
+                            if (justification.trim().length > 0) {
+                              const oldVal = m.approvedHours ?? 0
+                              const newVal = upd.approvedHours ?? 0
+                              const deltaMsg = `Reviewer adjusted approved journal hours: ${oldVal}h → ${newVal}h. Justification: ${justification.trim()}`
+                              try {
+                                await apiFetch('/api/reviews', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ projectID: projectId, comment: deltaMsg, reviewType: 'HoursApproval', justification })
+                                })
+                              } catch {}
+                            }
+                          } catch {
+                            alert('Failed to update approved hours')
+                          } finally {
+                            setSavingIds(prev => { const next = new Set(prev); next.delete(m.id); return next })
+                          }
+                        }}
+                      >
+                        {savingIds.has(m.id) ? 'Saving…' : 'Apply'}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${m.approvedHours ?? 0}`}
+                    className="w-16 px-2 py-0.5 bg-transparent border-0 focus:ring-0 focus:outline-none text-xs text-white/80"
+                  />
+                )}
+              </div>
+              <DynamicMarkdown source={m.content} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
