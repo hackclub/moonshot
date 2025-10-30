@@ -37,9 +37,11 @@ export function getProjectApprovedHours(project: any): number {
   // Safety check for null/undefined project
   if (!project) return 0;
   
+  let hackatimeApprovedHours = 0;
+  
   // If project has hackatimeLinks, calculate total from ONLY approved hours
   if (project.hackatimeLinks && project.hackatimeLinks.length > 0) {
-    return project.hackatimeLinks.reduce((sum: number, link: any) => {
+    hackatimeApprovedHours = project.hackatimeLinks.reduce((sum: number, link: any) => {
       // Only count hoursOverride as approved hours
       if (link.hoursOverride !== undefined && link.hoursOverride !== null) {
         return sum + link.hoursOverride;
@@ -47,10 +49,15 @@ export function getProjectApprovedHours(project: any): number {
       // No hoursOverride means no approved hours for this link
       return sum;
     }, 0);
+  } else {
+    // Fallback for backward compatibility - use project-level hoursOverride
+    hackatimeApprovedHours = project?.hoursOverride || 0;
   }
   
-  // Fallback for backward compatibility - use project-level hoursOverride
-  return project?.hoursOverride || 0;
+  // Add journal approved hours
+  const journalApprovedHours = getProjectJournalApprovedHours(project);
+  
+  return hackatimeApprovedHours + journalApprovedHours;
 }
 
 // Journal helpers
