@@ -53,7 +53,7 @@ interface User {
 }
 
 // Sorting types
-type SortField = 'progress' | 'role' | 'name' | 'shipped' | 'in_review' | 'default';
+type SortField = 'progress' | 'role' | 'name' | 'shipped' | 'in_review' | 'raw_hours' | 'default';
 type SortOrder = 'asc' | 'desc';
 
 // Create a wrapper component that uses Suspense
@@ -171,6 +171,9 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
           break;
         case 'in_review':
           result = (b.projects.filter(project => project.in_review).length || 0) - (a.projects.filter(project => project.in_review).length || 0);
+          break;
+        case 'raw_hours':
+          result = (b.stats.rawHours || 0) - (a.stats.rawHours || 0);
           break;
         default:
           // sort by most overrided hours
@@ -298,6 +301,16 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   <th 
                     scope="col" 
                     className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('raw_hours')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Raw Hours
+                      <span className="text-xs">{getSortIcon('raw_hours')}</span>
+                    </div>
+                  </th>
+                  <th 
+                    scope="col" 
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
                     onClick={() => handleSort('in_review')}
                   >
                     <div className="flex items-center gap-1">
@@ -372,6 +385,11 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
+                          {user.stats.rawHours.toFixed(1)}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
                           {calculateProgressMetrics(
                             user.projects, 
                             user.purchasedProgressHours || 0,
@@ -403,6 +421,16 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   }`}
                 >
                   Name {sortField === 'name' && getSortIcon('name')}
+                </button>
+                <button
+                  onClick={() => handleSort('raw_hours')}
+                  className={`px-3 py-1 text-xs rounded-full border ${
+                    sortField === 'raw_hours' 
+                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
+                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                  }`}
+                >
+                  Raw Hours {sortField === 'raw_hours' && getSortIcon('raw_hours')}
                 </button>
                 {/* Progress sort removed */}
                 
@@ -458,6 +486,12 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                           <span className="text-gray-500 block"># In Review</span>
                           <span className="text-gray-800">
                             {user.projects.filter(project => project.in_review).length}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 block">Raw Hours</span>
+                          <span className="text-gray-800">
+                            {user.stats.rawHours.toFixed(1)}
                           </span>
                         </div>
                         <div>
