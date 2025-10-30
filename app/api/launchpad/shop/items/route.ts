@@ -28,6 +28,10 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
+    if (!items) {
+      return NextResponse.json({ error: 'Failed to fetch shop items' }, { status: 500 });
+    }
+
     // Calculate available inventory for each item dynamically
     // This handles refunds/cancellations automatically!
     const itemsWithAvailability = await Promise.all(

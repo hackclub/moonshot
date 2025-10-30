@@ -69,6 +69,9 @@ export async function GET(request: NextRequest) {
 
 
     const shopItems = await prisma.shopItem.findMany();
+    if (!shopItems) {
+      return NextResponse.json({ error: 'Failed to fetch shop items' }, { status: 500 });
+    }
     const itemMap = new Map(shopItems.map(item => [item.id, item]));
 
     // Calculate analytics
