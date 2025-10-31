@@ -129,6 +129,7 @@ export async function GET() {
           description: item.description,
           image: item.image,
           price: calculateCurrencyPrice(item.usdCost, dollarsPerHour),
+          availableInventory: (item as any).availableInventory ?? null,
         };
       }
       // Check if randomized pricing is enabled for this item
@@ -139,6 +140,7 @@ export async function GET() {
           description: item.description,
           image: item.image,
           price: calculateRandomizedPrice(user.id, item.id, item.price, minPercent, maxPercent),
+          availableInventory: (item as any).availableInventory ?? null,
         };
       }
       // Otherwise, use static price
@@ -149,6 +151,7 @@ export async function GET() {
           description: item.description,
           image: item.image,
           price: item.price,
+          availableInventory: (item as any).availableInventory ?? null,
         };
       }
     });
