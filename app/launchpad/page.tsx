@@ -548,16 +548,12 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
         totalHours: 0,
         totalPercentage: 0,
         rawHours: 0,
-        availablecurrency: 0,
-        purchasedProgressHours: 0,
-        totalProgressWithPurchased: 0,
-        totalPercentageWithPurchased: 0
+        availablecurrency: 0
       };
     }
     
     const metrics = calculateProgressMetrics(
       projects, 
-      user.purchasedProgressHours || 0,
       user.totalCurrencySpent || 0,
       user.adminCurrencyAdjustment || 0
     );

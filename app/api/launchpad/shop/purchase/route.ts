@@ -30,7 +30,6 @@ async function getUserShellBalance(userId: string): Promise<number> {
   // Calculate shell balance using updated function that includes admin adjustment
   const metrics = calculateProgressMetrics(
     projects,
-    user.purchasedProgressHours,
     user.totalCurrencySpent,
     user.adminCurrencyAdjustment
   );

@@ -886,7 +886,6 @@ function calculateUserMetrics(user: UserWithProjects): UserMetrics {
     
     progressMetrics = calculateProgressMetrics(
       transformedProjects,
-      user.purchasedProgressHours || 0,
       user.totalCurrencySpent || 0,
       user.adminCurrencyAdjustment || 0
     );
