@@ -708,6 +708,149 @@
   box-shadow: none;
 }
 
+/* Invited state button for Moonshot Ticket */
+.stardustInvitedButton {
+  background: linear-gradient(135deg, #f59e0b, #facc15);
+  border: none;
+  border-radius: 15px;
+  padding: 0.75rem 1.5rem;
+  color: #1f2937;
+  font-weight: 900;
+  width: 100%;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.35), 0 0 36px rgba(245, 158, 11, 0.25);
+}
+
+.stardustInvitedButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: invitedShimmer 3s ease-in-out infinite;
+}
+
+@keyframes invitedShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Special glow for the "Moonshot Ticket" item */
+.glowMoonshotTicket {
+  border-color: rgba(255, 230, 120, 0.95);
+  box-shadow: 
+    0 0 24px 6px rgba(255, 215, 0, 0.55),
+    0 0 60px 12px rgba(255, 215, 0, 0.35),
+    inset 0 0 18px rgba(255, 215, 0, 0.28);
+  animation: ticketGlowPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes ticketGlowPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 24px 6px rgba(255, 215, 0, 0.55),
+      0 0 60px 12px rgba(255, 215, 0, 0.35),
+      inset 0 0 18px rgba(255, 215, 0, 0.28);
+  }
+  50% {
+    box-shadow: 
+      0 0 36px 10px rgba(255, 230, 120, 0.8),
+      0 0 90px 20px rgba(255, 230, 120, 0.45),
+      inset 0 0 24px rgba(255, 230, 120, 0.35);
+  }
+}
+
+/* Availability counter - glowing pill with shimmer */
+.stardustAvailability {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 215, 0, 0.55);
+  background: linear-gradient(135deg, rgba(255, 230, 120, 0.18), rgba(139, 92, 246, 0.12));
+  color: #ffef9b;
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.25), inset 0 0 10px rgba(255, 230, 120, 0.18);
+  animation: availabilityPulse 2.4s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.stardustAvailability::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, rgba(255, 230, 120, 0.23), transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.stardustAvailability::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  animation: availabilityShimmer 2.8s ease-in-out infinite;
+}
+
+.stardustAvailabilityIcon {
+  filter: drop-shadow(0 0 6px rgba(255, 230, 120, 0.6));
+}
+
+.stardustAvailabilityLabel {
+  font-size: 0.8rem;
+  color: #ffe88a;
+  opacity: 0.9;
+}
+
+.stardustAvailabilityCount {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #fff6bf;
+  text-shadow: 0 0 8px rgba(255, 230, 120, 0.6);
+  animation: availabilityCountPulse 2.4s ease-in-out infinite;
+}
+
+.stardustAvailabilityFeatured {
+  padding: 0.45rem 0.9rem;
+  transform: translateZ(0);
+}
+
+.stardustAvailability.soldOut {
+  border-color: rgba(248, 113, 113, 0.6);
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.25), rgba(190, 24, 93, 0.15));
+  color: #ffe7e7;
+  box-shadow: 0 0 14px rgba(248, 113, 113, 0.35), inset 0 0 8px rgba(248, 113, 113, 0.2);
+}
+
+.stardustAvailability.soldOut .stardustAvailabilityCount {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+}
+
+@keyframes availabilityPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.22), inset 0 0 8px rgba(255, 230, 120, 0.16); }
+  50% { box-shadow: 0 0 26px rgba(255, 230, 120, 0.45), inset 0 0 12px rgba(255, 230, 120, 0.25); }
+}
+
+@keyframes availabilityShimmer {
+  0% { left: -50%; }
+  100% { left: 150%; }
+}
+
+@keyframes availabilityCountPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
 /* Modal styling */
 .stardustModal {
   background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(15, 52, 96, 0.9));

@@ -12,7 +12,8 @@ interface ShopItem {
   description: string;
   image?: string;
   price: number;
-  
+  availableInventory?: number | null;
+  userHasPurchased?: boolean;
 }
 
 interface ShellBalance {
@@ -112,6 +113,13 @@ export default function ShopPage() {
           const currencyData = await currencyResponse.json();
           setUsercurrency(currencyData);
         }
+
+        // Refresh items to update availability counters
+        const itemsResponse = await apiFetch('/api/launchpad/shop/items');
+        if (itemsResponse.ok) {
+          const itemsData = await itemsResponse.json();
+          setItems(itemsData.items);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Purchase failed');
@@ -146,6 +154,9 @@ export default function ShopPage() {
       </div>
     );
   }
+
+  const featuredItem = items.find((i) => i.name && i.name.trim() === 'Moonshot Ticket') || null;
+  const otherItems = featuredItem ? items.filter((i) => i.id !== featuredItem.id) : items;
 
   return (
     <div className={`${styles.stardustBackground} pt-24`} style={{ minHeight: '100vh' }}>
@@ -229,12 +240,99 @@ export default function ShopPage() {
         </div>
       </div>
 
+      {/* Featured Item */}
+      {featuredItem && (
+        <div className="px-4 mb-6">
+          <div
+            className={`${styles.stardustCard} ${featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' ? styles.glowMoonshotTicket : ''} mx-auto max-w-sm`}
+          >
+            {/* Item Image */}
+            <div className={styles.stardustImageContainer}>
+              {featuredItem.image ? (
+                <img
+                  src={featuredItem.image}
+                  alt={featuredItem.name}
+                  className="object-contain w-full h-28"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-200 to-blue-200 rounded-full flex items-center justify-center mx-auto">
+                  <span className="text-3xl">✨</span>
+                </div>
+              )}
+            </div>
+
+            {/* Item Content */}
+            <div>
+              <h3 className={styles.stardustItemTitle}>{featuredItem.name}</h3>
+              <p className={styles.stardustItemDescription}>{featuredItem.description}</p>
+              
+              {/* Price and Availability */}
+              <div className="flex items-center justify-between mb-4">
+                <div className={styles.stardustPrice}>
+                  <img 
+                    src="/stardust.png" 
+                    alt="Stardust" 
+                    className="w-5 h-5"
+                  />
+                  <span>{featuredItem.price}</span>
+                </div>
+                
+                {/* Check if user can afford */}
+                {usercurrency !== null && !(featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' && featuredItem.userHasPurchased) && (
+                  <div className={`text-sm px-2 py-1 rounded-full ${
+                    usercurrency.currency >= featuredItem.price 
+                      ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
+                      : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                  }`}>
+                    {usercurrency.currency >= featuredItem.price ? 'Can afford' : 'Not enough stardust'}
+                  </div>
+                )}
+              </div>
+
+              {typeof featuredItem.availableInventory === 'number' && (
+                <div
+                  className={`${styles.stardustAvailability} ${styles.stardustAvailabilityFeatured} ${featuredItem.availableInventory <= 0 ? styles.soldOut : ''} mb-4`}
+                >
+                  <span className={styles.stardustAvailabilityIcon}>🎟️</span>
+                  <span className={styles.stardustAvailabilityLabel}>Remaining</span>
+                  <span className={styles.stardustAvailabilityCount}>{Math.max(0, featuredItem.availableInventory)}</span>
+                </div>
+              )}
+
+              {/* Buy Button */}
+              {featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' && featuredItem.userHasPurchased ? (
+                <button
+                  disabled={true}
+                  className={styles.stardustInvitedButton}
+                >
+                  You're invited!
+                </button>
+              ) : (
+                <button
+                  onClick={() => setSelectedItem(featuredItem)}
+                  disabled={(usercurrency !== null && usercurrency.currency < featuredItem.price) || (typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0)}
+                  className={`${styles.stardustBuyButton} ${
+                    (usercurrency !== null && usercurrency.currency < featuredItem.price) || (typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                  }`}
+                >
+                  {typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0
+                    ? 'Sold out'
+                    : (usercurrency !== null && usercurrency.currency < featuredItem.price ? 'Not enough stardust' : 'Buy Now')}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Shop Items */}
       <div className={styles.stardustGrid}>
-        {items.sort((a, b) => a.price - b.price).map((item) => (
+        {otherItems.sort((a, b) => a.price - b.price).map((item) => (
           <div
             key={item.id}
-            className={styles.stardustCard}
+            className={`${styles.stardustCard} ${item.name && item.name.trim() === 'Moonshot Ticket' ? styles.glowMoonshotTicket : ''}`}
           >
             {/* Item Image */}
             <div className={styles.stardustImageContainer}>
@@ -256,8 +354,8 @@ export default function ShopPage() {
               <h3 className={styles.stardustItemTitle}>{item.name}</h3>
               <p className={styles.stardustItemDescription}>{item.description}</p>
               
-              {/* Price */}
-              <div className="flex items-center justify-between mb-4">
+              {/* Price and Availability */}
+              <div className="flex items-center justify-between mb-2">
                 <div className={styles.stardustPrice}>
                   <img 
                     src="/stardust.png" 
@@ -279,17 +377,29 @@ export default function ShopPage() {
                 )}
               </div>
 
+              {typeof item.availableInventory === 'number' && (
+                <div
+                  className={`${styles.stardustAvailability} ${item.availableInventory <= 0 ? styles.soldOut : ''} mb-4`}
+                >
+                  <span className={styles.stardustAvailabilityIcon}>🎟️</span>
+                  <span className={styles.stardustAvailabilityLabel}>Remaining</span>
+                  <span className={styles.stardustAvailabilityCount}>{Math.max(0, item.availableInventory)}</span>
+                </div>
+              )}
+
               {/* Buy Button */}
               <button
                 onClick={() => setSelectedItem(item)}
-                disabled={usercurrency !== null && usercurrency.currency < item.price}
+                disabled={(usercurrency !== null && usercurrency.currency < item.price) || (typeof item.availableInventory === 'number' && item.availableInventory <= 0)}
                 className={`${styles.stardustBuyButton} ${
-                  usercurrency !== null && usercurrency.currency < item.price
+                  (usercurrency !== null && usercurrency.currency < item.price) || (typeof item.availableInventory === 'number' && item.availableInventory <= 0)
                     ? 'opacity-50 cursor-not-allowed'
                     : ''
                 }`}
               >
-                {usercurrency !== null && usercurrency.currency < item.price ? 'Not enough stardust' : 'Buy Now'}
+                {typeof item.availableInventory === 'number' && item.availableInventory <= 0
+                  ? 'Sold out'
+                  : (usercurrency !== null && usercurrency.currency < item.price ? 'Not enough stardust' : 'Buy Now')}
               </button>
             </div>
           </div>
@@ -325,9 +435,15 @@ export default function ShopPage() {
               <input
                 type="number"
                 min="1"
-                max="1000"
+                max={`${typeof selectedItem.availableInventory === 'number' ? Math.max(1, selectedItem.availableInventory) : 1000}`}
                 value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.min(1000, parseInt(e.target.value) || 1)))}
+                onChange={(e) => {
+                  const parsed = parseInt(e.target.value) || 1;
+                  const maxAllowed = typeof selectedItem.availableInventory === 'number' 
+                    ? Math.max(1, selectedItem.availableInventory)
+                    : 1000;
+                  setQuantity(Math.max(1, Math.min(maxAllowed, parsed)));
+                }}
                 className="w-full p-3 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-white/50"
                 placeholder="Enter quantity"
               />
