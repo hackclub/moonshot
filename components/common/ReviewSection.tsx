@@ -10,7 +10,17 @@ import ProjectFlagsEditor, { ProjectFlags } from './ProjectFlagsEditor';
 import HackatimeLanguageStats from './HackatimeLanguageStats';
 import ReviewChecklist from './ReviewChecklist';
 import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+
+// Custom sanitization schema that allows video tags while blocking scripts
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'video'],
+  attributes: {
+    ...defaultSchema.attributes,
+    video: ['class', 'controls', 'playsinline', 'src', 'style', 'width', 'height'],
+  },
+};
 
 interface ReviewerInfo {
   id: string;
@@ -841,7 +851,7 @@ export default function ReviewSection({
                       </div>
                     </div>
                     <div className="text-white prose prose-invert prose-sm max-w-none">
-                      <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                      <ReactMarkdown rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}>
                         {review.comment}
                       </ReactMarkdown>
                     </div>

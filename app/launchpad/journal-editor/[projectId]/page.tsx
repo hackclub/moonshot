@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, use } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import remarkGfm from 'remark-gfm'
-import rehypeSanitize from 'rehype-sanitize'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import LoadingOverlay from '@/components/common/LoadingOverlay'
 import AccessDenied from '@/components/common/AccessDenied'
 import { useSession } from 'next-auth/react'
@@ -13,6 +13,16 @@ import { apiFetch } from '@/lib/apiFetch'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 const DynamicMarkdown = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false })
+
+// Custom sanitization schema that allows video tags while blocking scripts
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'video'],
+  attributes: {
+    ...defaultSchema.attributes,
+    video: ['class', 'controls', 'playsinline', 'src', 'style', 'width', 'height'],
+  },
+}
 
 function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = use(params)
@@ -344,7 +354,7 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
             preview="edit"
             previewOptions={{ 
               remarkPlugins: [remarkGfm],
-              rehypePlugins: [rehypeSanitize]
+              rehypePlugins: [[rehypeSanitize, sanitizeSchema]]
             }}
           />
         </div>
@@ -356,7 +366,7 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
             <div className="mt-2 bg-black/60 border border-white/10 rounded-lg p-4 prose prose-invert max-w-none" data-color-mode="dark">
               <DynamicMarkdown 
                 source={content}
-                rehypePlugins={[rehypeSanitize]}
+                rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
               />
             </div>
           </>
@@ -771,7 +781,7 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
               </div>
               <DynamicMarkdown 
                 source={m.content}
-                rehypePlugins={[rehypeSanitize]}
+                rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
               />
             </div>
           ))}
