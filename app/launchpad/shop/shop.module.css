@@ -739,6 +739,78 @@
   100% { left: 100%; }
 }
 
+/* Request Item info panel (cloud box with gentle animation) */
+.requestInfoBox {
+  position: relative;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(59, 130, 246, 0.12));
+  border: 2px solid rgba(139, 92, 246, 0.35);
+  border-radius: 18px;
+  padding: 1rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.25);
+}
+
+.requestInfoCloud {
+  position: absolute;
+  inset: -25% -10% auto -10%;
+  height: 60%;
+  background:
+    radial-gradient(ellipse at 20% 60%, rgba(255, 255, 255, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 40%, rgba(255, 255, 255, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(255, 255, 255, 0.22) 0%, transparent 55%);
+  filter: blur(14px);
+  animation: requestCloudDrift 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes requestCloudDrift {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.65; }
+  50% { transform: translateY(-6px) translateX(4px); opacity: 0.9; }
+}
+
+.requestInfoContent {
+  position: relative;
+  z-index: 1;
+}
+
+.requestInfoTitle {
+  color: #e9d5ff;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+}
+
+.requestInfoSubtitle {
+  color: #c4b5fd;
+  font-weight: 700;
+  margin: 0.35rem 0;
+}
+
+.requestInfoText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.requestInfoNote {
+  color: #fde68a;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.requestInfoDivider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.6), transparent);
+  margin: 0.6rem 0;
+}
+
+.requestInfoList {
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 0.6rem 0;
+  padding-left: 0.2rem;
+  list-style: none;
+}
+
 /* Special glow for the "Moonshot Ticket" item */
 .glowMoonshotTicket {
   border-color: rgba(255, 230, 120, 0.95);
@@ -849,6 +921,37 @@
 @keyframes availabilityCountPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.06); }
+}
+
+/* Per-user allowance counter */
+.stardustLimit {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(139, 92, 246, 0.12));
+  color: #cfe7ff;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.25), inset 0 0 8px rgba(59, 130, 246, 0.18);
+}
+
+.stardustLimitIcon {
+  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+}
+
+.stardustLimitLabel {
+  font-size: 0.8rem;
+  color: #cfe7ff;
+  opacity: 0.95;
+}
+
+.stardustLimitCount {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #e8f3ff;
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
 }
 
 /* Modal styling */
