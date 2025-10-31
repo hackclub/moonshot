@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, use } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import remarkGfm from 'remark-gfm'
+import rehypeSanitize from 'rehype-sanitize'
 import LoadingOverlay from '@/components/common/LoadingOverlay'
 import AccessDenied from '@/components/common/AccessDenied'
 import { useSession } from 'next-auth/react'
@@ -341,7 +342,10 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
             onChange={(v) => setContent(v || '')}
             height={500}
             preview="edit"
-            previewOptions={{ remarkPlugins: [remarkGfm] }}
+            previewOptions={{ 
+              remarkPlugins: [remarkGfm],
+              rehypePlugins: [rehypeSanitize]
+            }}
           />
         </div>
         )}
@@ -350,7 +354,10 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
           <>
             <h4 className="mt-6 text-sm font-semibold text-white/80">Markdown preview</h4>
             <div className="mt-2 bg-black/60 border border-white/10 rounded-lg p-4 prose prose-invert max-w-none" data-color-mode="dark">
-              <DynamicMarkdown source={content} />
+              <DynamicMarkdown 
+                source={content}
+                rehypePlugins={[rehypeSanitize]}
+              />
             </div>
           </>
         )}
@@ -762,7 +769,10 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
                   {deletingIds.has(m.id) ? 'Deleting…' : 'Delete'}
                 </button>
               </div>
-              <DynamicMarkdown source={m.content} />
+              <DynamicMarkdown 
+                source={m.content}
+                rehypePlugins={[rehypeSanitize]}
+              />
             </div>
           ))}
         </div>
