@@ -129,6 +129,18 @@ export async function GET() {
 
     // Apply correct pricing logic
     const publicItems = availableItems.map(item => {
+      const isMoonshotTicket = item.name.trim().toLowerCase() === 'moonshot ticket';
+      // Compute remaining allowance if per-user limit set
+      let userRemainingAllowance: number | null = null;
+      if (item.maxPurchasesPerUser !== null && item.maxPurchasesPerUser !== undefined) {
+        const userPurchased = purchaseCountMap[item.id] || 0;
+        let remaining = Math.max(0, item.maxPurchasesPerUser - userPurchased);
+        if (item.availableInventory !== null) {
+          remaining = Math.min(remaining, item.availableInventory);
+        }
+        userRemainingAllowance = remaining;
+      }
+      const userHasPurchased = (purchaseCountMap[item.id] || 0) > 0;
       // If travel stipend, use calculateShellPrice with dollars_per_hour from config or global
       if (
         item.name.toLowerCase().includes('travel stipend') &&
@@ -143,7 +155,9 @@ export async function GET() {
           image: item.image,
           price: calculateCurrencyPrice(item.usdCost, dollarsPerHour),
           availableInventory: (item as any).availableInventory ?? null,
-          userHasPurchased: (purchaseCountMap[item.id] || 0) > 0,
+          userHasPurchased,
+          maxPurchasesPerUser: item.maxPurchasesPerUser,
+          userRemainingAllowance,
         };
       }
       // Check if randomized pricing is enabled for this item
@@ -155,7 +169,9 @@ export async function GET() {
           image: item.image,
           price: calculateRandomizedPrice(user.id, item.id, item.price, minPercent, maxPercent),
           availableInventory: (item as any).availableInventory ?? null,
-          userHasPurchased: (purchaseCountMap[item.id] || 0) > 0,
+          userHasPurchased,
+          maxPurchasesPerUser: item.maxPurchasesPerUser,
+          userRemainingAllowance,
         };
       }
       // Otherwise, use static price
@@ -167,7 +183,9 @@ export async function GET() {
           image: item.image,
           price: item.price,
           availableInventory: (item as any).availableInventory ?? null,
-          userHasPurchased: (purchaseCountMap[item.id] || 0) > 0,
+          userHasPurchased,
+          maxPurchasesPerUser: item.maxPurchasesPerUser,
+          userRemainingAllowance,
         };
       }
     });

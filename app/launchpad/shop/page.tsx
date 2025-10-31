@@ -14,6 +14,8 @@ interface ShopItem {
   price: number;
   availableInventory?: number | null;
   userHasPurchased?: boolean;
+  maxPurchasesPerUser?: number | null;
+  userRemainingAllowance?: number | null;
 }
 
 interface ShellBalance {
@@ -387,6 +389,14 @@ export default function ShopPage() {
                 </div>
               )}
 
+              {/* Per-user remaining allowance (non-ticket items only) */}
+              {item.name && item.name.trim() !== 'Moonshot Ticket' && typeof item.maxPurchasesPerUser === 'number' && (
+                <div className={`${styles.stardustLimit} mb-4`}>
+                  <span className={styles.stardustLimitLabel}>You can buy</span>
+                  <span className={styles.stardustLimitCount}>{Math.max(0, Number(item.userRemainingAllowance ?? 0))}</span>
+                </div>
+              )}
+
               {/* Buy Button */}
               <button
                 onClick={() => setSelectedItem(item)}
@@ -409,8 +419,42 @@ export default function ShopPage() {
       {/* Purchase Confirmation Modal */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className={`${styles.stardustModal} max-w-md w-full p-6 shadow-2xl transform transition-all`}>
-            <div className="text-center mb-6">
+          <div className={`${styles.stardustModal} ${/request/i.test(selectedItem.name) ? 'max-w-3xl' : 'max-w-md'} w-full p-6 shadow-2xl transform transition-all`}>
+            <div className={/request/i.test(selectedItem.name) ? 'grid md:grid-cols-2 gap-6 items-start' : ''}>
+              {/request/i.test(selectedItem.name) && (
+                <div className={`${styles.requestInfoBox} hidden md:block`}>
+                  <div className={styles.requestInfoCloud}></div>
+                  <div className={styles.requestInfoContent}>
+                    <h3 className={styles.requestInfoTitle}>How does it work?</h3>
+                    <p className={styles.requestInfoText}>
+                      For now, you don’t need to fill out any form — just buy this item, and Emma will reach out to you on Slack!
+                    </p>
+                    <p className={styles.requestInfoNote}>
+                      (It might take a bit, so please be patient!)
+                    </p>
+                    <div className={styles.requestInfoDivider}></div>
+                    <h4 className={styles.requestInfoSubtitle}>Note</h4>
+                    <p className={styles.requestInfoText}>
+                      Don’t DM her directly. If you do, you’ll lose this prize.
+                    </p>
+                    <p className={styles.requestInfoText}>
+                      Instead, ping her in <strong>#moonshot-help</strong> if you haven’t received a message within 3 business days.
+                    </p>
+                    <div className={styles.requestInfoDivider}></div>
+                    <h3 className={styles.requestInfoTitle}>What can I ask for?</h3>
+                    <p className={styles.requestInfoText}>Anything that:</p>
+                    <ul className={styles.requestInfoList}>
+                      <li>• You can find on Amazon</li>
+                      <li>• Isn’t offensive, inappropriate or illegal</li>
+                    </ul>
+                    <p className={styles.requestInfoText}>
+                      Just remember that buying this item doesn’t guarantee it’ll be added, but if you followed all the steps above, it’s almost certain!
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div>
+                <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white mb-2">✨ Confirm Purchase ✨</h2>
               <p className="text-white/80 mb-3">
                 Are you sure you want to purchase <strong className="text-purple-300">{selectedItem.name}</strong>?
@@ -419,79 +463,81 @@ export default function ShopPage() {
                 <h4 className="font-medium text-purple-300 mb-2">Item Description:</h4>
                 <p className="text-white/80 text-sm">{selectedItem.description}</p>
               </div>
-            </div>
+                </div>
             
-            <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-6">
-              <div className="flex items-center">
-                <span className="text-yellow-300 text-lg mr-2">⚠️</span>
-                <p className="text-yellow-200 text-sm">
-                  This is a one-way operation. Your stardust will be deducted immediately.
-                </p>
-              </div>
-            </div>
+                <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <span className="text-yellow-300 text-lg mr-2">⚠️</span>
+                    <p className="text-yellow-200 text-sm">
+                      This is a one-way operation. Your stardust will be deducted immediately.
+                    </p>
+                  </div>
+                </div>
             
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-white/90 mb-2">Quantity:</label>
-              <input
-                type="number"
-                min="1"
-                max={`${typeof selectedItem.availableInventory === 'number' ? Math.max(1, selectedItem.availableInventory) : 1000}`}
-                value={quantity}
-                onChange={(e) => {
-                  const parsed = parseInt(e.target.value) || 1;
-                  const maxAllowed = typeof selectedItem.availableInventory === 'number' 
-                    ? Math.max(1, selectedItem.availableInventory)
-                    : 1000;
-                  setQuantity(Math.max(1, Math.min(maxAllowed, parsed)));
-                }}
-                className="w-full p-3 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-white/50"
-                placeholder="Enter quantity"
-              />
-            </div>
-
-            <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-white">Total:</span>
-                <div className="flex items-center">
-                  <img 
-                    src="/stardust.png" 
-                    alt="Stardust" 
-                    className="w-5 h-5 mr-1"
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-white/90 mb-2">Quantity:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max={`${typeof selectedItem.availableInventory === 'number' ? Math.max(1, selectedItem.availableInventory) : 1000}`}
+                    value={quantity}
+                    onChange={(e) => {
+                      const parsed = parseInt(e.target.value) || 1;
+                      const maxAllowed = typeof selectedItem.availableInventory === 'number' 
+                        ? Math.max(1, selectedItem.availableInventory)
+                        : 1000;
+                      setQuantity(Math.max(1, Math.min(maxAllowed, parsed)));
+                    }}
+                    className="w-full p-3 bg-white/10 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-white/50"
+                    placeholder="Enter quantity"
                   />
-                  <span className="text-xl font-bold text-purple-300">{selectedItem.price * quantity}</span>
-                  <span className="text-white/70 ml-1">stardust</span>
+                </div>
+
+                <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg p-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-white">Total:</span>
+                    <div className="flex items-center">
+                      <img 
+                        src="/stardust.png" 
+                        alt="Stardust" 
+                        className="w-5 h-5 mr-1"
+                      />
+                      <span className="text-xl font-bold text-purple-300">{selectedItem.price * quantity}</span>
+                      <span className="text-white/70 ml-1">stardust</span>
+                    </div>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+                    <p className="text-red-200 text-sm">{error}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedItem(null);
+                      setQuantity(1);
+                      setError(null);
+                    }}
+                    className="flex-1 py-3 px-4 border border-white/30 rounded-lg text-white hover:bg-white/10 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePurchase}
+                    disabled={isPurchasing || !authReady}
+                    className={`flex-1 py-3 px-4 rounded-lg font-semibold text-white transition ${
+                      isPurchasing || !authReady
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : styles.stardustBuyButton
+                    }`}
+                  >
+                    {isPurchasing ? 'Processing...' : (!authReady ? 'Sign in required' : '✨ Confirm Purchase ✨')}
+                  </button>
                 </div>
               </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
-                <p className="text-red-200 text-sm">{error}</p>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setSelectedItem(null);
-                  setQuantity(1);
-                  setError(null);
-                }}
-                className="flex-1 py-3 px-4 border border-white/30 rounded-lg text-white hover:bg-white/10 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePurchase}
-                disabled={isPurchasing || !authReady}
-                className={`flex-1 py-3 px-4 rounded-lg font-semibold text-white transition ${
-                  isPurchasing || !authReady
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : styles.stardustBuyButton
-                }`}
-              >
-                {isPurchasing ? 'Processing...' : (!authReady ? 'Sign in required' : '✨ Confirm Purchase ✨')}
-              </button>
             </div>
           </div>
         </div>
