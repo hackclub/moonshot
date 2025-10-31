@@ -53,7 +53,7 @@ interface User {
 }
 
 // Sorting types
-type SortField = 'progress' | 'role' | 'name' | 'shipped' | 'in_review' | 'raw_hours' | 'default';
+type SortField = 'role' | 'name' | 'shipped' | 'raw_hours' | 'approved_hours' | 'stardust' | 'default';
 type SortOrder = 'asc' | 'desc';
 
 // Create a wrapper component that uses Suspense
@@ -106,7 +106,8 @@ function LeaderboardContent() {
     } else {
       // Set new field and default to appropriate order
       setSortField(field);
-      setSortOrder(field === 'progress' ? 'desc' : 'asc');
+      // Default to desc for numeric fields where higher is better
+      setSortOrder(['approved_hours', 'raw_hours', 'shipped', 'stardust'].includes(field) ? 'desc' : 'asc');
     }
   };
 
@@ -116,8 +117,7 @@ function LeaderboardContent() {
     return sortOrder === 'asc' ? '↑' : '↓';
   };
 const usersWithMetrics = users.map(user => {
-  const purchasedProgressHours = user.purchasedProgressHours || 0;
-  const metrics = calculateProgressMetrics(user.projects, purchasedProgressHours);
+  const metrics = calculateProgressMetrics(user.projects, user.totalCurrencySpent || 0, user.adminCurrencyAdjustment || 0);
   return {
     ...user,
     metrics,
@@ -129,8 +129,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
     (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   ).map(user => {
     try {
-      const purchasedProgressHours = user.purchasedProgressHours || 0;
-      return { ...user, stats: calculateProgressMetrics(user.projects || [], purchasedProgressHours) };
+      return { ...user, stats: calculateProgressMetrics(user.projects || [], user.totalCurrencySpent || 0, user.adminCurrencyAdjustment || 0) };
     } catch (error) {
       console.error('Error calculating progress metrics for user:', user.id, error);
       return { 
@@ -141,11 +140,8 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
           otherHours: 0,
           totalHours: 0,
           totalPercentage: 0,
-          totalPercentageWithPurchased: 0,
           rawHours: 0,
-          currency: 0,
-          purchasedProgressHours: 0,
-          totalProgressWithPurchased: 0
+          availablecurrency: 0
         }
       };
     }
@@ -154,13 +150,6 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
     
     try {
       switch (sortField) {
-        case 'progress':
-          result = b.stats.totalPercentageWithPurchased - a.stats.totalPercentageWithPurchased;
-          if (result === 0) {
-            // Secondary sort by viral status
-            result = +!!(b.projects || []).find(x=>x.viral) - +!!(a.projects || []).find(x=>x.viral);
-          }
-          break;
         case 'name':
           const nameA = (a.name || a.email || '').toLowerCase();
           const nameB = (b.name || b.email || '').toLowerCase();
@@ -169,15 +158,59 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
         case 'shipped':
           result = (b.projects.filter(project => project.shipped).length || 0) - (a.projects.filter(project => project.shipped).length || 0);
           break;
-        case 'in_review':
-          result = (b.projects.filter(project => project.in_review).length || 0) - (a.projects.filter(project => project.in_review).length || 0);
-          break;
         case 'raw_hours':
           result = (b.stats.rawHours || 0) - (a.stats.rawHours || 0);
           break;
+        case 'approved_hours':
+          const approvedA = (a.projects || []).reduce((sum, p) => sum + getProjectApprovedHours(p), 0);
+          const approvedB = (b.projects || []).reduce((sum, p) => sum + getProjectApprovedHours(p), 0);
+          result = approvedB - approvedA;
+          break;
+        case 'stardust':
+          const stardustA = calculateProgressMetrics(
+            a.projects,
+            a.totalCurrencySpent || 0,
+            a.adminCurrencyAdjustment || 0
+          ).availablecurrency;
+          const stardustB = calculateProgressMetrics(
+            b.projects,
+            b.totalCurrencySpent || 0,
+            b.adminCurrencyAdjustment || 0
+          ).availablecurrency;
+          result = stardustB - stardustA;
+          break;
         default:
-          // sort by most overrided hours
-          result = (b.metrics.shippedHours + b.metrics.viralHours + b.metrics.purchasedProgressHours) - (a.metrics.shippedHours + a.metrics.viralHours + a.metrics.purchasedProgressHours);
+          // Default sort: 1. approved hours, 2. # ships, 3. raw hours, 4. stardust
+          const approvedHoursA = (a.projects || []).reduce((sum, p) => sum + getProjectApprovedHours(p), 0);
+          const approvedHoursB = (b.projects || []).reduce((sum, p) => sum + getProjectApprovedHours(p), 0);
+          result = approvedHoursB - approvedHoursA;
+          
+          if (result === 0) {
+            // Tie-breaker: # ships
+            const shipsA = a.projects.filter(project => project.shipped).length || 0;
+            const shipsB = b.projects.filter(project => project.shipped).length || 0;
+            result = shipsB - shipsA;
+            
+            if (result === 0) {
+              // Tie-breaker: raw hours
+              result = (b.stats.rawHours || 0) - (a.stats.rawHours || 0);
+              
+              if (result === 0) {
+                // Tie-breaker: stardust
+                const stardustA = calculateProgressMetrics(
+                  a.projects,
+                  a.totalCurrencySpent || 0,
+                  a.adminCurrencyAdjustment || 0
+                ).availablecurrency;
+                const stardustB = calculateProgressMetrics(
+                  b.projects,
+                  b.totalCurrencySpent || 0,
+                  b.adminCurrencyAdjustment || 0
+                ).availablecurrency;
+                result = stardustB - stardustA;
+              }
+            }
+          }
           break;
       }
       
@@ -210,8 +243,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
 
   const getProgressBadge = (user: User, projects: ProjectType[]) => {
     try {
-      const purchasedProgressHours = user.purchasedProgressHours || 0;
-      const progressMetrics = calculateProgressMetrics(projects, purchasedProgressHours);
+      const progressMetrics = calculateProgressMetrics(projects, user.totalCurrencySpent || 0, user.adminCurrencyAdjustment || 0);
 
       return (
         <div className="text-xs text-gray-500">Progress hidden</div>
@@ -292,10 +324,12 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   </th>
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30"
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                    onClick={() => handleSort('approved_hours')}
                   >
                     <div className="flex items-center gap-1">
                       Approved hours
+                      <span className="text-xs">{getSortIcon('approved_hours')}</span>
                     </div>
                   </th>
                   <th 
@@ -311,10 +345,11 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   <th 
                     scope="col" 
                     className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('in_review')}
+                    onClick={() => handleSort('stardust')}
                   >
                     <div className="flex items-center gap-1">
                       {AppConfig.currencyName}
+                      <span className="text-xs">{getSortIcon('stardust')}</span>
                     </div>
                   </th>
                 </tr>
@@ -346,11 +381,6 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                           <div className="min-w-0 flex-1">
                             <div className="text-sm font-medium text-gray-900 flex items-center gap-4">
                               {user.name || 'Unknown'}
-                              {user.stats?.totalPercentageWithPurchased === 100 && (
-                                <div className="ml-1 align-middle inline-block bg-blue-500 text-white rounded-full px-2 py-1 text-xs">
-                                  <span>Invited</span>
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -392,7 +422,6 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                         <div className="text-sm text-gray-900">
                           {calculateProgressMetrics(
                             user.projects, 
-                            user.purchasedProgressHours || 0,
                             user.totalCurrencySpent || 0,
                             user.adminCurrencyAdjustment || 0
                           ).availablecurrency}
@@ -423,6 +452,16 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   Name {sortField === 'name' && getSortIcon('name')}
                 </button>
                 <button
+                  onClick={() => handleSort('approved_hours')}
+                  className={`px-3 py-1 text-xs rounded-full border ${
+                    sortField === 'approved_hours' 
+                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
+                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                  }`}
+                >
+                  Approved Hours {sortField === 'approved_hours' && getSortIcon('approved_hours')}
+                </button>
+                <button
                   onClick={() => handleSort('raw_hours')}
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'raw_hours' 
@@ -431,6 +470,16 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   }`}
                 >
                   Raw Hours {sortField === 'raw_hours' && getSortIcon('raw_hours')}
+                </button>
+                <button
+                  onClick={() => handleSort('stardust')}
+                  className={`px-3 py-1 text-xs rounded-full border ${
+                    sortField === 'stardust' 
+                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
+                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                  }`}
+                >
+                  {AppConfig.currencyName} {sortField === 'stardust' && getSortIcon('stardust')}
                 </button>
                 {/* Progress sort removed */}
                 
@@ -463,11 +512,6 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                         <div>
                           <div className="text-base font-medium text-gray-900 flex items-center gap-1">
                             {user.name || 'Unknown'}
-                            {user.stats?.totalPercentageWithPurchased === 100 && (
-                                <div className="ml-1 align-middle inline-block bg-blue-500 text-white rounded-full px-2 py-1 text-xs">
-                                  <span>Invited</span>
-                                </div>
-                              )}
                           </div>
                         </div>
                       </div>
@@ -499,7 +543,6 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                           <span className="text-gray-800">
                             {calculateProgressMetrics(
                               user.projects, 
-                              user.purchasedProgressHours || 0,
                               user.totalCurrencySpent || 0,
                               user.adminCurrencyAdjustment || 0
                             ).availablecurrency}

@@ -5,8 +5,7 @@ import { opts } from '@/app/api/auth/[...nextauth]/route';
 import { logShellModification } from '@/lib/auditLogger';
 import { calculateProgressMetrics } from '@/lib/project-client';
 
-// Alias route for updating user currency (formerly "shells").
-// Mirrors logic from /app/api/admin/users/[userId]/shells/route.ts
+// Admin endpoint for adjusting user currency balance (formerly "shells" in Shipwrecked)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
@@ -61,7 +60,6 @@ export async function PATCH(
 
     const currentMetrics = calculateProgressMetrics(
       targetUser.projects,
-      targetUser.purchasedProgressHours,
       targetUser.totalCurrencySpent,
       targetUser.adminCurrencyAdjustment
     );
@@ -77,7 +75,6 @@ export async function PATCH(
 
     const newMetrics = calculateProgressMetrics(
       targetUser.projects,
-      targetUser.purchasedProgressHours,
       updatedUser.totalCurrencySpent,
       updatedUser.adminCurrencyAdjustment
     );

@@ -40,7 +40,6 @@ export async function GET() {
     // Calculate comprehensive currency balance using the enhanced function
     const metrics = calculateProgressMetrics(
       projects,
-      user.purchasedProgressHours,
       user.totalCurrencySpent,
       user.adminCurrencyAdjustment
     );

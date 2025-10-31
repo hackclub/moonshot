@@ -6,9 +6,6 @@ export interface ProgressMetrics {
   totalPercentage: number;
   rawHours: number;
   availablecurrency: number;
-  purchasedProgressHours: number;
-  totalProgressWithPurchased: number;
-  totalPercentageWithPurchased: number;
 }
 
 // Helper to get project hours with our matching logic
@@ -74,7 +71,6 @@ function getProjectJournalApprovedHours(project: any): number {
 // Centralized function to calculate all progress metrics
 export function calculateProgressMetrics(
   projects: any[], 
-  purchasedProgressHours: number = 0,
   totalCurrencySpent: number = 0,
   adminCurrencyAdjustment: number = 0
 ): ProgressMetrics {
@@ -86,10 +82,7 @@ export function calculateProgressMetrics(
       totalHours: 0,
       totalPercentage: 0,
       rawHours: 0,
-      availablecurrency: Math.max(0, 0 - totalCurrencySpent + adminCurrencyAdjustment), // Final available currency
-      purchasedProgressHours,
-      totalProgressWithPurchased: purchasedProgressHours,
-      totalPercentageWithPurchased: Math.min(purchasedProgressHours, 100)
+      availablecurrency: Math.max(0, 0 - totalCurrencySpent + adminCurrencyAdjustment) // Final available currency
     };
   }
 
@@ -128,8 +121,6 @@ export function calculateProgressMetrics(
   // Percentages and progress are no longer used
   const totalHours = 0;
   const totalPercentage = 0;
-  const totalProgressWithPurchased = 0;
-  const totalPercentageWithPurchased = 0;
 
   // availablecurrency now represents final available currency (earned - spent + admin adjustment)
   const finalAvailablecurrency = Math.max(0, Math.floor(earnedCurrency) - totalCurrencySpent + adminCurrencyAdjustment);
@@ -141,9 +132,6 @@ export function calculateProgressMetrics(
     totalHours,
     totalPercentage,
     rawHours: rawHours,
-    availablecurrency: finalAvailablecurrency,
-    purchasedProgressHours,
-    totalProgressWithPurchased,
-    totalPercentageWithPurchased
+    availablecurrency: finalAvailablecurrency
   };
 } 

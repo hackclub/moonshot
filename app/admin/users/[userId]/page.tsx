@@ -165,7 +165,6 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
   // Calculate progress metrics with admin adjustments
   const progressMetrics: ProgressMetrics = user?.projects ? calculateProgressMetrics(
     user.projects, 
-    user.purchasedProgressHours || 0,
     user.totalCurrencySpent || 0,
     user.adminCurrencyAdjustment || 0
   ) : {
@@ -175,10 +174,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
     totalHours: 0,
     totalPercentage: 0,
     rawHours: 0,
-    availablecurrency: 0,
-    purchasedProgressHours: 0,
-    totalProgressWithPurchased: 0,
-    totalPercentageWithPurchased: 0
+    availablecurrency: 0
   };
 
   if (status !== 'authenticated') {
@@ -499,7 +495,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center text-white">
               <div>
                 <div className="text-2xl font-bold text-white">
-                  {user?.projects ? calculateProgressMetrics(user.projects, user.purchasedProgressHours || 0).availablecurrency : 0}
+                  {user?.projects ? calculateProgressMetrics(user.projects, user.totalCurrencySpent || 0, user.adminCurrencyAdjustment || 0).availablecurrency : 0}
                 </div>
                 <div className="text-sm text-white/70">Earned currency</div>
               </div>
