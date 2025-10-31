@@ -19,6 +19,7 @@ import { useMDXComponents } from '@/mdx-components';
 import { lazy, Suspense } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 
 // Custom CSS for static glow effect
 const glowStyles = `
@@ -394,7 +395,9 @@ function AIAnalysisSection({ project }: { project: Project }) {
                 <div>
                   <h4 className="text-sm font-medium text-white mb-2">Project Summary</h4>
                   <div className="bg-black/40 p-3 rounded border border-white/10 prose prose-sm max-w-none ai-analysis-content text-white">
-                    <ReactMarkdown>{analysisData.summary}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                      {analysisData.summary}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}
@@ -403,7 +406,9 @@ function AIAnalysisSection({ project }: { project: Project }) {
                 <div>
                   <h4 className="text-sm font-medium text-white mb-2">Setup Instructions</h4>
                   <div className="bg-black/40 p-3 rounded border border-white/10 prose prose-sm max-w-none ai-analysis-content text-white">
-                    <ReactMarkdown>{analysisData.setupInstructions}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                      {analysisData.setupInstructions}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}

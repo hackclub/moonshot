@@ -6,6 +6,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 
 // Enum for audit log event types (matching Prisma schema)
 enum AuditLogEventType {
@@ -401,7 +402,9 @@ export default function AuditLogsPage() {
                         </td>
                         <td className="px-2 sm:px-6 py-3 sm:py-4 text-sm">
                           <div className="text-sm text-white prose prose-invert prose-sm max-w-none">
-                            <ReactMarkdown>{log.description}</ReactMarkdown>
+                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                              {log.description}
+                            </ReactMarkdown>
                           </div>
                           
                           {/* Mobile-only: Show user info inline on mobile */}

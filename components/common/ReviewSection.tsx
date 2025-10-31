@@ -10,6 +10,7 @@ import ProjectFlagsEditor, { ProjectFlags } from './ProjectFlagsEditor';
 import HackatimeLanguageStats from './HackatimeLanguageStats';
 import ReviewChecklist from './ReviewChecklist';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 
 interface ReviewerInfo {
   id: string;
@@ -840,7 +841,9 @@ export default function ReviewSection({
                       </div>
                     </div>
                     <div className="text-white prose prose-invert prose-sm max-w-none">
-                      <ReactMarkdown>{review.comment}</ReactMarkdown>
+                      <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                        {review.comment}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 </div>
