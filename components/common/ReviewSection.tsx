@@ -33,6 +33,7 @@ interface ReviewSectionProps {
   projectOwnerUserId?: string; // ID of the project owner for fetching language stats
   initialFlags?: ProjectFlags;
   onFlagsUpdated?: (updatedProject: unknown) => void;
+  onReviewSubmitted?: () => void; // Callback after successful review submission
   rawHours?: number;
   reviewType?: string;
   hackatimeLinks?: Array<{
@@ -43,6 +44,8 @@ interface ReviewSectionProps {
   }>;
   journalRawHours?: number;
   journalApprovedHours?: number;
+  codeUrl?: string;
+  playableUrl?: string;
 }
 
 export default function ReviewSection({ 
@@ -50,10 +53,13 @@ export default function ReviewSection({
   projectOwnerUserId,
   initialFlags,
   onFlagsUpdated,
+  onReviewSubmitted,
   reviewType,
   hackatimeLinks = [],
   journalRawHours = 0,
   journalApprovedHours = 0,
+  codeUrl,
+  playableUrl,
 }: ReviewSectionProps) {
   const { data: session, status } = useSession();
   const { isReviewMode } = useReviewMode();
@@ -452,6 +458,11 @@ export default function ReviewSection({
       setChecklistJustification(''); // Clear checklist justification
       setShowChecklist(false); // Hide checklist
       toast.success('Review submitted successfully');
+      
+      // Call the onReviewSubmitted callback if provided
+      if (onReviewSubmitted) {
+        onReviewSubmitted();
+      }
     } catch (error) {
       console.error('[Review] Error submitting review:', error);
       toast.error('Failed to submit review');
@@ -533,6 +544,37 @@ export default function ReviewSection({
           </div>
         )}
       </div>
+      
+      {/* Project Links - Show if available */}
+      {(codeUrl || playableUrl) && (
+        <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-3 rounded-lg border border-blue-400/20">
+          <h4 className="text-sm font-medium text-white mb-2">Quick Links</h4>
+          <div className="flex flex-col sm:flex-row gap-2">
+            {codeUrl && (
+              <a 
+                href={codeUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-blue-300 hover:text-blue-200 transition-colors text-sm"
+              >
+                <Icon glyph="github" size={16} />
+                <span>Code Repository</span>
+              </a>
+            )}
+            {playableUrl && (
+              <a 
+                href={playableUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-purple-300 hover:text-purple-200 transition-colors text-sm"
+              >
+                <Icon glyph="link" size={16} />
+                <span>Live Demo</span>
+              </a>
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Project Flags Editor */}
       {isReviewMode && initialFlags && (
