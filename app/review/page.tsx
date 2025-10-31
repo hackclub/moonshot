@@ -681,6 +681,8 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
             rawHours={project.rawHours}
             reviewType={project.latestReview?.reviewType || 'Other'}
             hackatimeLinks={project.hackatimeLinks}
+            codeUrl={project.codeUrl}
+            playableUrl={project.playableUrl}
           />
         </div>
 

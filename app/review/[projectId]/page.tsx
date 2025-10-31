@@ -109,11 +109,14 @@ function ReviewProjectPageInner() {
               projectOwnerUserId={project.userId}
               initialFlags={{ shipped: project.shipped, viral: project.viral, in_review: project.in_review, hackatimeLinkOverrides: {} }}
               onFlagsUpdated={() => {}}
+              onReviewSubmitted={() => router.push('/review')}
               journalRawHours={(project as any).journalRawHours || 0}
               journalApprovedHours={(project as any).journalApprovedHours || 0}
               reviewType={project.latestReview?.reviewType || 'Other'}
               hackatimeLinks={project.hackatimeLinks || []}
               rawHours={project.rawHours}
+              codeUrl={project.codeUrl}
+              playableUrl={project.playableUrl}
             />
           </div>
         </div>
