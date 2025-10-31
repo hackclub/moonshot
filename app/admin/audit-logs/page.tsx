@@ -6,7 +6,17 @@ import { apiFetch } from '@/lib/apiFetch';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
 import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+
+// Custom sanitization schema that allows video tags while blocking scripts
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'video'],
+  attributes: {
+    ...defaultSchema.attributes,
+    video: ['class', 'controls', 'playsinline', 'src', 'style', 'width', 'height'],
+  },
+};
 
 // Enum for audit log event types (matching Prisma schema)
 enum AuditLogEventType {
@@ -402,7 +412,7 @@ export default function AuditLogsPage() {
                         </td>
                         <td className="px-2 sm:px-6 py-3 sm:py-4 text-sm">
                           <div className="text-sm text-white prose prose-invert prose-sm max-w-none">
-                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                            <ReactMarkdown rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}>
                               {log.description}
                             </ReactMarkdown>
                           </div>

@@ -19,7 +19,17 @@ import { useMDXComponents } from '@/mdx-components';
 import { lazy, Suspense } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
 import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+
+// Custom sanitization schema that allows video tags while blocking scripts
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'video'],
+  attributes: {
+    ...defaultSchema.attributes,
+    video: ['class', 'controls', 'playsinline', 'src', 'style', 'width', 'height'],
+  },
+};
 
 // Custom CSS for static glow effect
 const glowStyles = `
@@ -395,7 +405,7 @@ function AIAnalysisSection({ project }: { project: Project }) {
                 <div>
                   <h4 className="text-sm font-medium text-white mb-2">Project Summary</h4>
                   <div className="bg-black/40 p-3 rounded border border-white/10 prose prose-sm max-w-none ai-analysis-content text-white">
-                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                    <ReactMarkdown rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}>
                       {analysisData.summary}
                     </ReactMarkdown>
                   </div>
@@ -406,7 +416,7 @@ function AIAnalysisSection({ project }: { project: Project }) {
                 <div>
                   <h4 className="text-sm font-medium text-white mb-2">Setup Instructions</h4>
                   <div className="bg-black/40 p-3 rounded border border-white/10 prose prose-sm max-w-none ai-analysis-content text-white">
-                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                    <ReactMarkdown rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}>
                       {analysisData.setupInstructions}
                     </ReactMarkdown>
                   </div>
