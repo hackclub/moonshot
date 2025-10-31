@@ -269,7 +269,7 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
       </div>
       
       <div className="mb-6">
-        <div className="relative">
+        <div className="relative" style={{ width: '400px', maxWidth: '100%' }}>
           <input
             type="text"
             placeholder="Search users..."
@@ -290,42 +290,32 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
       ) : (
         <>
           {/* Desktop Table View */}
-          <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+          <div className="hidden lg:block rounded-lg shadow overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <table className="min-w-full divide-y" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+              <thead style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
                 <tr>
-                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-15">
-                    #
-                  </th>
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-40 cursor-pointer select-none"
                     onClick={() => handleSort('name')}
+                    style={{ transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <div className="flex items-center gap-1">
                       User
                       <span className="text-xs">{getSortIcon('name')}</span>
                     </div>
                   </th>
-                  <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
-                    Joined
-                  </th>
                   {/* Progress column removed */}
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
-                    onClick={() => handleSort('shipped')}
-                  >
-                    <div className="flex items-center gap-1">
-                      # Shipped
-                      <span className="text-xs">{getSortIcon('shipped')}</span>
-                    </div>
-                  </th>
-                  <th 
-                    scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-30 cursor-pointer select-none"
                     onClick={() => handleSort('approved_hours')}
+                    style={{ transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <div className="flex items-center gap-1">
                       Approved hours
@@ -334,8 +324,24 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   </th>
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-30 cursor-pointer select-none"
+                    onClick={() => handleSort('shipped')}
+                    style={{ transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <div className="flex items-center gap-1">
+                      # Shipped
+                      <span className="text-xs">{getSortIcon('shipped')}</span>
+                    </div>
+                  </th>
+                  <th 
+                    scope="col" 
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-30 cursor-pointer select-none"
                     onClick={() => handleSort('raw_hours')}
+                    style={{ transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <div className="flex items-center gap-1">
                       Raw Hours
@@ -344,8 +350,11 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   </th>
                   <th 
                     scope="col" 
-                    className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-30 cursor-pointer hover:bg-gray-100 select-none"
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider min-w-30 cursor-pointer select-none"
                     onClick={() => handleSort('stardust')}
+                    style={{ transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <div className="flex items-center gap-1">
                       {AppConfig.currencyName}
@@ -354,10 +363,10 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-3 py-4 text-center text-gray-500">
+                    <td colSpan={7} className="px-3 py-4 text-center text-gray-300">
                       No users found
                     </td>
                   </tr>
@@ -365,43 +374,24 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   filteredUsers.map((user, index) => (
                     <tr key={user.id}>
                       <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-500">
-                          {index + 1}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap">
                         <div className="flex items-center">
                           {user.image ? (
                             <img className="h-8 w-8 rounded-full mr-2" src={user.image} alt={user.name || 'User'} />
                           ) : (
-                            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-gray-600 font-bold text-xs">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                            <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center mr-2">
+                              <span className="text-gray-200 font-bold text-xs">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
                             </div>
                           )}
                           <div className="min-w-0 flex-1">
-                            <div className="text-sm font-medium text-gray-900 flex items-center gap-4">
+                            <div className="text-sm font-medium text-white flex items-center gap-4">
                               {user.name || 'Unknown'}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-xs text-gray-500">
-                          {new Date(user.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: '2-digit'
-                          })}
-                        </div>
-                      </td>
                       {/* Progress badge removed */}
                       <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {user.projects.filter(project => project.shipped).length}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-white">
                           {(() => {
                             try {
                               const projects = user.projects || [];
@@ -414,12 +404,17 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-white">
+                          {user.projects.filter(project => project.shipped).length}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap">
+                        <div className="text-sm text-white">
                           {user.stats.rawHours.toFixed(1)}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-white">
                           {calculateProgressMetrics(
                             user.projects, 
                             user.totalCurrencySpent || 0,
@@ -438,16 +433,17 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
           {/* Mobile Card View */}
           <div className="lg:hidden">
             {/* Mobile Sort Controls */}
-            <div className="mb-4 bg-white rounded-lg shadow p-4">
-              <div className="text-sm font-medium text-gray-700 mb-2">Sort by:</div>
+            <div className="mb-4 rounded-lg shadow p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <div className="text-sm font-medium text-gray-300 mb-2">Sort by:</div>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleSort('name')}
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'name' 
-                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'border-gray-500 text-gray-300'
                   }`}
+                  style={sortField !== 'name' ? { backgroundColor: 'rgba(255,255,255,0.1)' } : {}}
                 >
                   Name {sortField === 'name' && getSortIcon('name')}
                 </button>
@@ -455,19 +451,32 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   onClick={() => handleSort('approved_hours')}
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'approved_hours' 
-                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'border-gray-500 text-gray-300'
                   }`}
+                  style={sortField !== 'approved_hours' ? { backgroundColor: 'rgba(255,255,255,0.1)' } : {}}
                 >
                   Approved Hours {sortField === 'approved_hours' && getSortIcon('approved_hours')}
+                </button>
+                <button
+                  onClick={() => handleSort('shipped')}
+                  className={`px-3 py-1 text-xs rounded-full border ${
+                    sortField === 'shipped' 
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'border-gray-500 text-gray-300'
+                  }`}
+                  style={sortField !== 'shipped' ? { backgroundColor: 'rgba(255,255,255,0.1)' } : {}}
+                >
+                  # Shipped {sortField === 'shipped' && getSortIcon('shipped')}
                 </button>
                 <button
                   onClick={() => handleSort('raw_hours')}
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'raw_hours' 
-                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'border-gray-500 text-gray-300'
                   }`}
+                  style={sortField !== 'raw_hours' ? { backgroundColor: 'rgba(255,255,255,0.1)' } : {}}
                 >
                   Raw Hours {sortField === 'raw_hours' && getSortIcon('raw_hours')}
                 </button>
@@ -475,9 +484,10 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
                   onClick={() => handleSort('stardust')}
                   className={`px-3 py-1 text-xs rounded-full border ${
                     sortField === 'stardust' 
-                      ? 'bg-blue-100 border-blue-300 text-blue-800' 
-                      : 'bg-gray-100 border-gray-300 text-gray-700'
+                      ? 'bg-blue-600 border-blue-500 text-white' 
+                      : 'border-gray-500 text-gray-300'
                   }`}
+                  style={sortField !== 'stardust' ? { backgroundColor: 'rgba(255,255,255,0.1)' } : {}}
                 >
                   {AppConfig.currencyName} {sortField === 'stardust' && getSortIcon('stardust')}
                 </button>
@@ -487,30 +497,28 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
             </div>
             
             {filteredUsers.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <p className="text-gray-500">No users found</p>
+              <div className="text-center py-12 rounded-lg shadow" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                <p className="text-gray-300">No users found</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {filteredUsers.map((user, index) => (
                   <div 
                     key={user.id}
-                    className="block bg-white rounded-lg shadow-md overflow-hidden"
+                    className="block rounded-lg shadow-md overflow-hidden"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
                   >
                     <div className="p-4">
                       <div className="flex items-center mb-3">
-                        <div className="text-lg font-medium text-gray-500 mr-3">
-                          #{index + 1}
-                        </div>
                         {user.image ? (
                           <img className="h-12 w-12 rounded-full mr-3" src={user.image} alt={user.name || 'User'} />
                         ) : (
-                          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                            <span className="text-gray-600 font-bold">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                          <div className="h-12 w-12 rounded-full bg-gray-600 flex items-center justify-center mr-3">
+                            <span className="text-gray-200 font-bold">{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
                           </div>
                         )}
                         <div>
-                          <div className="text-base font-medium text-gray-900 flex items-center gap-1">
+                          <div className="text-base font-medium text-white flex items-center gap-1">
                             {user.name || 'Unknown'}
                           </div>
                         </div>
@@ -518,44 +526,39 @@ const sortedUsers = usersWithMetrics.sort((a, b) => (b.metrics.shippedHours + b.
 
                       <div className="grid grid-cols-2 gap-x-2 gap-y-3 mt-3 text-sm">
                         <div>
-                          {/* Progress hidden */}
+                          <span className="text-gray-300 block">Approved Hours</span>
+                          <span className="text-white">
+                            {(() => {
+                              try {
+                                const projects = user.projects || [];
+                                const approved = projects.reduce((sum, p) => sum + getProjectApprovedHours(p), 0);
+                                return approved.toFixed(1);
+                              } catch {
+                                return '0.0';
+                              }
+                            })()}
+                          </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block"># Shipped</span>
-                          <span className="text-gray-800">
+                          <span className="text-gray-300 block"># Shipped</span>
+                          <span className="text-white">
                             {user.projects.filter(project => project.shipped).length}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block"># In Review</span>
-                          <span className="text-gray-800">
-                            {user.projects.filter(project => project.in_review).length}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500 block">Raw Hours</span>
-                          <span className="text-gray-800">
+                          <span className="text-gray-300 block">Raw Hours</span>
+                          <span className="text-white">
                             {user.stats.rawHours.toFixed(1)}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-500 block">{AppConfig.currencyName}</span>
-                          <span className="text-gray-800">
+                          <span className="text-gray-300 block">{AppConfig.currencyName}</span>
+                          <span className="text-white">
                             {calculateProgressMetrics(
                               user.projects, 
                               user.totalCurrencySpent || 0,
                               user.adminCurrencyAdjustment || 0
                             ).availablecurrency}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500 block">Joined</span>
-                          <span className="text-gray-800">
-                            {new Date(user.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
                           </span>
                         </div>
                       </div>
