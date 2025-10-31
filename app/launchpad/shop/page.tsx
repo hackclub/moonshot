@@ -13,6 +13,7 @@ interface ShopItem {
   image?: string;
   price: number;
   availableInventory?: number | null;
+  userHasPurchased?: boolean;
 }
 
 interface ShellBalance {
@@ -277,7 +278,7 @@ export default function ShopPage() {
                 </div>
                 
                 {/* Check if user can afford */}
-                {usercurrency !== null && (
+                {usercurrency !== null && !(featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' && featuredItem.userHasPurchased) && (
                   <div className={`text-sm px-2 py-1 rounded-full ${
                     usercurrency.currency >= featuredItem.price 
                       ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
@@ -299,19 +300,28 @@ export default function ShopPage() {
               )}
 
               {/* Buy Button */}
-              <button
-                onClick={() => setSelectedItem(featuredItem)}
-                disabled={(usercurrency !== null && usercurrency.currency < featuredItem.price) || (typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0)}
-                className={`${styles.stardustBuyButton} ${
-                  (usercurrency !== null && usercurrency.currency < featuredItem.price) || (typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0)
-                    ? 'opacity-50 cursor-not-allowed'
-                    : ''
-                }`}
-              >
-                {typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0
-                  ? 'Sold out'
-                  : (usercurrency !== null && usercurrency.currency < featuredItem.price ? 'Not enough stardust' : 'Buy Now')}
-              </button>
+              {featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' && featuredItem.userHasPurchased ? (
+                <button
+                  disabled={true}
+                  className={styles.stardustInvitedButton}
+                >
+                  You're invited!
+                </button>
+              ) : (
+                <button
+                  onClick={() => setSelectedItem(featuredItem)}
+                  disabled={(usercurrency !== null && usercurrency.currency < featuredItem.price) || (typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0)}
+                  className={`${styles.stardustBuyButton} ${
+                    (usercurrency !== null && usercurrency.currency < featuredItem.price) || (typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                  }`}
+                >
+                  {typeof featuredItem.availableInventory === 'number' && featuredItem.availableInventory <= 0
+                    ? 'Sold out'
+                    : (usercurrency !== null && usercurrency.currency < featuredItem.price ? 'Not enough stardust' : 'Buy Now')}
+                </button>
+              )}
             </div>
           </div>
         </div>

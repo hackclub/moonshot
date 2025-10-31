@@ -708,6 +708,37 @@
   box-shadow: none;
 }
 
+/* Invited state button for Moonshot Ticket */
+.stardustInvitedButton {
+  background: linear-gradient(135deg, #f59e0b, #facc15);
+  border: none;
+  border-radius: 15px;
+  padding: 0.75rem 1.5rem;
+  color: #1f2937;
+  font-weight: 900;
+  width: 100%;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.35), 0 0 36px rgba(245, 158, 11, 0.25);
+}
+
+.stardustInvitedButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: invitedShimmer 3s ease-in-out infinite;
+}
+
+@keyframes invitedShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
 /* Special glow for the "Moonshot Ticket" item */
 .glowMoonshotTicket {
   border-color: rgba(255, 230, 120, 0.95);

@@ -53,10 +53,34 @@ export async function GET() {
       })
     );
 
-    // Filter out items with 0 inventory (null means unlimited)
-    const itemsInStock = itemsWithAvailability.filter(
-      (item) => item.availableInventory === null || item.availableInventory > 0
-    );
+    // Get user's purchase counts for items with per-user limits
+    const userPurchaseCounts = await prisma.shopOrder.groupBy({
+      by: ['itemId'],
+      where: {
+        userId: user.id,
+      },
+      _sum: {
+        quantity: true,
+      },
+    });
+
+    // Create a map of itemId -> total quantity purchased by user
+    const purchaseCountMap = userPurchaseCounts.reduce((acc, item) => {
+      acc[item.itemId] = item._sum.quantity || 0;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Filter out items with 0 inventory (null means unlimited) but
+    // keep the Moonshot Ticket visible if the user has purchased it.
+    const itemsInStock = itemsWithAvailability.filter((item) => {
+      const isMoonshotTicket = item.name.trim().toLowerCase() === 'moonshot ticket';
+      const userHasPurchased = (purchaseCountMap[item.id] || 0) > 0;
+      return (
+        item.availableInventory === null ||
+        item.availableInventory > 0 ||
+        (isMoonshotTicket && userHasPurchased)
+      );
+    });
 
     // Get pricing bounds from global config
     const globalConfigs = await prisma.globalConfig.findMany({
@@ -76,26 +100,15 @@ export async function GET() {
     const maxPercent = parseFloat(configMap.price_random_max_percent || '110');
     const globalDollarsPerHour = parseFloat(configMap.dollars_per_hour || '10');
 
-    // Get user's purchase counts for items with per-user limits
-    const userPurchaseCounts = await prisma.shopOrder.groupBy({
-      by: ['itemId'],
-      where: {
-        userId: user.id,
-      },
-      _sum: {
-        quantity: true,
-      },
-    });
-
-    // Create a map of itemId -> total quantity purchased by user
-    const purchaseCountMap = userPurchaseCounts.reduce((acc, item) => {
-      acc[item.itemId] = item._sum.quantity || 0;
-      return acc;
-    }, {} as Record<string, number>);
-
     // Filter out items where user has reached their purchase limit
     // Note: Items with 0 inventory are already filtered out above (inventory trumps per-user limits)
     const availableItems = itemsInStock.filter((item) => {
+      const isMoonshotTicket = item.name.trim().toLowerCase() === 'moonshot ticket';
+      if (isMoonshotTicket) {
+        // Always show Moonshot Ticket, even if per-user limit reached,
+        // so users who purchased see their invitation state in the UI.
+        return true;
+      }
       // If item has maxPurchasesPerUser set
       if (item.maxPurchasesPerUser !== null && item.maxPurchasesPerUser !== undefined) {
         const userPurchased = purchaseCountMap[item.id] || 0;
@@ -130,6 +143,7 @@ export async function GET() {
           image: item.image,
           price: calculateCurrencyPrice(item.usdCost, dollarsPerHour),
           availableInventory: (item as any).availableInventory ?? null,
+          userHasPurchased: (purchaseCountMap[item.id] || 0) > 0,
         };
       }
       // Check if randomized pricing is enabled for this item
@@ -141,6 +155,7 @@ export async function GET() {
           image: item.image,
           price: calculateRandomizedPrice(user.id, item.id, item.price, minPercent, maxPercent),
           availableInventory: (item as any).availableInventory ?? null,
+          userHasPurchased: (purchaseCountMap[item.id] || 0) > 0,
         };
       }
       // Otherwise, use static price
@@ -152,6 +167,7 @@ export async function GET() {
           image: item.image,
           price: item.price,
           availableInventory: (item as any).availableInventory ?? null,
+          userHasPurchased: (purchaseCountMap[item.id] || 0) > 0,
         };
       }
     });
