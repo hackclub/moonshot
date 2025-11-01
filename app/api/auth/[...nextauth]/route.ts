@@ -381,7 +381,7 @@ export const opts: NextAuthOptions = {
             code: String(code),
             client_id: process.env.IDENTITY_CLIENT_ID ?? "",
             client_secret: process.env.IDENTITY_CLIENT_SECRET ?? "",
-            redirect_uri: `${process.env.NEXTAUTH_URL ?? ""}/launchpad/login`,
+            redirect_uri: `${process.env.NEXTAUTH_URL ?? ""}/identity`,
             grant_type: "authorization_code",
           }).toString();
 
@@ -391,7 +391,10 @@ export const opts: NextAuthOptions = {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: tokenParams,
           });
-          if (!tokenResponse.ok) return null;
+          if (!tokenResponse.ok) {
+            console.error('Identity token exchange failed:', tokenResponse.status, await tokenResponse.text());
+            return null;
+          }
 
           const { access_token } = await tokenResponse.json();
 
@@ -402,13 +405,19 @@ export const opts: NextAuthOptions = {
               headers: { Authorization: `Bearer ${access_token}` },
             },
           );
-          if (!userInfoResponse.ok) return null;
+          if (!userInfoResponse.ok) {
+            console.error('Identity user info fetch failed:', userInfoResponse.status, await userInfoResponse.text());
+            return null;
+          }
 
           const { identity } = await userInfoResponse.json();
           const email = identity?.primary_email;
           const name = `${identity?.first_name ?? ""}${identity?.last_name ?? ""}`;
 
-          if (!email || !name) return null;
+          if (!email || !name) {
+            console.error('Identity missing required fields:', { email, name, identity });
+            return null;
+          }
 
           // Upsert user record in database
           const userRecord = await prisma.user.upsert({
@@ -417,8 +426,10 @@ export const opts: NextAuthOptions = {
             create: { email, name, identityToken: access_token },
           });
 
+          console.log('Identity login successful for user:', email);
           return userRecord;
-        } catch {
+        } catch (error) {
+          console.error('Identity login error:', error);
           return null;
         }
       },

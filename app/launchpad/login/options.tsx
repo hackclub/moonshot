@@ -28,9 +28,10 @@ export default function LoginOptions() {
   }
 
   async function loginWithHcIdentity() {
-    const response = await fetch("/api/identity/url?redirect_uri=" + encodeURIComponent("launchpad/login"));
+    // Don't pass redirect_uri param to use the default '/identity' which is configured in Identity service
+    const response = await fetch("/api/identity/url");
     const data = await response.json();
-    window.open(data.url, '_blank');
+    window.location.href = data.url; // Use same window instead of popup for OAuth flow
   }
 
   return (
@@ -47,8 +48,22 @@ export default function LoginOptions() {
 
         <div className="login-card">
           <p className="description">
-            Enter your email to sign in.
+            Use the{" "}
+            <span className="highlight-text">
+              same email / slack account on your Hackatime account
+            </span>{" "}
+            to sign in! You do not need to have a Moonshot account to begin.
           </p>
+
+          <button className="slack-button" onClick={loginWithSlack}>
+            <img
+              src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
+              srcSet="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x"
+              alt="Sign in with Slack"
+            />
+          </button>
+
+          <div className="divider">or</div>
 
           <form action={loginWithEmail} className="email-form">
             <input

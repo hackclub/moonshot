@@ -1,10 +1,12 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession, signIn, SessionProvider } from "next-auth/react";
 
 function IdentityCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status: sessionStatus } = useSession();
   const [status, setStatus] = useState<'loading'|'success'|'error'|'pending'>('loading');
   const [message, setMessage] = useState('');
 
@@ -16,14 +18,38 @@ function IdentityCallbackContent() {
       return;
     }
 
+    // Wait for session status to be determined
+    if (sessionStatus === 'loading') {
+      return;
+    }
+
     // Prevent multiple executions of the same code
     let executed = false;
 
-    async function exchangeCode() {
+    async function handleIdentityCallback() {
       if (executed) return;
       executed = true;
       
       setStatus('loading');
+      
+      // If NOT logged in, use code for LOGIN
+      if (!session) {
+        console.log('No session found, using code for login');
+        try {
+          await signIn("hc-identity", { 
+            code, 
+            callbackUrl: "/launchpad/login/success" 
+          });
+        } catch (error) {
+          console.error('Login error:', error);
+          setStatus('error');
+          setMessage('Failed to log in with Hack Club Identity. Please try again.');
+        }
+        return;
+      }
+      
+      // If ALREADY logged in, use code for VERIFICATION
+      console.log('Session found, using code for identity verification');
       try {
         const response = await fetch('/api/identity/token', {
           method: 'POST',
@@ -65,18 +91,18 @@ function IdentityCallbackContent() {
         setMessage(`Failed to verify identity: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
-    exchangeCode();
-  }, [searchParams]);
+    handleIdentityCallback();
+  }, [searchParams, session, sessionStatus]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded shadow max-w-md w-full text-center">
-        <h1 className="text-2xl font-bold mb-4">Identity Verification</h1>
-        {status === 'loading' && <p className="mb-4">Verifying your identity...</p>}
-        {status === 'success' && <p className="mb-4 text-green-600">{message}</p>}
-        {status === 'pending' && <p className="mb-4 text-yellow-600">{message}</p>}
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4">
+      <div className="p-8 rounded-lg shadow-lg max-w-md w-full text-center border" style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderColor: 'rgba(255,255,255,0.1)' }}>
+        <h1 className="text-2xl font-bold mb-4 text-white">Identity Verification</h1>
+        {status === 'loading' && <p className="mb-4 text-white">Verifying your identity...</p>}
+        {status === 'success' && <p className="mb-4 text-green-400">{message}</p>}
+        {status === 'pending' && <p className="mb-4 text-yellow-400">{message}</p>}
         {status === 'error' && (
-          <p className="mb-4 text-red-600">
+          <p className="mb-4 text-red-400">
             {message.includes('identity.hackclub.com') ? (
               <>
                 Your submission got rejected! Go to{' '}
@@ -84,7 +110,7 @@ function IdentityCallbackContent() {
                   href="https://identity.hackclub.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="underline hover:text-red-800"
+                  className="underline hover:text-red-300"
                 >
                   identity.hackclub.com
                 </a>{' '}
@@ -96,7 +122,7 @@ function IdentityCallbackContent() {
           </p>
         )}
         <button
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           onClick={() => router.push('/launchpad')}
         >
           Return to Moonshot
@@ -108,15 +134,17 @@ function IdentityCallbackContent() {
 
 export default function IdentityCallback() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <div className="bg-white p-8 rounded shadow max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold mb-4">Identity Verification</h1>
-          <p className="mb-4">Loading...</p>
+    <SessionProvider>
+      <Suspense fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4">
+          <div className="p-8 rounded-lg shadow-lg max-w-md w-full text-center border" style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderColor: 'rgba(255,255,255,0.1)' }}>
+            <h1 className="text-2xl font-bold mb-4 text-white">Identity Verification</h1>
+            <p className="mb-4 text-white">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
-      <IdentityCallbackContent />
-    </Suspense>
+      }>
+        <IdentityCallbackContent />
+      </Suspense>
+    </SessionProvider>
   );
 } 
