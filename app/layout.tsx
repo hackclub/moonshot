@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="theme-reskin">
+    <html lang="en" className="theme-reskin" suppressHydrationWarning>
       <head></head>
       <body className={`${kavoon.variable}`}>
         <ChunkReloadGuard />
