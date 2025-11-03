@@ -486,6 +486,30 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
         .journal-video { width: 100%; height: auto; display: block; background: #000; border-radius: 8px; }
         /* Ensure markdown preview uses dark background */
         .journal-font-sans .wmde-markdown { background-color: transparent !important; }
+        /* Ensure journal entry markdown content is white */
+        .journal-entry-markdown,
+        .journal-entry-markdown *,
+        .journal-entry-markdown p,
+        .journal-entry-markdown h1,
+        .journal-entry-markdown h2,
+        .journal-entry-markdown h3,
+        .journal-entry-markdown h4,
+        .journal-entry-markdown h5,
+        .journal-entry-markdown h6,
+        .journal-entry-markdown li,
+        .journal-entry-markdown strong,
+        .journal-entry-markdown em,
+        .journal-entry-markdown code:not(pre code),
+        .journal-entry-markdown pre,
+        .journal-entry-markdown blockquote {
+          color: white !important;
+        }
+        .journal-entry-markdown a {
+          color: #60a5fa !important;
+        }
+        .journal-entry-markdown a:hover {
+          color: #93c5fd !important;
+        }
       `}</style>
     </div>
   )
@@ -779,10 +803,12 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
                   {deletingIds.has(m.id) ? 'Deleting…' : 'Delete'}
                 </button>
               </div>
-              <DynamicMarkdown 
-                source={m.content}
-                rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
-              />
+              <div className="journal-entry-markdown">
+                <DynamicMarkdown 
+                  source={m.content}
+                  rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
+                />
+              </div>
             </div>
           ))}
         </div>
