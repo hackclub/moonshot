@@ -44,6 +44,113 @@ export type ProjectType = Project & {
 
 export type ProjectInput = Omit<Project, 'projectID' | 'submitted'>
 
+// Helper function to enhance a project with computed properties
+async function enhanceProject(project: any) {
+    // Get the main Hackatime name (for backwards compatibility)
+    const hackatimeName = project.hackatimeLinks.length > 0 
+        ? project.hackatimeLinks[0].hackatimeName 
+        : '';
+    
+    // Calculate total raw hours from all links, applying individual overrides when available
+    const rawHours = project.hackatimeLinks.reduce(
+        (sum: number, link: any) => {
+            // Use the link's hoursOverride if it exists, otherwise use rawHours
+            const effectiveHours = (link.hoursOverride !== undefined && link.hoursOverride !== null)
+                ? link.hoursOverride
+                : (typeof link.rawHours === 'number' ? link.rawHours : 0);
+            
+            return sum + effectiveHours;
+        }, 
+        0
+    );
+    
+    // Compute isEventProject
+    const eventProjectTag = await prisma.projectTag.findFirst({
+        where: {
+            projectID: project.projectID,
+            tag: {
+                name: 'event-project'
+            }
+        }
+    });
+    const isIslandProject = !!eventProjectTag; // legacy field kept for compatibility
+    const isEventProject = isIslandProject;
+    
+    // Get event project type (non-core tag) if it's an event project
+    let islandProjectType = null;
+    let eventProjectType = null;
+    if (isEventProject) {
+        const typeTag = await prisma.projectTag.findFirst({
+            where: {
+                projectID: project.projectID,
+                tag: {
+                    name: {
+                        not: 'event-project'
+                    }
+                }
+            },
+            include: {
+                tag: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+        islandProjectType = typeTag?.tag.name || null;
+        eventProjectType = islandProjectType;
+    }
+
+    // Compute projectType from pt-* tags without exposing tags
+    let projectType: 'software' | 'hardware' | 'art' | 'other' | null = null;
+    const ptTag = await prisma.projectTag.findFirst({
+        where: {
+            projectID: project.projectID,
+            tag: {
+                name: {
+                    startsWith: 'pt-'
+                }
+            }
+        },
+        include: { tag: true }
+    });
+    if (ptTag?.tag?.name) {
+        const suffix = ptTag.tag.name.substring(3).toLowerCase();
+        if (['software','hardware','art','other'].includes(suffix)) {
+            projectType = suffix as any;
+        }
+    }
+
+    // Aggregate journal hours from chat messages linked to this project
+    let journalRawHours = 0;
+    let journalApprovedHours = 0;
+    try {
+      const chatAgg = await prisma.chatMessage.aggregate({
+        _sum: { hours: true, approvedHours: true },
+        where: { room: { projectID: project.projectID } }
+      });
+      journalRawHours = (chatAgg._sum?.hours as number | null) || 0;
+      journalApprovedHours = (chatAgg._sum?.approvedHours as number | null) || 0;
+    } catch {}
+    
+    console.log(`[GET] Project ${project.projectID} (${project.name}): calculated rawHours = ${rawHours}, isIslandProject = ${isIslandProject}`);
+    
+    // Return the enhanced project with computed properties (NO TAG DATA)
+    return {
+        ...project,
+        hackatimeName,
+        rawHours,
+        isIslandProject,
+        islandProjectType,
+        projectType,
+        journalRawHours,
+        journalApprovedHours,
+        // New aliases for abstraction
+        isEventProject,
+        eventProjectType
+    };
+}
+
 // Helper functions
 async function deleteProject(projectID: string, userId: string) {
     console.log(`[DELETE] Attempting to delete project ${projectID} for user ${userId}`);
@@ -72,12 +179,40 @@ export async function GET(request: Request) {
         const user = await requireUserSession();
         console.log(`[GET] Authenticated user ${user.id}, fetching their projects`);
         
-        // Check if user is admin to determine tag exposure
+        // Check if user is admin or reviewer
         const isAdmin = user.role === 'Admin' || user.isAdmin === true;
+        const isReviewer = user.role === 'Reviewer';
+        const canAccessAnyProject = isAdmin || isReviewer;
         
-        // Get experience mode from query params for server-side filtering
+        // Get query params
         const url = new URL(request.url);
+        const projectIdParam = url.searchParams.get('projectId');
         const isIslandMode = url.searchParams.get('isIslandMode') === 'true';
+        
+        // If a specific projectId is requested, handle it specially
+        if (projectIdParam) {
+            // Only admins and reviewers can access projects they don't own
+            const project = await prisma.project.findUnique({
+                where: { projectID: projectIdParam },
+                include: {
+                    hackatimeLinks: true
+                }
+            });
+            
+            if (!project) {
+                return Response.json({ error: 'Project not found' }, { status: 404 });
+            }
+            
+            // Check if user owns the project or has privileged access
+            if (project.userId !== user.id && !canAccessAnyProject) {
+                return Response.json({ error: 'Forbidden' }, { status: 403 });
+            }
+            
+            // Enhance and return the single project
+            const enhancedProject = await enhanceProject(project);
+            metrics.increment("success.fetch_project", 1);
+            return Response.json([enhancedProject]);
+        }
         
         // Build where clause for server-side filtering based on experience mode
         let whereClause: any = {
@@ -118,111 +253,7 @@ export async function GET(request: Request) {
         });
         
         // Enhance the project data with computed properties
-        const enhancedProjects = await Promise.all(projects.map(async (project) => {
-            // Get the main Hackatime name (for backwards compatibility)
-            const hackatimeName = project.hackatimeLinks.length > 0 
-                ? project.hackatimeLinks[0].hackatimeName 
-                : '';
-            
-            // Calculate total raw hours from all links, applying individual overrides when available
-            const rawHours = project.hackatimeLinks.reduce(
-                (sum, link) => {
-                    // Use the link's hoursOverride if it exists, otherwise use rawHours
-                    const effectiveHours = (link.hoursOverride !== undefined && link.hoursOverride !== null)
-                        ? link.hoursOverride
-                        : (typeof link.rawHours === 'number' ? link.rawHours : 0);
-                    
-                    return sum + effectiveHours;
-                }, 
-                0
-            );
-            
-            // Compute isEventProject
-            const eventProjectTag = await prisma.projectTag.findFirst({
-                where: {
-                    projectID: project.projectID,
-                    tag: {
-                        name: 'event-project'
-                    }
-                }
-            });
-            const isIslandProject = !!eventProjectTag; // legacy field kept for compatibility
-            const isEventProject = isIslandProject;
-            
-            // Get event project type (non-core tag) if it's an event project
-            let islandProjectType = null;
-            let eventProjectType = null;
-            if (isEventProject) {
-                const typeTag = await prisma.projectTag.findFirst({
-                    where: {
-                        projectID: project.projectID,
-                        tag: {
-                            name: {
-                                not: 'event-project'
-                            }
-                        }
-                    },
-                    include: {
-                        tag: {
-                            select: {
-                                name: true
-                            }
-                        }
-                    }
-                });
-                islandProjectType = typeTag?.tag.name || null;
-                eventProjectType = islandProjectType;
-            }
-
-            // Compute projectType from pt-* tags without exposing tags
-            let projectType: 'software' | 'hardware' | 'art' | 'other' | null = null;
-            const ptTag = await prisma.projectTag.findFirst({
-                where: {
-                    projectID: project.projectID,
-                    tag: {
-                        name: {
-                            startsWith: 'pt-'
-                        }
-                    }
-                },
-                include: { tag: true }
-            });
-            if (ptTag?.tag?.name) {
-                const suffix = ptTag.tag.name.substring(3).toLowerCase();
-                if (['software','hardware','art','other'].includes(suffix)) {
-                    projectType = suffix as any;
-                }
-            }
-
-            // Aggregate journal hours from chat messages linked to this project
-            let journalRawHours = 0;
-            let journalApprovedHours = 0;
-            try {
-              const chatAgg = await prisma.chatMessage.aggregate({
-                _sum: { hours: true, approvedHours: true },
-                where: { room: { projectID: project.projectID } }
-              });
-              journalRawHours = (chatAgg._sum?.hours as number | null) || 0;
-              journalApprovedHours = (chatAgg._sum?.approvedHours as number | null) || 0;
-            } catch {}
-            
-            console.log(`[GET] Project ${project.projectID} (${project.name}): calculated rawHours = ${rawHours}, isIslandProject = ${isIslandProject}`);
-            
-            // Return the enhanced project with computed properties (NO TAG DATA)
-            return {
-                ...project,
-                hackatimeName,
-                rawHours,
-                isIslandProject,
-                islandProjectType,
-                projectType,
-                journalRawHours,
-                journalApprovedHours,
-                // New aliases for abstraction
-                isEventProject,
-                eventProjectType
-            };
-        }));
+        const enhancedProjects = await Promise.all(projects.map(enhanceProject));
         
         console.log(`[GET] Successfully fetched ${projects.length} projects for user ${user.id}`);
         
