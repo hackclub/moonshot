@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate reviewType
-    const validReviewTypes = ['ShippedApproval', 'HoursApproval', 'HourReview', 'Other'];
+    const validReviewTypes = ['ShippedApproval', 'HoursApproval', 'Other'];
     if (!validReviewTypes.includes(body.reviewType)) {
       return NextResponse.json({ error: 'Invalid review type' }, { status: 400 });
     }
