@@ -83,7 +83,8 @@ export default function FAQ() {
               There is no specific theme required, just remember to follow the approval requirements. You can work with:<br /><br />
               • <strong>Software</strong> → Track time with <a href="https://hackatime.hackclub.com/" target="_blank">Hackatime</a> (if you have problems setting it up, ask for help in the Slack channel <a href="https://hackclub.slack.com/archives/C08MDGUPJ6A" target="_blank">#hackatime-v2</a>)<br />
               • <strong>Hardware</strong> → Track time with <a href="#journaling-system">journaling system</a><br />
-              • <strong>Art</strong> → Track time with any method you prefer <em>(we still require you to post your progress on Slack)</em><br />
+              • <strong>Art</strong> → Track time with any method you prefer. 
+              <em><br />NOTE: You can work on art for up to 10% of your total hours (e.g., out of 75 project hours, only 7.5 can be labeled as art).</em><br />
             </div>
           </div>
         </div>
@@ -135,6 +136,9 @@ export default function FAQ() {
 
         <div className="section-heading faq">❓ FAQ SECTION ❓</div>
 
+        {/* In person subcategory */}
+        <div className="section-subheading section-subheading--inperson">In person</div>
+
         <div className="faq-item">
           <div className="faq-question">
             <span>Is airfare covered as part of the 75 hours I need to work to attend?</span>
@@ -143,6 +147,18 @@ export default function FAQ() {
           <div className="faq-answer">
             <div className="faq-answer-content">
               No. Travel stipends will be available within the Moonshop at a minimum rate of $10/hr. Your airfare must be covered by yourself personally, or alternatively thru earning stipends.
+            </div>
+          </div>
+        </div>
+
+        <div className="faq-item">
+          <div className="faq-question">
+            <span>Is the flight stipend covered?</span>
+            <span className="faq-icon">+</span>
+          </div>
+          <div className="faq-answer">
+            <div className="faq-answer-content">
+              You can redeem your flight stipend in the Moonshop using your hours (coming soon...)
             </div>
           </div>
         </div>
@@ -159,74 +175,41 @@ export default function FAQ() {
           </div>
         </div>
 
+        {/* shop subcategory */}
+        <div className="section-subheading section-subheading--shop">shop and hours</div>
+
         <div className="faq-item">
           <div className="faq-question">
-            <span>Who Can Participate?</span>
+            <span>When will the shop close?</span>
             <span className="faq-icon">+</span>
           </div>
           <div className="faq-answer">
             <div className="faq-answer-content">
-              Anyone between the ages of 13 and 18 (included) can participate in Moonshot!
+              December 12th at 11 PM
             </div>
           </div>
         </div>
 
         <div className="faq-item">
           <div className="faq-question">
-            <span>What if I complete Launchpad but can't attend Moonshot?</span>
+            <span>Can I work on multiple projects to earn stardust?</span>
             <span className="faq-icon">+</span>
           </div>
           <div className="faq-answer">
             <div className="faq-answer-content">
-              You will be able to redeem the hours you spent making projects in a shop for fun, neat prizes!
+              Of course!
             </div>
           </div>
         </div>
 
         <div className="faq-item">
           <div className="faq-question">
-            <span>Is Participation Free?</span>
+            <span>If I’m working on both software and hardware, do I need to submit two separate projects?</span>
             <span className="faq-icon">+</span>
           </div>
           <div className="faq-answer">
             <div className="faq-answer-content">
-              Yes! Participation is entirely free, but only if you complete Launchpad. Without shipping your projects on Launchpad, you won't be able to join Moonshot.
-            </div>
-          </div>
-        </div>
-
-        <div className="faq-item">
-          <div className="faq-question">
-            <span>How Do I Register?</span>
-            <span className="faq-icon">+</span>
-          </div>
-          <div className="faq-answer">
-            <div className="faq-answer-content">
-              <a href="https://moonshot.hackclub.com/" target="_blank" rel="noopener noreferrer">Signup here</a>!
-            </div>
-          </div>
-        </div>
-
-        <div className="faq-item">
-          <div className="faq-question">
-            <span>Can I start?</span>
-            <span className="faq-icon">+</span>
-          </div>
-          <div className="faq-answer">
-            <div className="faq-answer-content">
-              Yes, track your hours with Hackatime or use the journaling system
-            </div>
-          </div>
-        </div>
-
-        <div className="faq-item">
-          <div className="faq-question">
-            <span>Is the flight stipend covered?</span>
-            <span className="faq-icon">+</span>
-          </div>
-          <div className="faq-answer">
-            <div className="faq-answer-content">
-              You can redeem your flight stipend in the Moonshop using your hours (coming soon...)
+              No, just log your hours under the same project using the appropriate tool (software → Hackatime, hardware/art → journaling).
             </div>
           </div>
         </div>
@@ -265,6 +248,60 @@ export default function FAQ() {
           <div className="faq-answer">
             <div className="faq-answer-content">
               It's fine if you work on a project that has been associated w/ another program or already started - you can continue it - but we will only take hours from the beginning of the moonshot announcement. We HIGHLY suggest to create a new Github repository, it's not mandatory, but it will increase your chances of being approved, and will make the process much faster.
+            </div>
+          </div>
+        </div>
+
+        {/* other subcategory */}
+        <div className="section-subheading section-subheading--other">other</div>
+
+        <div className="faq-item">
+          <div className="faq-question">
+            <span>Who Can Participate?</span>
+            <span className="faq-icon">+</span>
+          </div>
+          <div className="faq-answer">
+            <div className="faq-answer-content">
+              Anyone between the ages of 13 and 18 (included) can participate in Moonshot!
+            </div>
+          </div>
+        </div>
+
+        <div className="faq-item">
+          <div className="faq-question">
+            <span>What if I complete Launchpad but can't attend Moonshot?</span>
+            <span className="faq-icon">+</span>
+          </div>
+          <div className="faq-answer">
+            <div className="faq-answer-content">
+              You will be able to redeem the hours you spent making projects in a shop for fun, neat prizes!
+            </div>
+          </div>
+        </div>
+
+        
+
+        
+        <div className="faq-item">
+          <div className="faq-question">
+            <span>Is Participation Free?</span>
+            <span className="faq-icon">+</span>
+          </div>
+          <div className="faq-answer">
+            <div className="faq-answer-content">
+              Yes! Participation is entirely free, but only if you complete Launchpad. Without shipping your projects on Launchpad, you won't be able to join Moonshot.
+            </div>
+          </div>
+        </div>
+
+        <div className="faq-item">
+          <div className="faq-question">
+            <span>How Do I Register?</span>
+            <span className="faq-icon">+</span>
+          </div>
+          <div className="faq-answer">
+            <div className="faq-answer-content">
+              <a href="https://moonshot.hackclub.com/" target="_blank" rel="noopener noreferrer">Signup here</a>!
             </div>
           </div>
         </div>

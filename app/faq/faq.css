@@ -372,6 +372,32 @@
 .faq-standalone .section-heading.rules { background: linear-gradient(135deg, #ff6b6b, #ff8e8e); color: white; border: 3px solid #ff5252; }
 .faq-standalone .section-heading.faq { background: linear-gradient(135deg, #4ecdc4, #44a08d); color: white; border: 3px solid #26a69a; }
 
+/* Left-aligned subcategory subtitles with color coding */
+.faq-standalone .section-subheading {
+  text-align: left;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 28px 0 16px 0;
+  padding-left: 14px;
+  border-left: 6px solid #ffffff66;
+  letter-spacing: 0.5px;
+}
+
+.faq-standalone .section-subheading.section-subheading--inperson {
+  color: #ffed4e;
+  border-left-color: #ffed4e;
+}
+
+.faq-standalone .section-subheading.section-subheading--shop {
+  color: #4ecdc4;
+  border-left-color: #4ecdc4;
+}
+
+.faq-standalone .section-subheading.section-subheading--other {
+  color: #a78bfa;
+  border-left-color: #a78bfa;
+}
+
 .faq-standalone .floating-stickers { position: fixed; left: 0; right: 0; bottom: 0; top: 0; pointer-events: none; z-index: 1; }
 .faq-standalone .floating-sticker { position: absolute; width: 96px; height: auto; opacity: 0.95; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.35)); animation-name: bobY, swayX, spinSlight; animation-iteration-count: infinite, infinite, infinite; animation-timing-function: ease-in-out, ease-in-out, linear; }
 
