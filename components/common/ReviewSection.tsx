@@ -10,9 +10,17 @@ import ProjectFlagsEditor, { ProjectFlags } from './ProjectFlagsEditor';
 import HackatimeLanguageStats from './HackatimeLanguageStats';
 import ReviewChecklist from './ReviewChecklist';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 
-// Optional rehype-sanitize setup (loaded dynamically to avoid hard dependency)
-let sanitizeSchema: any = null;
+// Custom sanitization schema that allows video tags while blocking scripts
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'video'],
+  attributes: {
+    ...defaultSchema.attributes,
+    video: ['class', 'controls', 'playsinline', 'src', 'style', 'width', 'height'],
+  },
+};
 
 interface ReviewerInfo {
   id: string;
@@ -92,33 +100,6 @@ export default function ReviewSection({
     in_review: initialFlags?.in_review || false,
     hackatimeLinkOverrides: {}
   });
-
-  // Dynamically load rehype-sanitize (optional dependency)
-  const [rehypePlugins, setRehypePlugins] = useState<any[]>([]);
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const mod: any = await import('rehype-sanitize');
-        const defaultSchema = mod.defaultSchema || mod.schema || {};
-        const rehypeSanitize = mod.default || mod;
-        const schema = {
-          ...defaultSchema,
-          tagNames: [...(defaultSchema.tagNames || []), 'video'],
-          attributes: {
-            ...(defaultSchema.attributes || {}),
-            video: ['class', 'controls', 'playsinline', 'src', 'style', 'width', 'height'],
-          },
-        };
-        if (mounted) setRehypePlugins([[rehypeSanitize, schema]]);
-      } catch {
-        if (mounted) setRehypePlugins([]);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   // Initialize flags just once when component mounts
   useEffect(() => {
@@ -870,7 +851,7 @@ export default function ReviewSection({
                       </div>
                     </div>
                     <div className="text-white prose prose-invert prose-sm max-w-none">
-                      <ReactMarkdown rehypePlugins={rehypePlugins}>
+                      <ReactMarkdown rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}>
                         {review.comment}
                       </ReactMarkdown>
                     </div>
