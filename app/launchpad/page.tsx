@@ -414,6 +414,9 @@ function ProjectDetail({
           journalApprovedHours={(project as any).journalApprovedHours || 0}
           onFlagsUpdated={handleFlagsUpdated}
           rawHours={project.rawHours}
+          userHackatimeId={(project as any).userHackatimeId || undefined}
+          userEmail={undefined}
+          userSlack={undefined}
         />
       </div>
     </div>
@@ -1730,6 +1733,9 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                       );
                     }}
                     rawHours={selectedProject.rawHours}
+                    userHackatimeId={(selectedProject as any).userHackatimeId || undefined}
+                    userEmail={undefined}
+                    userSlack={undefined}
                   />
                   
                   {/* Edit button at bottom */}

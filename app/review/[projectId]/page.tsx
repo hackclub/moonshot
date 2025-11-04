@@ -117,6 +117,9 @@ function ReviewProjectPageInner() {
               rawHours={project.rawHours}
               codeUrl={project.codeUrl}
               playableUrl={project.playableUrl}
+              userHackatimeId={(project as any).userHackatimeId}
+              userEmail={(project as any).userEmail}
+              userSlack={(project as any).userSlack}
             />
           </div>
         </div>

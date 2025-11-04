@@ -18,6 +18,7 @@ import TrustStats from '@/components/common/TrustStats';
 import { useMDXComponents } from '@/mdx-components';
 import { lazy, Suspense } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
+import { AppConfig } from '@/lib/config';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 
@@ -118,6 +119,7 @@ interface Project {
   userEmail: string | null;
   userImage: string | null;
   userHackatimeId: string | null;
+  userSlack: string | null;
   latestReview: Review | null;
   reviewCount: number;
   rawHours: number;
@@ -435,6 +437,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
   onClose: () => void;
   onReviewSubmitted: () => void;
 }) {
+  const { data: session } = useSession();
   // Add debugging
   console.log('ProjectDetail selected project:', project);
   
@@ -472,6 +475,54 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
     // If in_review was changed to false, notify the parent component to refresh the list
     if (project.in_review && !updatedProject.in_review) {
       onReviewSubmitted();
+    }
+  };
+
+  // Generate Fraud Analysis URL with date range in EST timezone
+  const getFraudAnalysisUrl = (): string | null => {
+    // Only show fraud analysis link to admins and reviewers
+    const isAdmin = session?.user?.role === 'Admin' || session?.user?.isAdmin === true;
+    const isReviewer = session?.user?.role === 'Reviewer';
+    
+    if (!isAdmin && !isReviewer) {
+      return null;
+    }
+    
+    if (!project.userHackatimeId) return null;
+    
+    // Get start date from config
+    const startDate = AppConfig.hackatimeStartDate;
+    
+    // Get today's date in EST timezone
+    const now = new Date();
+    // Convert to EST using Intl.DateTimeFormat
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const parts = formatter.formatToParts(now);
+    const year = parts.find(p => p.type === 'year')?.value;
+    const month = parts.find(p => p.type === 'month')?.value;
+    const day = parts.find(p => p.type === 'day')?.value;
+    const endDate = `${year}-${month}-${day}`;
+    
+    return `https://billy.3kh0.net/?u=${project.userHackatimeId}&d=${startDate}-${endDate}`;
+  };
+
+  // Copy to clipboard functions
+  const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  
+  const handleCopy = async (text: string, itemType: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItem(itemType);
+      setTimeout(() => setCopiedItem(null), 2000);
+      toast.success(`Copied ${itemType}!`);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast.error('Failed to copy to clipboard');
     }
   };
 
@@ -640,6 +691,47 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                   Impersonate User
                 </button>
               )}
+              {getFraudAnalysisUrl() && (
+                <a 
+                  href={getFraudAnalysisUrl()!} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-red-400 hover:underline flex items-center gap-2"
+                >
+                  <Icon glyph="analytics" size={16} />
+                  Fraud Analysis
+                </a>
+              )}
+              {project.userHackatimeId && (
+                <button
+                  onClick={() => handleCopy(project.userHackatimeId!, 'hackatime')}
+                  className="text-green-400 hover:underline flex items-center gap-2 text-left"
+                  title="Copy Hackatime ID"
+                >
+                  <Icon glyph="copy" size={16} />
+                  {copiedItem === 'hackatime' ? 'Copied!' : 'Copy HackatimeId'}
+                </button>
+              )}
+              {project.userEmail && (
+                <button
+                  onClick={() => handleCopy(project.userEmail!, 'email')}
+                  className="text-blue-400 hover:underline flex items-center gap-2 text-left"
+                  title="Copy Email"
+                >
+                  <Icon glyph="copy" size={16} />
+                  {copiedItem === 'email' ? 'Copied!' : 'Copy Email'}
+                </button>
+              )}
+              {project.userSlack && (
+                <button
+                  onClick={() => handleCopy(project.userSlack!, 'slack')}
+                  className="text-purple-400 hover:underline flex items-center gap-2 text-left"
+                  title="Copy Slack ID"
+                >
+                  <Icon glyph="copy" size={16} />
+                  {copiedItem === 'slack' ? 'Copied!' : 'Copy Slack ID'}
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -698,6 +790,9 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
             hackatimeLinks={project.hackatimeLinks}
             codeUrl={project.codeUrl}
             playableUrl={project.playableUrl}
+            userHackatimeId={project.userHackatimeId}
+            userEmail={project.userEmail}
+            userSlack={project.userSlack}
           />
         </div>
 

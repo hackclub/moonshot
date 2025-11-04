@@ -42,6 +42,7 @@ export async function GET() {
             email: true,
             image: true,
             hackatimeId: true,
+            slack: true,
             status: true,
           }
         },
@@ -200,13 +201,18 @@ export async function GET() {
         ? project.screenshot
         : null;
 
+      // Set userHackatimeId - use mock value if HACKATIME_MOCK is enabled and user doesn't have one
+      const isHackatimeMock = process.env.HACKATIME_MOCK === 'true' || process.env.HACKATIME_MOCK === '1';
+      const userHackatimeId = project.user?.hackatimeId || (isHackatimeMock ? `mock-user-${project.userId}` : null);
+
       return {
         ...project,
         screenshot,
         userName: project.user?.name || null,
         userEmail: project.user?.email || null,
         userImage: project.user?.image || null,
-        userHackatimeId: project.user?.hackatimeId || null,
+        userHackatimeId,
+        userSlack: project.user?.slack || null,
         latestReview,
         reviewCount: project.reviews?.filter((review: { reviewerId: string }) => review.reviewerId === project.userId).length || 0,
         rawHours: rawHours,

@@ -11,6 +11,7 @@ import HackatimeLanguageStats from './HackatimeLanguageStats';
 import ReviewChecklist from './ReviewChecklist';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+import { AppConfig } from '@/lib/config';
 
 // Custom sanitization schema that allows video tags while blocking scripts
 const sanitizeSchema = {
@@ -57,6 +58,9 @@ interface ReviewSectionProps {
   journalApprovedHours?: number;
   codeUrl?: string;
   playableUrl?: string;
+  userHackatimeId?: string | null;
+  userEmail?: string | null;
+  userSlack?: string | null;
 }
 
 export default function ReviewSection({ 
@@ -71,6 +75,9 @@ export default function ReviewSection({
   journalApprovedHours = 0,
   codeUrl,
   playableUrl,
+  userHackatimeId,
+  userEmail,
+  userSlack,
 }: ReviewSectionProps) {
   const { data: session, status } = useSession();
   const { isReviewMode } = useReviewMode();
@@ -541,6 +548,54 @@ export default function ReviewSection({
     });
   };
 
+  // Generate Fraud Analysis URL with date range in EST timezone
+  const getFraudAnalysisUrl = (): string | null => {
+    // Only show fraud analysis link to admins and reviewers
+    const isAdmin = session?.user?.role === 'Admin' || session?.user?.isAdmin === true;
+    const isReviewer = session?.user?.role === 'Reviewer';
+    
+    if (!isAdmin && !isReviewer) {
+      return null;
+    }
+    
+    if (!userHackatimeId) return null;
+    
+    // Get start date from config
+    const startDate = AppConfig.hackatimeStartDate;
+    
+    // Get today's date in EST timezone
+    const now = new Date();
+    // Convert to EST using Intl.DateTimeFormat
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const parts = formatter.formatToParts(now);
+    const year = parts.find(p => p.type === 'year')?.value;
+    const month = parts.find(p => p.type === 'month')?.value;
+    const day = parts.find(p => p.type === 'day')?.value;
+    const endDate = `${year}-${month}-${day}`;
+    
+    return `https://billy.3kh0.net/?u=${userHackatimeId}&d=${startDate}-${endDate}`;
+  };
+
+  // Copy to clipboard functions
+  const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  
+  const handleCopy = async (text: string, itemType: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItem(itemType);
+      setTimeout(() => setCopiedItem(null), 2000);
+      toast.success(`Copied ${itemType}!`);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
   return (
     <div className="space-y-6 bg-black/60 text-white p-4 sm:p-6 rounded-lg mb-12 w-full max-w-full border border-white/10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-2">
@@ -557,7 +612,7 @@ export default function ReviewSection({
       </div>
       
       {/* Project Links - Show if available */}
-      {(codeUrl || playableUrl) && (
+      {(codeUrl || playableUrl || getFraudAnalysisUrl()) && (
         <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-3 rounded-lg border border-blue-400/20">
           <h4 className="text-sm font-medium text-white mb-2">Quick Links</h4>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -582,6 +637,47 @@ export default function ReviewSection({
                 <Icon glyph="link" size={16} />
                 <span>Live Demo</span>
               </a>
+            )}
+            {getFraudAnalysisUrl() && (
+              <a 
+                href={getFraudAnalysisUrl()!} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-sm"
+              >
+                <Icon glyph="analytics" size={16} />
+                <span>Fraud Analysis</span>
+              </a>
+            )}
+            {userHackatimeId && (
+              <button
+                onClick={() => handleCopy(userHackatimeId, 'hackatime')}
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-green-300 hover:text-green-200 transition-colors text-sm"
+                title="Copy Hackatime ID"
+              >
+                <Icon glyph="copy" size={16} />
+                <span>{copiedItem === 'hackatime' ? 'Copied!' : 'Copy HackatimeId'}</span>
+              </button>
+            )}
+            {userEmail && (
+              <button
+                onClick={() => handleCopy(userEmail, 'email')}
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-blue-300 hover:text-blue-200 transition-colors text-sm"
+                title="Copy Email"
+              >
+                <Icon glyph="copy" size={16} />
+                <span>{copiedItem === 'email' ? 'Copied!' : 'Copy Email'}</span>
+              </button>
+            )}
+            {userSlack && (
+              <button
+                onClick={() => handleCopy(userSlack, 'slack')}
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-purple-300 hover:text-purple-200 transition-colors text-sm"
+                title="Copy Slack ID"
+              >
+                <Icon glyph="copy" size={16} />
+                <span>{copiedItem === 'slack' ? 'Copied!' : 'Copy Slack ID'}</span>
+              </button>
             )}
           </div>
         </div>
