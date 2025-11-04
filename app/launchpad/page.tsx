@@ -334,6 +334,18 @@ function ProjectDetail({
           playableUrl={project.playableUrl}
           screenshot={project.screenshot}
           isIslandProject={project.isIslandProject || false}
+          onUnsendSuccess={(updatedProject) => {
+            // Update local flags and projects list when unsent from review
+            setProjectFlags(prev => ({
+              ...prev,
+              in_review: false
+            }));
+            setProjects(prevProjects =>
+              prevProjects.map(p =>
+                p.projectID === project.projectID ? { ...p, in_review: false } as ProjectType : p
+              )
+            );
+          }}
           onEditProject={() => {
             // Use the onEdit callback to communicate with parent
             onEdit({
@@ -1657,6 +1669,15 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     playableUrl={selectedProject.playableUrl}
                     screenshot={selectedProject.screenshot}
                     isIslandProject={selectedProject.isIslandProject || false}
+                    onUnsendSuccess={(updatedProject) => {
+                      // Update projects array when unsent from review
+                      setProjects(prevProjects =>
+                        prevProjects.map(p =>
+                          p.projectID === selectedProject.projectID ? { ...p, in_review: false } as ProjectType : p
+                        )
+                      );
+                      toast.success('Removed from review queue');
+                    }}
                     onRequestSubmitted={impersonationData ? () => {
                       toast.error("Cannot submit projects for review while impersonating users");
                     } : (updatedProject, review) => {

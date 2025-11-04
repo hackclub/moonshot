@@ -6,7 +6,7 @@ import { useReviewMode } from '@/app/contexts/ReviewModeContext';
 import ProjectMetadataWarning from './ProjectMetadataWarning';
 
 // Define review request types
-export type ReviewRequestType = 'ShippedApproval' | 'HoursApproval' | 'HourReview' | 'Other';
+export type ReviewRequestType = 'ShippedApproval' | 'HoursApproval' | 'Other';
 
 interface ProjectReviewRequestProps {
   projectID: string;
@@ -19,6 +19,7 @@ interface ProjectReviewRequestProps {
   onRequestSubmitted: (updatedProject: any, review: any) => void;
   onEditProject: () => void; // Add callback to open project editor
   isIslandProject?: boolean; // Add island project flag
+  onUnsendSuccess?: (updatedProject: any) => void;
 }
 
 export default function ProjectReviewRequest({
@@ -31,7 +32,8 @@ export default function ProjectReviewRequest({
   screenshot,
   onRequestSubmitted,
   onEditProject,
-  isIslandProject = false
+  isIslandProject = false,
+  onUnsendSuccess
 }: ProjectReviewRequestProps) {
   const { isReviewMode } = useReviewMode();
   const [comment, setComment] = useState('');
@@ -75,9 +77,47 @@ export default function ProjectReviewRequest({
     });
   }, [projectID]);
 
-  // Don't show this component in review mode or if project is already in review
-  if (isReviewMode || isInReview) {
+  // Don't show this component in review mode
+  if (isReviewMode) {
     return null;
+  }
+
+  // If already in review, show the Unsend button (unless shipped, which server will enforce)
+  if (isInReview) {
+    const handleUnsend = async () => {
+      try {
+        setIsSubmitting(true);
+        const res = await fetch('/api/projects/review-unsend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectID })
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const message = data?.error || 'Failed to remove from review';
+          toast.error(message);
+          return;
+        }
+        const data = await res.json();
+        toast.success('Removed from review queue');
+        onUnsendSuccess && onUnsendSuccess(data.project);
+      } catch (e) {
+        console.error('Error unsending project from review:', e);
+        toast.error('Failed to remove from review');
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    return (
+      <button
+        onClick={handleUnsend}
+        disabled={isSubmitting}
+        className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {isSubmitting ? 'Removing…' : 'Remove from review queue'}
+      </button>
+    );
   }
 
   // Check if all required metadata is present
@@ -171,8 +211,7 @@ export default function ProjectReviewRequest({
     switch (reviewType) {
       case 'ShippedApproval':
         return "Explain why this project should be approved as 'shipped'. Include any relevant details about deployment and functionality.";
-      case 'HourReview':
-        return "Request a review focused on hours evidence (journals, screenshots, links). List what evidence you'd like checked.";
+      // HoursApproval covers hours-focused review requests as well
       case 'HoursApproval':
         return "Provide details about the updates you've made to this project since it was approved as shipped. (ex. I implemented feature X, Y, & Z.) Please keep it short & use bullets for readability.";
       case 'Other':
@@ -221,7 +260,6 @@ export default function ProjectReviewRequest({
                 {isShipped && (
                   <option value="HoursApproval">I want to ship an update to this project</option>
                 )}
-                <option value="HourReview">I need my hours reviewed and approved</option>
                 <option value="Other">Other</option>
               </>
             )}
