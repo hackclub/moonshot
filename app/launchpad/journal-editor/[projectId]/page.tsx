@@ -10,6 +10,7 @@ import LoadingOverlay from '@/components/common/LoadingOverlay'
 import AccessDenied from '@/components/common/AccessDenied'
 import { useSession } from 'next-auth/react'
 import { apiFetch } from '@/lib/apiFetch'
+import { getProjectHackatimeHours } from '@/lib/project-client'
 
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false })
 const DynamicMarkdown = dynamic(() => import('@uiw/react-markdown-preview'), { ssr: false })
@@ -247,6 +248,36 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
             required
           />
           <div className="mt-6 text-xs text-white/60">Enter a positive number - partial hours allowed (e.g., 0.5).</div>
+          {(() => {
+            const sel = projects.find(p => p.projectID === projectId) as any;
+            if (!sel) return null;
+            const list = Array.isArray(projects) ? projects : [];
+            let total = 0;
+            let art = 0;
+            for (const p of list) {
+              const hack = getProjectHackatimeHours(p as any) || 0;
+              const jr = ((p as any)?.journalRawHours && isFinite((p as any).journalRawHours)) ? (p as any).journalRawHours : 0;
+              const t = (hack || 0) + (jr || 0);
+              total += t;
+              if ((p as any)?.projectType === 'art') art += t;
+            }
+            const input = Number(hoursWorked);
+            const add = (!isNaN(input) && input > 0) ? input : 0;
+            if (sel?.projectType === 'art' && (total + add) > 0 && ((art + add) / (total + add)) >= 0.10) {
+              const artHours = Math.round((art + add) * 10) / 10;
+              const totalHours = Math.round((total + add) * 10) / 10;
+              const percent = Math.round(((art + add) / (total + add)) * 1000) / 10;
+              const maxAllowed = Math.round(((total + add) * 0.10) * 10) / 10;
+              return (
+                <div className="mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-sm">
+                  <span className="font-semibold">⚠️ WARNING:</span> Art is limited to 10% of your total hours. You’ve logged {artHours}h of art out of {totalHours}h total ({percent}%). You can still create this project, but adding more art hours may exceed the limit.
+                  <br />
+                  <span className="opacity-80">10% of total with this entry: {maxAllowed}h</span>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
         )}
 

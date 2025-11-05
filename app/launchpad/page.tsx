@@ -173,6 +173,23 @@ function ProjectDetail({
   
   const projectHours = getProjectHours();
   const contributionPercentage = Math.round((projectHours / 60) * 100);
+
+  // Art percentage warning (desktop panel): compute totals across all projects
+  const { totalRawHoursAcrossAllProjects: desktopTotalHours, totalArtHours: desktopArtHours } = useMemo(() => {
+    const list = Array.isArray(projects) ? projects : [];
+    let total = 0;
+    let art = 0;
+    for (const p of list) {
+      const hackatimeHours = getProjectHackatimeHours(p as any) || 0;
+      const journalRaw = ((p as any)?.journalRawHours && isFinite((p as any).journalRawHours)) ? (p as any).journalRawHours : 0;
+      const projectTotal = (hackatimeHours || 0) + (journalRaw || 0);
+      total += projectTotal;
+      if ((p as any)?.projectType === 'art') {
+        art += projectTotal;
+      }
+    }
+    return { totalRawHoursAcrossAllProjects: total, totalArtHours: art };
+  }, [projects]);
   
   const handleEdit = () => {
     // Explicitly call onEdit with the full project data to ensure proper form initialization
@@ -251,6 +268,23 @@ function ProjectDetail({
           </span>
         )}
       </div>
+      {project?.projectType === 'art' && desktopTotalHours > 0 && (desktopArtHours / desktopTotalHours) >= 0.10 && (
+        <div className="mb-4 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-sm">
+          {(() => {
+            const artHours = Math.round(desktopArtHours * 10) / 10;
+            const totalHours = Math.round(desktopTotalHours * 10) / 10;
+            const percent = Math.round((desktopArtHours / desktopTotalHours) * 1000) / 10;
+            const maxAllowed = Math.round((desktopTotalHours * 0.10) * 10) / 10;
+            return (
+              <span>
+                <span className="font-semibold">⚠️ WARNING:</span> Art is limited to 10% of your total hours. You’ve logged {artHours}h of art out of {totalHours}h total ({percent}%). You can still create this project, but adding more art hours may exceed the limit.
+                <br />
+                <span className="opacity-80">Current 10% limit: {maxAllowed}h</span>
+              </span>
+            );
+          })()}
+        </div>
+      )}
       
       <div className="space-y-5 pb-8">
         <div className="bg-black/60 p-4 rounded-lg border border-white/10 text-white">
@@ -1512,6 +1546,33 @@ export function BayWithReviewMode({ session, status, router, impersonationData }
                     <h3 className="text-sm font-medium text-white mb-2">Description</h3>
                     <p className="text-base text-white">{selectedProject.description || "No description provided."}</p>
                   </div>
+                {(() => {
+                  // Compute art % across all projects for mobile details
+                  const list = Array.isArray(projects) ? projects : [];
+                  let total = 0;
+                  let art = 0;
+                  for (const p of list) {
+                    const hackatimeHours = getProjectHackatimeHours(p as any) || 0;
+                    const journalRaw = ((p as any)?.journalRawHours && isFinite((p as any).journalRawHours)) ? (p as any).journalRawHours : 0;
+                    const projectTotal = (hackatimeHours || 0) + (journalRaw || 0);
+                    total += projectTotal;
+                    if ((p as any)?.projectType === 'art') art += projectTotal;
+                  }
+                  if (selectedProject?.projectType === 'art' && total > 0 && (art / total) >= 0.10) {
+                    const artHours = Math.round(art * 10) / 10;
+                    const totalHours = Math.round(total * 10) / 10;
+                    const percent = Math.round((art / total) * 1000) / 10;
+                    const maxAllowed = Math.round((total * 0.10) * 10) / 10;
+                    return (
+                      <div className="bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-sm p-3 rounded">
+                        <span className="font-semibold">⚠️ WARNING:</span> Art is limited to 10% of your total hours. You’ve logged {artHours}h of art out of {totalHours}h total ({percent}%). You can still create this project, but adding more art hours may exceed the limit.
+                        <br />
+                        <span className="opacity-80">Current 10% limit: {maxAllowed}h</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
                   
                                     {/* Project Status section - only visible when NOT in review mode */}
                                     {!isReviewMode && (
@@ -1905,6 +1966,25 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
   const [selectedCategory, setSelectedCategory] = useState<string>('Software');
   const [noHackatime, setNoHackatime] = useState<boolean>(false);
   
+  // Calculate current totals for Art vs Overall to show warning when selecting Art
+  const { totalRawHoursAcrossAllProjects, totalArtHours } = useMemo(() => {
+    const list = Array.isArray(props.existingProjects) ? props.existingProjects : [];
+    let total = 0;
+    let art = 0;
+    for (const p of list) {
+      // Sum all tracked hours: hackatime + journal raw
+      const hackatimeHours = getProjectHackatimeHours(p as any) || 0;
+      const journalRaw = ((p as any)?.journalRawHours && isFinite((p as any).journalRawHours)) ? (p as any).journalRawHours : 0;
+      const projectTotal = (hackatimeHours || 0) + (journalRaw || 0);
+      total += projectTotal;
+      // Count art hours for projects typed as 'art'
+      if ((p as any)?.projectType === 'art') {
+        art += projectTotal;
+      }
+    }
+    return { totalRawHoursAcrossAllProjects: total, totalArtHours: art };
+  }, [props.existingProjects]);
+  
   // Reset selected projects when modal opens for creation
   useEffect(() => {
     if (props.isOpen && isCreate) {
@@ -2076,6 +2156,23 @@ function ProjectModal(props: ProjectModalProps): ReactElement {
                 ))}
               </div>
               <input type="hidden" name="category" value={selectedCategory} />
+              {selectedCategory === 'Art' && totalRawHoursAcrossAllProjects > 0 && (totalArtHours / totalRawHoursAcrossAllProjects) >= 0.10 && (
+                <div className="mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-sm">
+                  {(() => {
+                    const artHours = Math.round(totalArtHours * 10) / 10;
+                    const totalHours = Math.round(totalRawHoursAcrossAllProjects * 10) / 10;
+                    const percent = Math.round((totalArtHours / totalRawHoursAcrossAllProjects) * 1000) / 10;
+                    const maxAllowed = Math.round((totalRawHoursAcrossAllProjects * 0.10) * 10) / 10;
+                    return (
+                      <span>
+                        <span className="font-semibold">⚠️ WARNING:</span> Art is limited to 10% of your total hours. You’ve logged {artHours}h of art out of {totalHours}h total ({percent}%). You can still create this project, but adding more art hours may exceed the limit.
+                        <br />
+                        <span className="opacity-80">Current 10% limit: {maxAllowed}h</span>
+                      </span>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
             )}
             {/* Removed time tracking toggle per requirements */}
