@@ -36,11 +36,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Disallow unsend if already approved/shipped
-    if (project.shipped) {
-      return NextResponse.json({ error: 'Cannot unsend: project already approved' }, { status: 400 });
-    }
-
     // If not in review, nothing to do
     if (!project.in_review) {
       return NextResponse.json({ success: true, project }, { status: 200 });
@@ -53,7 +48,7 @@ export async function POST(request: NextRequest) {
     });
 
     await logProjectEvent({
-      eventType: AuditLogEventType.ProjectRemovedFromReview,
+      eventType: AuditLogEventType.OtherEvent,
       description: 'Project removed from review queue by owner',
       projectId: projectID,
       userId: session.user.id,
