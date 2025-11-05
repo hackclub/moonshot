@@ -646,9 +646,38 @@ export default function ReviewSection({
                 className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-sm"
               >
                 <Icon glyph="analytics" size={16} />
-                <span>Fraud Analysis</span>
+                <span>Fraud (Billy)</span>
               </a>
             )}
+            {/* Fraud (Joe) button - copies identifier to clipboard then navigates */}
+            {(() => {
+              const identifierToCopy = userHackatimeId || userSlack || null;
+              if (!identifierToCopy) return null;
+              
+              return (
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(identifierToCopy);
+                      toast.success('Copied to clipboard!');
+                      // Small delay to ensure clipboard write completes before navigation
+                      setTimeout(() => {
+                        window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
+                      }, 100);
+                    } catch (err) {
+                      console.error('Failed to copy:', err);
+                      toast.error('Failed to copy to clipboard');
+                      // Still navigate even if copy fails
+                      window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-sm"
+                >
+                  <Icon glyph="analytics" size={16} />
+                  <span>Fraud (Joe)</span>
+                </button>
+              );
+            })()}
             {userHackatimeId && (
               <button
                 onClick={() => handleCopy(userHackatimeId, 'hackatime')}
