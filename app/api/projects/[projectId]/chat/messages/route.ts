@@ -356,7 +356,7 @@ export async function PATCH(
 }
 
 // DELETE - Delete a chat message (journal entry)
-// - Users can delete ONLY if project has NOT been submitted for review
+// - Users can delete ONLY if project has NOT been submitted for review AND the entry has NOT been reviewed (approvedHours is null)
 // - Reviewers and admins can always delete
 // - All deletions are logged to audit log
 export async function DELETE(
@@ -409,6 +409,13 @@ export async function DELETE(
     const isReviewer = session.user.role === 'Reviewer';
     const isOwner = session.user.id === project.userId;
     const canBypassReviewCheck = isAdmin || isReviewer;
+
+    // If the journal entry has been reviewed (approvedHours is not null), only admins/reviewers can delete
+    if (message.approvedHours !== null && !canBypassReviewCheck) {
+      return NextResponse.json({ 
+        error: 'Cannot delete journal entries that have been reviewed. Please contact a reviewer or admin for assistance.' 
+      }, { status: 403 });
+    }
 
     // If project is in review and user is not admin/reviewer, deny deletion
     if (project.in_review && !canBypassReviewCheck) {

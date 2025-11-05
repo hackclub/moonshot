@@ -817,15 +817,31 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
                     className="w-16 px-2 py-0.5 bg-transparent border-0 focus:ring-0 focus:outline-none text-xs text-white/80"
                   />
                 )}
-                {/* Delete button - always visible, permission check on backend */}
-                <button
-                  className="ml-auto px-2 py-0.5 text-xs rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 transition-colors"
-                  disabled={deletingIds.has(m.id)}
-                  onClick={() => handleDelete(m.id)}
-                  title={projectInReview && !canApprove ? 'Cannot delete while project is in review (reviewers/admins can delete)' : 'Delete this journal entry'}
-                >
-                  {deletingIds.has(m.id) ? 'Deleting…' : 'Delete'}
-                </button>
+                {/* Delete button - disabled if reviewed (for non-admins/reviewers) or if project is in review */}
+                {(() => {
+                  const isReviewed = m.approvedHours !== null && m.approvedHours !== undefined
+                  const cannotDelete = (!canApprove && (isReviewed || projectInReview))
+                  const getTooltip = () => {
+                    if (isReviewed && !canApprove) {
+                      return 'Cannot delete journal entries that have been reviewed. Please contact a reviewer or admin for assistance.'
+                    }
+                    if (projectInReview && !canApprove) {
+                      return 'Cannot delete while project is in review (reviewers/admins can delete)'
+                    }
+                    return 'Delete this journal entry'
+                  }
+                  
+                  return (
+                    <button
+                      className="ml-auto px-2 py-0.5 text-xs rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 transition-colors"
+                      disabled={deletingIds.has(m.id) || cannotDelete}
+                      onClick={() => handleDelete(m.id)}
+                      title={getTooltip()}
+                    >
+                      {deletingIds.has(m.id) ? 'Deleting…' : 'Delete'}
+                    </button>
+                  )
+                })()}
               </div>
               <div className="journal-entry-markdown">
                 <DynamicMarkdown 
