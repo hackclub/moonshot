@@ -99,16 +99,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // TODO: Temporarily commented out email sending to avoid 500 errors in prod
     // nah, send the review email from here
-    const host = process.env.NEXTAUTH_URL;
-    // Still include result text in notifications if provided in the request
-    const resultText = body.result ? `${body.result === 'approve' ? 'Approved' : (body.result === 'reject' ? 'Rejected' : 'Commented')}: ` : '';
-    const updateContent = `Review Update for ${project.name} just came in! ${resultText}Check it out at https://${host}/launchpad`;
+    // const host = process.env.NEXTAUTH_URL;
+    // // Still include result text in notifications if provided in the request
+    // const resultText = body.result ? `${body.result === 'approve' ? 'Approved' : (body.result === 'reject' ? 'Rejected' : 'Commented')}: ` : '';
+    // const updateContent = `Review Update for ${project.name} just came in! ${resultText}Check it out at https://${host}/launchpad`;
 
-    const date = new Date();
-    const datetime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`
+    // const date = new Date();
+    // const datetime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`
           
-    await sendNotificationEmail(project.user.email, project.name, datetime, updateContent);
+    // await sendNotificationEmail(project.user.email, project.name, datetime, updateContent);
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
