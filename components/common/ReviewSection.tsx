@@ -615,15 +615,15 @@ export default function ReviewSection({
       {(codeUrl || playableUrl || getFraudAnalysisUrl()) && (
         <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-3 rounded-lg border border-blue-400/20">
           <h4 className="text-sm font-medium text-white mb-2">Quick Links</h4>
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-1.5">
             {codeUrl && (
               <a 
                 href={codeUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-blue-300 hover:text-blue-200 transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-blue-300 hover:text-blue-200 transition-colors text-xs"
               >
-                <Icon glyph="github" size={16} />
+                <Icon glyph="github" size={14} />
                 <span>Code Repository</span>
               </a>
             )}
@@ -632,9 +632,9 @@ export default function ReviewSection({
                 href={playableUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-purple-300 hover:text-purple-200 transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-purple-300 hover:text-purple-200 transition-colors text-xs"
               >
-                <Icon glyph="link" size={16} />
+                <Icon glyph="link" size={14} />
                 <span>Live Demo</span>
               </a>
             )}
@@ -643,9 +643,9 @@ export default function ReviewSection({
                 href={getFraudAnalysisUrl()!} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-xs"
               >
-                <Icon glyph="analytics" size={16} />
+                <Icon glyph="analytics" size={14} />
                 <span>Fraud (Billy)</span>
               </a>
             )}
@@ -671,9 +671,9 @@ export default function ReviewSection({
                       window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
                     }
                   }}
-                  className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-sm"
+                  className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-xs"
                 >
-                  <Icon glyph="analytics" size={16} />
+                  <Icon glyph="analytics" size={14} />
                   <span>Fraud (Joe)</span>
                 </button>
               );
@@ -681,30 +681,30 @@ export default function ReviewSection({
             {userHackatimeId && (
               <button
                 onClick={() => handleCopy(userHackatimeId, 'hackatime')}
-                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-green-300 hover:text-green-200 transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-green-300 hover:text-green-200 transition-colors text-xs"
                 title="Copy Hackatime ID"
               >
-                <Icon glyph="copy" size={16} />
+                <Icon glyph="copy" size={14} />
                 <span>{copiedItem === 'hackatime' ? 'Copied!' : 'Copy HackatimeId'}</span>
               </button>
             )}
             {userEmail && (
               <button
                 onClick={() => handleCopy(userEmail, 'email')}
-                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-blue-300 hover:text-blue-200 transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-blue-300 hover:text-blue-200 transition-colors text-xs"
                 title="Copy Email"
               >
-                <Icon glyph="copy" size={16} />
+                <Icon glyph="copy" size={14} />
                 <span>{copiedItem === 'email' ? 'Copied!' : 'Copy Email'}</span>
               </button>
             )}
             {userSlack && (
               <button
                 onClick={() => handleCopy(userSlack, 'slack')}
-                className="flex items-center gap-2 px-3 py-2 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-purple-300 hover:text-purple-200 transition-colors text-sm"
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-purple-300 hover:text-purple-200 transition-colors text-xs"
                 title="Copy Slack ID"
               >
-                <Icon glyph="copy" size={16} />
+                <Icon glyph="copy" size={14} />
                 <span>{copiedItem === 'slack' ? 'Copied!' : 'Copy Slack ID'}</span>
               </button>
             )}
