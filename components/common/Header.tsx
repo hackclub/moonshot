@@ -506,16 +506,6 @@ export default function Header({ session, status }: HeaderProps) {
                             {session?.user.name ? session?.user?.name : session?.user.email?.slice(0, 13) + "..."}
                         </span>
                         
-                        {/* Travel Stipend Piggy Bank */}
-                        {travelStipends && travelStipends.totalAmount > 0 && (
-                            <div 
-                                className="flex items-center bg-white bg-opacity-90 text-[#47D1F6] font-bold px-2 sm:px-3 py-2 rounded-lg shadow hover:bg-opacity-100 transition-all cursor-pointer"
-                                title={`Travel Stipend: $${travelStipends.totalAmount}`}
-                            >
-                                <img src="/piggy.png" alt="Travel Stipend" className="w-5 h-5 mr-1" />
-                                <span className="text-sm font-bold">${travelStipends.totalAmount}</span>
-                            </div>
-                        )}
                         <button
                             onClick={() => setDropdownOpen((prev) => !prev)}
                             className="bg-white text-black font-bold px-3 sm:px-4 py-2 rounded-lg shadow hover:text-red-600 transition text-sm whitespace-nowrap"
