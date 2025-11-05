@@ -237,6 +237,15 @@ export default function Header({ session, status }: HeaderProps) {
                             Review
                         </Link>
                     )}
+                    {/* Purchase History */}
+                    {!isIslandMode && canAccessShop && (
+                        <Link 
+                            href="/launchpad/purchase-history" 
+                            className={`transition-colors yellow-flash ${isActive('/launchpad/purchase-history') ? 'font-semibold underline underline-offset-4 text-blue-400' : 'hover:text-yellow-400'}`}
+                        >
+                            Purchase History
+                        </Link>
+                    )}
                     {/* Eligible users can access Shop */}
                     {!isIslandMode && canAccessShop && (
                         <Link 
@@ -255,6 +264,7 @@ export default function Header({ session, status }: HeaderProps) {
                             ✨ Shop ✨
                         </Link>
                     )}
+                    
                     {/* Admin section with dropdown for admin users */}
                     {!isIslandMode && isUserAdmin && (
                         <div className="relative group" ref={adminMenuRef}>
@@ -387,6 +397,16 @@ export default function Header({ session, status }: HeaderProps) {
                                         Settings
                                     </Link>
                                 </>
+                            )}
+                            {/* Purchase History in mobile menu */}
+                            {!isIslandMode && canAccessShop && (
+                                <Link 
+                                    href="/launchpad/purchase-history" 
+                                    className={`block transition-colors yellow-flash ${isActive('/launchpad/purchase-history') ? 'font-semibold text-blue-400' : 'text-white hover:text-yellow-400'}`}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    Purchase History
+                                </Link>
                             )}
                             {/* Eligible users can access Shop in mobile menu */}
                             {!isIslandMode && canAccessShop && (
