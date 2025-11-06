@@ -21,6 +21,7 @@ import { apiFetch } from '@/lib/apiFetch';
 import { AppConfig } from '@/lib/config';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+import ImageWithFallback from '@/components/common/ImageWithFallback';
 
 // Custom sanitization schema that allows video tags while blocking scripts
 const sanitizeSchema = {
@@ -196,6 +197,17 @@ function ProjectCard({ project, onClick }: { project: Project; onClick: () => vo
       className="bg-black/60 text-white border border-white/10 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
+      {/* Project Screenshot */}
+      {project.screenshot && (
+        <div className="relative h-48 w-full">
+          <ImageWithFallback
+            src={project.screenshot}
+            alt={project.name || 'Project screenshot'}
+            fill
+            className="object-cover"
+          />
+        </div>
+      )}
       <div className={`p-4 border-l-4 ${color === 'blue' ? 'border-l-blue-400' : color === 'purple' ? 'border-l-purple-400' : color === 'green' ? 'border-l-green-400' : 'border-l-gray-400'}`}>
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold truncate">{project.name}</h3>
@@ -766,13 +778,16 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
         )}
         
         {project.screenshot && (
-          <div className="mb-4">
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10 mb-4">
             <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
-            <img 
-              src={project.screenshot} 
-              alt={`Screenshot of ${project.name}`}
-              className="mt-2 rounded-lg max-w-full h-auto border border-white/20"
-            />
+            <div className="relative w-full h-64 md:h-96 rounded-lg border border-white/20 overflow-hidden">
+              <ImageWithFallback
+                src={project.screenshot}
+                alt={`Screenshot of ${project.name}`}
+                fill
+                className="object-contain"
+              />
+            </div>
           </div>
         )}
         
