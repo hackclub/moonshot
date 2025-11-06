@@ -196,8 +196,9 @@ export async function GET() {
       // Get journal hours for this project
       const journalHours = projectJournalHours[project.projectID] || { raw: 0, approved: 0 };
 
-      // Normalize screenshot: ensure valid http(s) URL or null
-      const screenshot = typeof project.screenshot === 'string' && /^(https?:)?\/\//i.test(project.screenshot)
+      // Pass through screenshot value as-is - let frontend ImageWithFallback handle invalid URLs
+      // This ensures the screenshot area always renders, even for invalid URLs, showing the fallback message
+      const screenshot = typeof project.screenshot === 'string' && project.screenshot.trim() !== ''
         ? project.screenshot
         : null;
 

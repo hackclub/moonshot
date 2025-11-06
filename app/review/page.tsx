@@ -557,6 +557,21 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
           <p className="text-base text-white">{project.description || "No description provided."}</p>
         </div>
         
+        {/* Project Screenshot - shown prominently after description */}
+        {project.screenshot && (
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10">
+            <h3 className="text-sm font-medium text-white mb-3">Screenshot</h3>
+            <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-lg border border-white/20 overflow-hidden">
+              <ImageWithFallback
+                src={project.screenshot}
+                alt={`Screenshot of ${project.name}`}
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+        )}
+        
         <div className="bg-black/60 p-4 rounded-lg border border-white/10">
           <h3 className="text-sm font-medium text-white mb-2">Created By</h3>
           <div className="flex items-center justify-between">
@@ -773,20 +788,6 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                   {copiedItem === 'slack' ? 'Copied!' : 'Copy Slack ID'}
                 </button>
               )}
-            </div>
-          </div>
-        )}
-        
-        {project.screenshot && (
-          <div className="bg-black/60 p-4 rounded-lg border border-white/10 mb-4">
-            <h3 className="text-sm font-medium text-white mb-2">Screenshot</h3>
-            <div className="relative w-full h-64 md:h-96 rounded-lg border border-white/20 overflow-hidden">
-              <ImageWithFallback
-                src={project.screenshot}
-                alt={`Screenshot of ${project.name}`}
-                fill
-                className="object-contain"
-              />
             </div>
           </div>
         )}
