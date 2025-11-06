@@ -12,6 +12,7 @@ import UserClusterChart from '@/components/common/UserClusterChart';
 import { lazy, Suspense } from 'react';
 import { useMDXComponents } from '@/mdx-components';
 import { ReviewModeProvider, useReviewMode } from '../../contexts/ReviewModeContext';
+import ImageWithFallback from '@/components/common/ImageWithFallback';
 
 const MDXShippedApproval = lazy(() => import('../review-guidelines/shipped-approval.mdx'));
 const MDXShipUpdateApproval = lazy(() => import('../review-guidelines/ship-update-approval.mdx'));
@@ -91,6 +92,21 @@ function ReviewProjectPageInner() {
           <h1 className="text-2xl font-semibold truncate">{project.name}</h1>
           <button onClick={() => router.push('/review')} className="px-3 py-2 rounded bg-white/10 border border-white/20">Back</button>
         </div>
+
+        {/* Project Screenshot */}
+        {project.screenshot && (
+          <div className="bg-black/60 p-4 rounded-lg border border-white/10 mb-6">
+            <h2 className="text-lg font-semibold text-white mb-3">Screenshot</h2>
+            <div className="relative w-full h-64 md:h-96 rounded-lg border border-white/20 overflow-hidden">
+              <ImageWithFallback
+                src={project.screenshot}
+                alt={`Screenshot of ${project.name}`}
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-black/60 p-4 rounded-lg border border-white/10">
