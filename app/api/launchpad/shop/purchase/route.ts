@@ -64,8 +64,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
+    // Check identity verification: allow if status is L1/L2, or if verified via identity service
+    // This handles the case where identity is verified but status hasn't been synced yet
     if (user.status === 'Unknown' && user.role !== 'Admin') {
-      return NextResponse.json({ error: 'Identity verification required' }, { status: 403 });
+      // Check if user has identity token and is verified via identity service
+      let isVerified = false;
+      
+      // Mock mode: allow if enabled
+      if (process.env.IDENTITY_MOCK === 'true' || process.env.IDENTITY_MOCK === '1') {
+        isVerified = true;
+      } else if (user.identityToken) {
+        // Check external identity service
+        const identityBaseUrl = process.env.IDENTITY_URL?.replace(/\/oauth\/.*$/, '') || 'https://identity.hackclub.com';
+        try {
+          const identityResponse = await fetch(`${identityBaseUrl}/api/v1/me`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${user.identityToken}`,
+            },
+          });
+          
+          if (identityResponse.ok) {
+            const identityData = await identityResponse.json();
+            // Allow if verified or pending (pending means verification is in progress)
+            isVerified = identityData?.identity?.verification_status === 'verified' || 
+                        identityData?.identity?.verification_status === 'pending';
+          }
+        } catch (error) {
+          console.error('Error checking identity verification:', error);
+          // If identity service is unavailable, fall back to database status check
+          // This maintains security while being resilient to service outages
+        }
+      }
+      
+      if (!isVerified) {
+        return NextResponse.json({ error: 'Identity verification required' }, { status: 403 });
+      }
     }
 
     // Get shop item from database
