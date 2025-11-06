@@ -61,6 +61,16 @@ export default function PurchaseHistoryPage() {
     return byStatus;
   }, [orders]);
 
+  const totalSpent = useMemo(() => {
+    if (!orders || orders.length === 0) return 0;
+    return orders
+      .filter((o) => {
+        const s = (o.status || '').toLowerCase();
+        return s !== 'refunded' && s !== 'rejected';
+      })
+      .reduce((sum, o) => sum + (o.price || 0) * (o.quantity || 0), 0);
+  }, [orders]);
+
   if (loading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center text-white">
@@ -96,6 +106,16 @@ export default function PurchaseHistoryPage() {
             <p className="text-red-200 text-sm">{error}</p>
           </div>
         )}
+
+        <div className="mb-6">
+          <div className="inline-flex items-center gap-3 bg-white/10 border border-white/20 rounded-lg px-4 py-3">
+            <img src="/stardust.png" alt="Stardust" className="w-6 h-6" />
+            <div>
+              <div className="text-xs uppercase tracking-wide text-white/60">Total Stardust Spent</div>
+              <div className="text-xl font-bold tabular-nums">{totalSpent}</div>
+            </div>
+          </div>
+        </div>
 
         {orders.length === 0 ? (
           <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-center">
