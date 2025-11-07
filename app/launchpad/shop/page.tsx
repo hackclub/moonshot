@@ -12,6 +12,9 @@ interface ShopItem {
   description: string;
   image?: string;
   price: number;
+  originalPrice?: number | null;
+  discountPercent?: number | null;
+  discountEndsAt?: string | null;
   availableInventory?: number | null;
   userHasPurchased?: boolean;
   maxPurchasesPerUser?: number | null;
@@ -37,6 +40,7 @@ export default function ShopPage() {
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [nowTs, setNowTs] = useState<number>(Date.now());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,6 +71,11 @@ export default function ShopPage() {
 
     fetchData();
   }, [status, session?.user?.id]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNowTs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const handlePurchase = async () => {
     if (!selectedItem) return;
@@ -160,6 +169,22 @@ export default function ShopPage() {
   const featuredItem = items.find((i) => i.name && i.name.trim() === 'Moonshot Ticket') || null;
   const otherItems = featuredItem ? items.filter((i) => i.id !== featuredItem.id) : items;
 
+  const renderCountdown = (item: ShopItem) => {
+    if (!item.discountEndsAt) return null;
+    const end = new Date(item.discountEndsAt).getTime();
+    const remaining = end - nowTs;
+    if (remaining <= 0) return null;
+    const s = Math.floor(remaining / 1000);
+    const hrs = Math.floor(s / 3600);
+    const mins = Math.floor((s % 3600) / 60);
+    const secs = s % 60;
+    return (
+      <span className="text-[10px] px-1 py-0.5 rounded bg-yellow-500/20 text-yellow-200 border border-yellow-500/30">
+        Ends in {hrs}h {mins}m {secs}s
+      </span>
+    );
+  };
+
   return (
     <div className={`${styles.stardustBackground} pt-24`} style={{ minHeight: '100vh' }}>
       {/* Cosmic Background */}
@@ -246,7 +271,7 @@ export default function ShopPage() {
       {featuredItem && (
         <div className="px-4 mb-6">
           <div
-            className={`${styles.stardustCard} ${featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' ? styles.glowMoonshotTicket : ''} mx-auto max-w-sm`}
+            className={`${styles.stardustCard} ${featuredItem.originalPrice ? styles.discountedGlow : ''} ${featuredItem.name && featuredItem.name.trim() === 'Moonshot Ticket' ? styles.glowMoonshotTicket : ''} mx-auto max-w-sm`}
           >
             {/* Item Image */}
             <div className={styles.stardustImageContainer}>
@@ -261,6 +286,10 @@ export default function ShopPage() {
                   <span className="text-3xl">✨</span>
                 </div>
               )}
+              {/* Countdown overlay */}
+              {featuredItem.discountEndsAt && featuredItem.originalPrice ? (
+                <div className={styles.countdownBadge}>{renderCountdown(featuredItem)}</div>
+              ) : null}
             </div>
 
             {/* Item Content */}
@@ -276,7 +305,17 @@ export default function ShopPage() {
                     alt="Stardust" 
                     className="w-5 h-5"
                   />
-                  <span>{featuredItem.price}</span>
+                  {featuredItem.originalPrice ? (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm line-through text-white/60">{featuredItem.originalPrice}</span>
+                      <span className="font-semibold text-green-300">{featuredItem.price}</span>
+                      {featuredItem.discountPercent ? (
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-green-500/20 text-green-300 border border-green-500/30">-{featuredItem.discountPercent}%</span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span>{featuredItem.price}</span>
+                  )}
                 </div>
                 
                 {/* Check if user can afford */}
@@ -334,7 +373,7 @@ export default function ShopPage() {
         {otherItems.sort((a, b) => a.price - b.price).map((item) => (
           <div
             key={item.id}
-            className={`${styles.stardustCard} ${item.name && item.name.trim() === 'Moonshot Ticket' ? styles.glowMoonshotTicket : ''}`}
+            className={`${styles.stardustCard} ${item.originalPrice ? styles.discountedGlow : ''} ${item.name && item.name.trim() === 'Moonshot Ticket' ? styles.glowMoonshotTicket : ''}`}
           >
             {/* Item Image */}
             <div className={styles.stardustImageContainer}>
@@ -349,6 +388,10 @@ export default function ShopPage() {
                   <span className="text-3xl">✨</span>
                 </div>
               )}
+              {/* Countdown overlay */}
+              {item.discountEndsAt && item.originalPrice ? (
+                <div className={styles.countdownBadge}>{renderCountdown(item)}</div>
+              ) : null}
             </div>
 
             {/* Item Content */}
@@ -364,7 +407,17 @@ export default function ShopPage() {
                     alt="Stardust" 
                     className="w-5 h-5"
                   />
-                  <span>{item.price}</span>
+                  {item.originalPrice ? (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm line-through text-white/60">{item.originalPrice}</span>
+                      <span className="font-semibold text-green-300">{item.price}</span>
+                      {item.discountPercent ? (
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-green-500/20 text-green-300 border border-green-500/30">-{item.discountPercent}%</span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span>{item.price}</span>
+                  )}
                 </div>
                 
                 {/* Check if user can afford */}

@@ -20,6 +20,8 @@ interface ShopItem {
   maxPurchasesPerUser?: number | null;
   availableInventory?: number | null;  // Calculated dynamically from orders
   soldQuantity?: number;                // Total sold (from orders)
+  discountPercent?: number | null;
+  discountEndsAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -106,6 +108,11 @@ export default function ShopItemsPage() {
     totalRevenue: number;
     avgPrice: number;
   }>>({});
+
+  const [discountingItem, setDiscountingItem] = useState<ShopItem | null>(null);
+  const [discountForm, setDiscountForm] = useState<{ percent: string; hours: string; deadline: string }>({ percent: '', hours: '', deadline: '' });
+  const [discountSaving, setDiscountSaving] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status !== 'authenticated' || !session?.user?.id) return;
@@ -443,6 +450,119 @@ export default function ShopItemsPage() {
     }
   };
 
+  const openDiscountModal = (item: ShopItem) => {
+    setDiscountingItem(item);
+    const toLocalInput = (iso: string | null | undefined) => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      const mm = pad(d.getMonth() + 1);
+      const dd = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mi = pad(d.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    };
+    setDiscountForm({
+      percent: item.discountPercent ? String(item.discountPercent) : '',
+      hours: '',
+      deadline: toLocalInput(item.discountEndsAt),
+    });
+  };
+
+  const applyDiscount = async () => {
+    if (!discountingItem) return;
+    try {
+      setDiscountError(null);
+      const raw = discountForm.percent.trim();
+      if (raw === '' || isNaN(parseInt(raw, 10))) {
+        setDiscountError('Please enter a discount percent (1-99).');
+        return;
+      }
+      const percentVal = Math.max(1, Math.min(99, parseInt(raw, 10)));
+      let endsAt: string | null = null;
+      if (discountForm.deadline?.trim()) {
+        const d = new Date(discountForm.deadline);
+        if (isNaN(d.getTime())) {
+          setDiscountError('Invalid deadline. Please use a valid date and time.');
+          return;
+        }
+        endsAt = d.toISOString();
+      } else if (discountForm.hours.trim() !== '') {
+        const hours = Math.max(0.1, parseFloat(discountForm.hours));
+        const d = new Date(Date.now() + Math.round(hours * 60 * 60 * 1000));
+        endsAt = d.toISOString();
+      }
+
+      const payload = {
+        name: discountingItem.name,
+        description: discountingItem.description,
+        image: discountingItem.image || null,
+        price: discountingItem.price,
+        usdCost: discountingItem.usdCost ?? 0,
+        costType: discountingItem.costType ?? 'fixed',
+        config: discountingItem.config ?? null,
+        active: discountingItem.active,
+        useRandomizedPricing: discountingItem.useRandomizedPricing,
+        maxInventory: discountingItem.maxInventory ?? null,
+        maxPurchasesPerUser: discountingItem.maxPurchasesPerUser ?? null,
+        discountPercent: percentVal,
+        discountEndsAt: endsAt,
+      };
+
+      setDiscountSaving(true);
+      const response = await apiFetch(`/api/admin/shop-items/${discountingItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const e = await response.json().catch(() => ({}));
+        throw new Error(e.error || 'Failed to apply discount');
+      }
+
+      setDiscountingItem(null);
+      setDiscountForm({ percent: '', hours: '', deadline: '' });
+      await fetchData();
+      setSuccessMessage('Discount updated successfully');
+      setTimeout(() => setSuccessMessage(null), 2500);
+    } catch (err) {
+      setDiscountError(err instanceof Error ? err.message : 'Failed to apply discount');
+    }
+    finally {
+      setDiscountSaving(false);
+    }
+  };
+
+  const clearDiscount = async (item: ShopItem) => {
+    try {
+      const response = await apiFetch(`/api/admin/shop-items/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: item.name,
+          description: item.description,
+          image: item.image || null,
+          price: item.price,
+          usdCost: item.usdCost ?? 0,
+          costType: item.costType ?? 'fixed',
+          config: item.config ?? null,
+          active: item.active,
+          useRandomizedPricing: item.useRandomizedPricing,
+          maxInventory: item.maxInventory ?? null,
+          maxPurchasesPerUser: item.maxPurchasesPerUser ?? null,
+          discountPercent: null,
+          discountEndsAt: null,
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to clear discount');
+      await fetchData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to clear discount');
+    }
+  };
+
   if (!authResolved) return null; // avoid flicker while resolving auth
 
   if (status === 'unauthenticated' || session?.user?.role !== 'Admin' || !isShopItemAdmin) {
@@ -602,9 +722,17 @@ export default function ShopItemsPage() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <span className="w-4 h-4 mr-1 inline-block rounded-full border border-white/10" />
-                    <span className="text-sm text-white">{item.price}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 inline-block rounded-full border border-white/10" />
+                    {item.discountPercent && (!item.discountEndsAt || new Date(item.discountEndsAt) > new Date()) ? (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-xs line-through text-white/60">{item.price}</span>
+                        <span className="text-sm font-semibold text-green-300">{Math.max(0, Math.floor(item.price * (100 - item.discountPercent) / 100))}</span>
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-green-500/20 text-green-300 border border-green-500/30">-{item.discountPercent}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-white">{item.price}</span>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -668,6 +796,12 @@ export default function ShopItemsPage() {
                       }`}
                     >
                       {item.active ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button
+                      onClick={() => openDiscountModal(item)}
+                      className="px-3 py-1 rounded text-xs bg-purple-100 text-purple-800 hover:bg-purple-200"
+                    >
+                      Discount
                     </button>
                     <button
                       onClick={() => handleEdit(item)}
@@ -871,6 +1005,83 @@ export default function ShopItemsPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Discount Modal */}
+      {discountingItem && (
+        <div className="fixed inset-0 bg-black/70 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-24 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-black/80 text-white border-white/10">
+            <div className="mt-2">
+              <h3 className="text-lg font-medium text-white mb-4">Set Discount for {discountingItem.name}</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-white">Discount Percent</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="1"
+                      max="99"
+                      step="1"
+                      value={discountForm.percent}
+                      onChange={(e) => setDiscountForm({ ...discountForm, percent: e.target.value })}
+                      className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
+                      placeholder="e.g. 10 for 10%"
+                    />
+                    <span className="text-sm">%</span>
+                  </div>
+                  {discountError && <p className="text-xs text-red-300 mt-1">{discountError}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white">Time Limit (hours, optional)</label>
+                  <input
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    value={discountForm.hours}
+                    onChange={(e) => setDiscountForm({ ...discountForm, hours: e.target.value, deadline: '' })}
+                    disabled={!!discountForm.deadline?.trim()}
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
+                    placeholder="e.g. 0.5 for 30 minutes (leave empty for none)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white">Deadline (optional)</label>
+                  <input
+                    type="datetime-local"
+                    value={discountForm.deadline}
+                    onChange={(e) => setDiscountForm({ ...discountForm, deadline: e.target.value, hours: '' })}
+                    disabled={!!discountForm.hours?.trim()}
+                    className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
+                    placeholder="Pick a date and time"
+                  />
+                  <p className="text-xs text-white/60 mt-1">If set, this exact time will be used instead of hours.</p>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => { setDiscountingItem(null); setDiscountForm({ percent: '', hours: '', deadline: '' }); }}
+                    className="px-4 py-2 border border-white/20 rounded-md text-white hover:bg-white/10"
+                  >
+                    Cancel
+                  </button>
+                  {discountingItem?.discountPercent ? (
+                    <button
+                      onClick={() => discountingItem && clearDiscount(discountingItem)}
+                      className="px-4 py-2 border border-white/20 rounded-md text-white hover:bg-white/10"
+                    >
+                      Clear discount
+                    </button>
+                  ) : null}
+                  <button
+                    onClick={applyDiscount}
+                    disabled={discountSaving}
+                    className={`px-4 py-2 rounded-md text-white ${discountSaving ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'}`}
+                  >
+                    {discountSaving ? 'Saving…' : 'Save Discount'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

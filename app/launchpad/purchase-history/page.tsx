@@ -12,6 +12,9 @@ type ShopOrder = {
   quantity: number;
   status: string;
   createdAt: string;
+  config?: {
+    discountPercentApplied?: number;
+  };
 };
 
 export default function PurchaseHistoryPage() {
@@ -147,10 +150,16 @@ export default function PurchaseHistoryPage() {
                   <div className="divide-y divide-white/10 rounded-lg overflow-hidden border border-white/10 bg-black/20">
                     {list.map((order) => {
                       const date = new Date(order.createdAt);
+                      const discount = order.config?.discountPercentApplied;
                       return (
                         <div key={order.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate">{order.itemName}</div>
+                            <div className="font-medium truncate flex items-center gap-2">
+                              <span className="truncate">{order.itemName}</span>
+                              {typeof discount === 'number' && discount > 0 && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded border bg-green-500/20 text-green-200 border-green-500/30 whitespace-nowrap">{discount}% off</span>
+                              )}
+                            </div>
                             <div className="text-sm text-white/70">Qty: {order.quantity} • <span className="inline-flex items-center"><img src="/stardust.png" alt="Stardust" className="w-4 h-4 mr-1" />{order.price}</span></div>
                           </div>
                           <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">

@@ -127,7 +127,7 @@ export async function GET() {
       return true;
     });
 
-    // Apply correct pricing logic
+    // Apply correct pricing logic and active discounts
     const publicItems = availableItems.map(item => {
       const isMoonshotTicket = item.name.trim().toLowerCase() === 'moonshot ticket';
       // Compute remaining allowance if per-user limit set
@@ -141,53 +141,60 @@ export async function GET() {
         userRemainingAllowance = remaining;
       }
       const userHasPurchased = (purchaseCountMap[item.id] || 0) > 0;
-      // If travel stipend, use calculateShellPrice with dollars_per_hour from config or global
+      // Compute base computedPrice before discount
+      let computedPrice: number;
+      let base: any = {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        image: item.image,
+        availableInventory: (item as any).availableInventory ?? null,
+        userHasPurchased,
+        maxPurchasesPerUser: item.maxPurchasesPerUser,
+        userRemainingAllowance,
+      };
+
       if (
         item.name.toLowerCase().includes('travel stipend') &&
         item.costType === 'config' &&
         item.config && typeof item.config === 'object' && 'dollars_per_hour' in item.config
       ) {
         const dollarsPerHour = parseFloat(String(item.config.dollars_per_hour)) || globalDollarsPerHour;
-        return {
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          image: item.image,
-          price: calculateCurrencyPrice(item.usdCost, dollarsPerHour),
-          availableInventory: (item as any).availableInventory ?? null,
-          userHasPurchased,
-          maxPurchasesPerUser: item.maxPurchasesPerUser,
-          userRemainingAllowance,
-        };
+        computedPrice = calculateCurrencyPrice(item.usdCost, dollarsPerHour);
       }
       // Check if randomized pricing is enabled for this item
       else if (item.useRandomizedPricing) {
-        return {
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          image: item.image,
-          price: calculateRandomizedPrice(user.id, item.id, item.price, minPercent, maxPercent),
-          availableInventory: (item as any).availableInventory ?? null,
-          userHasPurchased,
-          maxPurchasesPerUser: item.maxPurchasesPerUser,
-          userRemainingAllowance,
-        };
+        computedPrice = calculateRandomizedPrice(user.id, item.id, item.price, minPercent, maxPercent);
       }
       // Otherwise, use static price
       else {
+        computedPrice = item.price;
+      }
+
+      // Apply active discount if present and not expired
+      const now = new Date();
+      const hasPercent = typeof (item as any).discountPercent === 'number' && (item as any).discountPercent! > 0;
+      const notExpired = !(item as any).discountEndsAt || new Date((item as any).discountEndsAt as any) > now;
+      if (hasPercent && notExpired) {
+        const percent = Number((item as any).discountPercent);
+        const discounted = Math.max(0, Math.floor(computedPrice * (100 - percent) / 100));
         return {
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          image: item.image,
-          price: item.price,
-          availableInventory: (item as any).availableInventory ?? null,
-          userHasPurchased,
-          maxPurchasesPerUser: item.maxPurchasesPerUser,
-          userRemainingAllowance,
+          ...base,
+          price: discounted,
+          originalPrice: computedPrice,
+          discountPercent: percent,
+          discountEndsAt: (item as any).discountEndsAt || null,
         };
       }
+
+      // No discount
+      return {
+        ...base,
+        price: computedPrice,
+        originalPrice: null,
+        discountPercent: null,
+        discountEndsAt: null,
+      };
     });
 
     return NextResponse.json({ items: publicItems });
