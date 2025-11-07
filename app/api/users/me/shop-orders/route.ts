@@ -28,6 +28,7 @@ export async function GET() {
         quantity: true,
         status: true,
         createdAt: true,
+        config: true,
       },
       orderBy: { createdAt: 'desc' },
     });
