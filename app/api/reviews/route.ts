@@ -99,17 +99,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Temporarily commented out email sending to avoid 500 errors in prod
-    // nah, send the review email from here
-    // const host = process.env.NEXTAUTH_URL;
-    // // Still include result text in notifications if provided in the request
-    // const resultText = body.result ? `${body.result === 'approve' ? 'Approved' : (body.result === 'reject' ? 'Rejected' : 'Commented')}: ` : '';
-    // const updateContent = `Review Update for ${project.name} just came in! ${resultText}Check it out at https://${host}/launchpad`;
+    // Send email notification to project owner
+    if (project.user.email) {
+      try {
+        // Log email domain only for privacy (e.g., user@example.com -> @example.com)
+        const emailDomain = project.user.email.includes('@') 
+          ? '@' + project.user.email.split('@')[1] 
+          : '[redacted]';
+        console.log(`📧 Attempting to send review email to: [redacted]${emailDomain}`);
+        
+        const host = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+        // Still include result text in notifications if provided in the request
+        const resultText = body.result ? `${body.result === 'approve' ? 'Approved' : (body.result === 'reject' ? 'Rejected' : 'Commented')}` : '';
+        const updateContent = `Review Update for ${project.name} just came in! ${resultText}.  Check it out at https://${host}/launchpad`;
 
-    // const date = new Date();
-    // const datetime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`
-          
-    // await sendNotificationEmail(project.user.email, project.name, datetime, updateContent);
+        const date = new Date();
+        const datetime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+              
+        await sendNotificationEmail(project.user.email, project.name, datetime, updateContent);
+        console.log(`✅ Review email sent successfully to: [redacted]${emailDomain}`);
+      } catch (emailError) {
+        // Log error without exposing email address
+        console.error(`❌ Failed to send review email:`, emailError instanceof Error ? emailError.message : 'Unknown error');
+        // Don't fail the review creation if email fails
+      }
+    } else {
+      console.log(`⚠️ Skipping email notification - project owner has no email address`);
+    }
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
