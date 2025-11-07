@@ -107,13 +107,32 @@ export async function fetchRecentHeartbeat(id: string): Promise<HacaktimeMostRec
 }
 
 export async function lookupHackatimeIdByEmail(email: string): Promise<string | null> {
-  console.log(`🔍 Looking up Hackatime ID for email: ${email}`);
+  // Log email domain only for privacy
+  const emailDomain = email.includes('@') ? '@' + email.split('@')[1] : '[redacted]';
+  console.log(`🔍 Looking up Hackatime ID for email: [redacted]${emailDomain}`);
   const uri = `https://hackatime.hackclub.com/api/v1/users/lookup_email/${encodeURIComponent(email)}`;
   
+  // Debug: Check token values (only in development)
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const directEnvToken = process.env.HACKATIME_API_TOKEN;
+  const constantToken = HACKATIME_API_TOKEN;
+  
+  if (isDevelopment) {
+    console.log(`🔑 Token Debug (dev only):`);
+    console.log(`  - Constant HACKATIME_API_TOKEN: ${constantToken ? '[REDACTED]' : 'UNDEFINED'}`);
+    console.log(`  - process.env.HACKATIME_API_TOKEN: ${directEnvToken ? '[REDACTED]' : 'UNDEFINED'}`);
+    console.log(`  - Tokens match: ${constantToken === directEnvToken}`);
+  }
+  
   try {
+    const authToken = directEnvToken || constantToken;
+    if (isDevelopment && !authToken) {
+      console.log(`  - Using token for request: UNDEFINED - THIS WILL FAIL!`);
+    }
+    
     const response = await fetch(uri, {
       headers: {
-        'Authorization': `Bearer ${process.env.HACKATIME_API_TOKEN}`,
+        'Authorization': `Bearer ${authToken}`,
         'Rack-Attack-Bypass': HACKATIME_RACK_ATTACK_BYPASS_TOKEN || '',
       }
     });
@@ -229,7 +248,11 @@ export async function checkHackatimeSetup(userId: string, userEmail: string): Pr
 
     // If no Slack ID or lookup failed, try email
     if (!hackatimeId) {
-      console.log('🔍 Attempting email lookup with:', dbUser.email);
+      // Log email domain only for privacy
+      const emailDomain = dbUser.email && dbUser.email.includes('@') 
+        ? '@' + dbUser.email.split('@')[1] 
+        : '[redacted]';
+      console.log('🔍 Attempting email lookup with: [redacted]' + emailDomain);
       hackatimeId = await lookupHackatimeIdByEmail(userEmail);
       console.log(hackatimeId ? '✅ Found Hackatime ID via email' : '❌ No Hackatime ID found via email');
     }
