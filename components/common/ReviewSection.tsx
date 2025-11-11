@@ -658,19 +658,18 @@ export default function ReviewSection({
                 <button
                   onClick={async () => {
                     try {
-                      const joeURL = `https://dash.fraud.land/profile/${identifierToCopy}`;
                       await navigator.clipboard.writeText(identifierToCopy);
                       toast.success('Copied to clipboard!');
                       // Small delay to ensure clipboard write completes before navigation
                       setTimeout(() => {
-                        window.open(joeURL, '_blank', 'noopener,noreferrer');
+                        window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
                       }, 100);
                     } catch (err) {
                       console.error('Failed to copy:', err);
                       toast.error('Failed to copy to clipboard');
                       // Still navigate even if copy fails
-                      window.open(joeURL, '_blank', 'noopener,noreferrer');
-                    }vv
+                      window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
+                    }
                   }}
                   className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-xs"
                 >
