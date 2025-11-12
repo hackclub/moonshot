@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { opts } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
   const { userId } = params;
@@ -8,12 +10,23 @@ export async function GET(request: Request, { params }: { params: { userId: stri
   }
 
   try {
+    // Check authentication
+    const session = await getServerSession(opts);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if requester is admin or reviewer
+    const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
+    const isReviewer = session.user.role === 'Reviewer';
+    const canViewEmail = isAdmin || isReviewer || session.user.id === userId;
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         name: true,
-        email: true,
+        email: true, // Always fetch email, but remove from response if not authorized
         image: true,
         createdAt: true,
         isAdmin: true,
@@ -34,6 +47,13 @@ export async function GET(request: Request, { params }: { params: { userId: stri
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    // Remove email from response if user doesn't have permission to view it
+    if (!canViewEmail) {
+      const { email, ...userWithoutEmail } = user;
+      return NextResponse.json(userWithoutEmail);
+    }
+
     return NextResponse.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
