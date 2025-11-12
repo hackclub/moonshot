@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from 'next-auth';
+import { opts } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET() {
     try {
+        // Check authentication - all users must be logged in to access user list
+        const session = await getServerSession(opts);
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const usersRaw = await prisma.user.findMany({
             select: {
                 id: true,
