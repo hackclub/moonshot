@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { opts } from '@/app/api/auth/[...nextauth]/route';
 import { UserStatus } from '@/app/generated/prisma/client';
 import { createAuditLog, AuditLogEventType } from '@/lib/auditLogger';
+import { getUserProjectsWithMetrics } from '@/lib/project-client';
 
 export async function GET(
   request: Request,
@@ -68,8 +69,15 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Enhance the project data with computed properties
-    const enhancedProjects = user.projects.map((project) => {
+    // Get projects with journal hours and calculate metrics using the shared function
+    const { projects: projectsWithJournalHours, metrics } = await getUserProjectsWithMetrics(
+      userId,
+      user.totalCurrencySpent || 0,
+      user.adminCurrencyAdjustment || 0
+    );
+    
+    // Enhance projects with additional admin-specific properties
+    const enhancedProjects = projectsWithJournalHours.map((project) => {
       // Get the main Hackatime name (for backwards compatibility)
       const hackatimeName = project.hackatimeLinks.length > 0 
         ? project.hackatimeLinks[0].hackatimeName 
@@ -77,7 +85,7 @@ export async function GET(
       
       // Calculate total raw hours from all links, applying individual overrides when available
       const rawHours = project.hackatimeLinks.reduce(
-        (sum, link) => {
+        (sum: number, link: any) => {
           // Use the link's hoursOverride if it exists, otherwise use rawHours
           const effectiveHours = (link.hoursOverride !== undefined && link.hoursOverride !== null)
             ? link.hoursOverride
@@ -88,18 +96,23 @@ export async function GET(
         0
       );
       
+      // Find review count from original projects
+      const originalProject = user.projects.find(p => p.projectID === project.projectID);
+      const reviewCount = originalProject?.reviews?.length || 0;
+      
       // Return the enhanced project with additional properties
       return {
         ...project,
         hackatimeName,
         rawHours,
-        reviewCount: project.reviews.length
+        reviewCount
       };
     });
 
     return NextResponse.json({
       ...user,
-      projects: enhancedProjects
+      projects: enhancedProjects,
+      currencyMetrics: metrics // Include calculated metrics
     });
   } catch (error) {
     console.error('Error fetching user:', error);

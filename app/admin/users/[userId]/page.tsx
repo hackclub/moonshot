@@ -5,11 +5,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast, Toaster } from 'sonner';
-import { calculateProgressMetrics, ProgressMetrics, getProjectHackatimeHours, getProjectApprovedHours } from '@/lib/project-client';
+import { ProgressMetrics, getProjectHackatimeHours, getProjectApprovedHours } from '@/lib/project-client';
 import { apiFetch } from '@/lib/apiFetch';
 import { ProjectType } from '@/app/api/projects/route';
 import TagManagement from '@/components/common/TagManagement';
-import MultiPartProgressBar from '@/components/common/MultiPartProgressBar';
 import Tooltip from '@/components/common/Tooltip';
 
 enum UserStatus {
@@ -67,6 +66,7 @@ interface User {
   totalCurrencySpent?: number;
   adminCurrencyAdjustment?: number;
   purchasedProgressHours?: number;
+  currencyMetrics?: ProgressMetrics;
 }
 
 
@@ -162,12 +162,8 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
     }
   };
 
-  // Calculate progress metrics with admin adjustments
-  const progressMetrics: ProgressMetrics = user?.projects ? calculateProgressMetrics(
-    user.projects, 
-    user.totalCurrencySpent || 0,
-    user.adminCurrencyAdjustment || 0
-  ) : {
+  // Use metrics from API (calculated server-side with journal hours)
+  const progressMetrics: ProgressMetrics = user?.currencyMetrics || {
     shippedHours: 0,
     viralHours: 0,
     otherHours: 0,
@@ -495,7 +491,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center text-white">
               <div>
                 <div className="text-2xl font-bold text-white">
-                  {user?.projects ? calculateProgressMetrics(user.projects, user.totalCurrencySpent || 0, user.adminCurrencyAdjustment || 0).availablecurrency : 0}
+                  {progressMetrics.availablecurrency + (user?.totalCurrencySpent || 0) - (user?.adminCurrencyAdjustment || 0)}
                 </div>
                 <div className="text-sm text-white/70">Earned currency</div>
               </div>

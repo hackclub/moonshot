@@ -258,9 +258,6 @@ export interface ProgressMetrics {
   totalPercentage: number;
   rawHours: number;
   availablecurrency: number;
-  purchasedProgressHours: number;
-  totalProgressWithPurchased: number;
-  totalPercentageWithPurchased: number;
 }
 
 // Helper to get project hours with our matching logic
