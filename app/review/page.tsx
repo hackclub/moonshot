@@ -741,7 +741,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                         toast.success('Copied to clipboard!');
                         // Small delay to ensure clipboard write completes before navigation
                         setTimeout(() => {
-                          window.open('https://dash.fraud.land' + hackatimeIdentifier, '_blank', 'noopener,noreferrer');
+                          window.open('https://dash.fraud.land/' + hackatimeIdentifier, '_blank', 'noopener,noreferrer');
                         }, 100);
                       } catch (err) {
                         console.error('Failed to copy:', err);
