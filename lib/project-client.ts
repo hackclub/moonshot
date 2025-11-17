@@ -68,6 +68,104 @@ function getProjectJournalApprovedHours(project: any): number {
   return typeof v === 'number' && isFinite(v) ? v : 0
 }
 
+/**
+ * Fetches and aggregates journal hours (raw and approved) for multiple projects in a single query.
+ * Returns a map of projectID -> { raw: number, approved: number }
+ * Projects without journal entries will have zeros.
+ */
+async function getJournalHoursForProjects(
+  projectIDs: string[]
+): Promise<Record<string, { raw: number; approved: number }>> {
+  const journalHoursMap: Record<string, { raw: number; approved: number }> = {};
+  
+  // Initialize all projects with zero hours
+  projectIDs.forEach(id => {
+    journalHoursMap[id] = { raw: 0, approved: 0 };
+  });
+
+  // Aggregate all chat messages for all projects at once
+  if (projectIDs.length > 0) {
+    const { prisma } = await import('@/lib/prisma');
+    const chatMessages = await prisma.chatMessage.findMany({
+      where: {
+        room: {
+          projectID: { in: projectIDs }
+        }
+      },
+      select: {
+        hours: true,
+        approvedHours: true,
+        room: {
+          select: {
+            projectID: true
+          }
+        }
+      }
+    });
+
+    // Group and sum by projectID
+    chatMessages.forEach(msg => {
+      const projectID = msg.room.projectID;
+      if (projectID && journalHoursMap[projectID]) {
+        journalHoursMap[projectID].raw += typeof msg.hours === 'number' ? msg.hours : 0;
+        journalHoursMap[projectID].approved += typeof msg.approvedHours === 'number' ? msg.approvedHours : 0;
+      }
+    });
+  }
+
+  return journalHoursMap;
+}
+
+/**
+ * Enhances projects with journal hours from chat messages.
+ * Fetches all journal hours in a single query and adds them to each project.
+ */
+async function enhanceProjectsWithJournalHours<T extends { projectID: string }>(
+  projects: T[]
+): Promise<(T & { journalRawHours: number; journalApprovedHours: number })[]> {
+  const projectIDs = projects.map(p => p.projectID);
+  const journalHoursMap = await getJournalHoursForProjects(projectIDs);
+
+  return projects.map(project => ({
+    ...project,
+    journalRawHours: journalHoursMap[project.projectID]?.raw || 0,
+    journalApprovedHours: journalHoursMap[project.projectID]?.approved || 0,
+  }));
+}
+
+/**
+ * Fetches all projects for a user, enhances them with journal hours, and calculates progress metrics.
+ * This is the complete flow for getting user currency/stardust balance.
+ */
+export async function getUserProjectsWithMetrics(
+  userId: string,
+  totalCurrencySpent: number = 0,
+  adminCurrencyAdjustment: number = 0
+): Promise<{
+  projects: any[];
+  metrics: ProgressMetrics;
+}> {
+  // Get ALL projects for the user (including those with only journal entries, no hackatime)
+  // include: { hackatimeLinks: true } just adds the relation data, it doesn't filter projects
+  const { prisma } = await import('@/lib/prisma');
+  const projectsRaw = await prisma.project.findMany({
+    where: { userId },
+    include: { hackatimeLinks: true }
+  });
+
+  // Enhance projects with journal hours from chat messages
+  const projects = await enhanceProjectsWithJournalHours(projectsRaw);
+
+  // Calculate comprehensive currency balance
+  const metrics = calculateProgressMetrics(
+    projects,
+    totalCurrencySpent,
+    adminCurrencyAdjustment
+  );
+
+  return { projects, metrics };
+}
+
 // Centralized function to calculate all progress metrics
 export function calculateProgressMetrics(
   projects: any[], 
@@ -111,8 +209,8 @@ export function calculateProgressMetrics(
   // Only pay out for approved hours on shipped projects
   const approvedHoursAcrossAllProjects = projects.reduce((sum, project) => {
     if (project?.shipped === true) {
-      // Approved now includes hackatime approved (overrides) + journal approved
-      return sum + getProjectApprovedHours(project) + getProjectJournalApprovedHours(project);
+      // getProjectApprovedHours already includes hackatime approved (overrides) + journal approved
+      return sum + getProjectApprovedHours(project);
     }
     return sum;
   }, 0);

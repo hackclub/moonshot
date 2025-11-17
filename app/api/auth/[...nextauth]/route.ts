@@ -21,22 +21,8 @@ const adapter = {
   ...baseAdapter,
   // Override verification token methods - the v1.0.7 adapter returns undefined
   async createVerificationToken(data: { identifier: string; token: string; expires: Date }) {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('[CUSTOM-ADAPTER] createVerificationToken CALLED');
-    console.log('  identifier:', data.identifier);
-    console.log('  token (full):', data.token);
-    console.log('  token length:', data.token.length);
-    console.log('  expires:', data.expires);
-    console.log('  Stack trace:', new Error().stack?.split('\n').slice(1, 4).join('\n'));
-    
     // Prisma returns undefined for models with composite keys, so we create then read back
-    try {
-      await prisma.verificationToken.create({ data });
-      console.log('[CUSTOM-ADAPTER] Prisma create succeeded (no error)');
-    } catch (err) {
-      console.log('[CUSTOM-ADAPTER] PRISMA CREATE FAILED:', err);
-      throw err;
-    }
+    await prisma.verificationToken.create({ data });
     
     // Read it back since create returns undefined for composite key models
     const result = await prisma.verificationToken.findUnique({
@@ -44,95 +30,18 @@ const adapter = {
     });
     
     if (!result) {
-      console.log('[CUSTOM-ADAPTER] ERROR: Token not found after create!');
       throw new Error('Token not found after create');
     }
-    
-    console.log('[CUSTOM-ADAPTER] Token read back successfully');
-    
-    console.log('[CUSTOM-ADAPTER] Token STORED in DB:');
-    console.log('  identifier:', result.identifier);
-    console.log('  token (full):', result.token);
-    console.log('  token length:', result.token.length);
-    console.log('  expires:', result.expires);
-    
-    // Verify it was actually stored by reading it back
-    const verification = await prisma.verificationToken.findUnique({
-      where: { identifier_token: { identifier: result.identifier, token: result.token } }
-    });
-    console.log('[CUSTOM-ADAPTER] Verification read-back:', verification ? 'SUCCESS' : 'FAILED');
-    if (verification) {
-      console.log('  Read token matches stored:', verification.token === result.token);
-    }
-    
-    // List all tokens in DB for this identifier
-    const allTokens = await prisma.verificationToken.findMany({
-      where: { identifier: data.identifier }
-    });
-    console.log('[CUSTOM-ADAPTER] All tokens for', data.identifier, ':', allTokens.length);
-    allTokens.forEach((t, i) => {
-      console.log(`  Token ${i + 1}: ${t.token.slice(0, 20)}... (expires: ${t.expires})`);
-    });
-    console.log('═══════════════════════════════════════════════════════');
     
     return result;
   },
   async useVerificationToken(params: { identifier: string; token: string }) {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('[CUSTOM-ADAPTER] useVerificationToken CALLED');
-    console.log('  identifier:', params.identifier);
-    console.log('  token (full):', params.token);
-    console.log('  token length:', params.token.length);
-    console.log('  Stack trace:', new Error().stack?.split('\n').slice(1, 4).join('\n'));
-    
-    // First, list ALL tokens for this identifier
-    const allTokens = await prisma.verificationToken.findMany({
-      where: { identifier: params.identifier }
-    });
-    console.log('[CUSTOM-ADAPTER] All tokens in DB for', params.identifier, ':', allTokens.length);
-    allTokens.forEach((t, i) => {
-      console.log(`  Token ${i + 1}:`);
-      console.log(`    Full: ${t.token}`);
-      console.log(`    Length: ${t.token.length}`);
-      console.log(`    Expires: ${t.expires}`);
-      console.log(`    Matches lookup: ${t.token === params.token}`);
-    });
-    
     try {
       const result = await prisma.verificationToken.delete({
         where: { identifier_token: { identifier: params.identifier, token: params.token } },
       });
-      
-      console.log('[CUSTOM-ADAPTER] Token FOUND and DELETED:');
-      console.log('  identifier:', result.identifier);
-      console.log('  token (full):', result.token);
-      console.log('  Match confirmed:', result.token === params.token);
-      console.log('═══════════════════════════════════════════════════════');
-      
       return result;
     } catch (error) {
-      console.log('[CUSTOM-ADAPTER] Token NOT FOUND in DB');
-      console.log('  Error:', error);
-      console.log('  Searched for token:', params.token);
-      console.log('  Token length:', params.token.length);
-      
-      // Do a manual search to see if there's a similar token
-      const similarTokens = await prisma.verificationToken.findMany({
-        where: { 
-          identifier: params.identifier,
-        }
-      });
-      console.log('[CUSTOM-ADAPTER] Similar tokens found:', similarTokens.length);
-      similarTokens.forEach((t, i) => {
-        const diff = [];
-        for (let j = 0; j < Math.min(t.token.length, params.token.length); j++) {
-          if (t.token[j] !== params.token[j]) {
-            diff.push(j);
-          }
-        }
-        console.log(`  Token ${i + 1} differs at positions:`, diff.length > 0 ? diff.slice(0, 10) : 'NONE (but lengths differ?)');
-      });
-      console.log('═══════════════════════════════════════════════════════');
       return null;
     }
   },
@@ -568,7 +477,7 @@ export const opts: NextAuthOptions = {
     verifyRequest: "/launchpad/login/verify",
     error: "/launchpad/login/error",
   },
-  debug: true, // Temporarily enable debug mode to see what's happening
+  debug: false,
 };
 
 const handler = NextAuth(opts);

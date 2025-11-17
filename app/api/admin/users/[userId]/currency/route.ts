@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { opts } from '@/app/api/auth/[...nextauth]/route';
 import { logShellModification } from '@/lib/auditLogger';
-import { calculateProgressMetrics } from '@/lib/project-client';
+import { getUserProjectsWithMetrics } from '@/lib/project-client';
 
 // Admin endpoint for adjusting user currency balance (formerly "shells" in Shipwrecked)
 export async function PATCH(
@@ -47,10 +47,9 @@ export async function PATCH(
 
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        projects: {
-          include: { hackatimeLinks: true }
-        }
+      select: {
+        totalCurrencySpent: true,
+        adminCurrencyAdjustment: true
       }
     });
 
@@ -58,8 +57,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const currentMetrics = calculateProgressMetrics(
-      targetUser.projects,
+    // Get current metrics before adjustment
+    const { metrics: currentMetrics } = await getUserProjectsWithMetrics(
+      userId,
       targetUser.totalCurrencySpent,
       targetUser.adminCurrencyAdjustment
     );
@@ -70,11 +70,16 @@ export async function PATCH(
         adminCurrencyAdjustment: {
           increment: adjustment
         }
+      },
+      select: {
+        totalCurrencySpent: true,
+        adminCurrencyAdjustment: true
       }
     });
 
-    const newMetrics = calculateProgressMetrics(
-      targetUser.projects,
+    // Get new metrics after adjustment
+    const { metrics: newMetrics } = await getUserProjectsWithMetrics(
+      userId,
       updatedUser.totalCurrencySpent,
       updatedUser.adminCurrencyAdjustment
     );
