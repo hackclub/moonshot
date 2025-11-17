@@ -56,6 +56,16 @@ export default function DashboardClient({
                 >
                   Referrals
                 </Link>
+                <Link
+                  href="/dashboards/participation"
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                    pathname === '/dashboards/participation'
+                      ? 'border-blue-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  }`}
+                >
+                  Participation
+                </Link>
                 {/* Add more dashboard links here as needed */}
               </div>
             </div>
