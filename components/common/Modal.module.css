@@ -27,6 +27,15 @@
   flex-direction: column;
 }
 
+.frameless {
+  background: transparent;
+  box-shadow: none;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+}
+
 .header {
   padding: 1.25rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -67,6 +76,11 @@
   flex-grow: 1;
   overflow-y: auto;
   position: relative;
+}
+
+.contentFrameless {
+  padding: 0;
+  padding-bottom: 0;
 }
 
 @media (max-width: 640px) {
