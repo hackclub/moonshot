@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import ReviewLeaderboard from '@/components/admin/ReviewLeaderboard';
 
 // Stat card component with consistent sizing
@@ -387,6 +387,7 @@ export default function AdminDashboard() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [shopTimeRange, setShopTimeRange] = useState('7d');
+  const [pollSummary, setPollSummary] = useState<null | { total: number; byTag: Record<'v1'|'v2'|'v3'|'v4'|'v5', number> }>(null);
   
   useEffect(() => {
     // Client-side session diagnostics
@@ -396,6 +397,24 @@ export default function AdminDashboard() {
       role: session?.user?.role,
       isAdminFlag: session?.user?.isAdmin === true,
     });
+  }, [status, session?.user?.id]);
+
+  // Fetch poll participation summary
+  useEffect(() => {
+    async function fetchPollSummary() {
+      try {
+        const res = await apiFetch('/api/admin/poll/summary');
+        if (res.ok) {
+          const data = await res.json();
+          setPollSummary(data);
+        }
+      } catch (error) {
+        console.error('Error fetching poll summary:', error);
+      }
+    }
+    if (status === 'authenticated' && session?.user?.id) {
+      fetchPollSummary();
+    }
   }, [status, session?.user?.id]);
 
   useEffect(() => {
@@ -494,6 +513,64 @@ export default function AdminDashboard() {
           />
         </div>
       </div>
+      {/* Participation rate */}
+      {pollSummary && (
+        <div className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">Participation rate</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg shadow p-6 text-black">
+              <h3 className="text-lg font-medium mb-3">Totals</h3>
+              <ul className="space-y-2">
+                <li className="flex justify-between border-b border-gray-100 pb-2">
+                  <span>Florida + shop <span className="text-xs text-gray-500">[v1]</span></span>
+                  <span className="font-semibold tabular-nums">{pollSummary.byTag.v1 || 0}</span>
+                </li>
+                <li className="flex justify-between border-b border-gray-100 pb-2">
+                  <span>Florida <span className="text-xs text-gray-500">[v2]</span></span>
+                  <span className="font-semibold tabular-nums">{pollSummary.byTag.v2 || 0}</span>
+                </li>
+                <li className="flex justify-between border-b border-gray-100 pb-2">
+                  <span>Shop <span className="text-xs text-gray-500">[v3]</span></span>
+                  <span className="font-semibold tabular-nums">{pollSummary.byTag.v3 || 0}</span>
+                </li>
+                <li className="flex justify-between border-b border-gray-100 pb-2">
+                  <span>Watching <span className="text-xs text-gray-500">[v4]</span></span>
+                  <span className="font-semibold tabular-nums">{pollSummary.byTag.v4 || 0}</span>
+                </li>
+                <li className="flex justify-between">
+                  <span>Not sure <span className="text-xs text-gray-500">[v5]</span></span>
+                  <span className="font-semibold tabular-nums">{pollSummary.byTag.v5 || 0}</span>
+                </li>
+              </ul>
+              <div className="mt-4 text-sm text-black">
+                Total votes: <span className="font-semibold">{pollSummary.total}</span>
+              </div>
+            </div>
+            <div className="lg:col-span-2 bg-white rounded-lg shadow p-6 text-black">
+              <h3 className="text-lg font-medium mb-3">Distribution</h3>
+              <div className="w-full h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={[
+                      { label: 'Florida + shop', value: pollSummary.byTag.v1 || 0 },
+                      { label: 'Florida', value: pollSummary.byTag.v2 || 0 },
+                      { label: 'Shop', value: pollSummary.byTag.v3 || 0 },
+                      { label: 'Watching', value: pollSummary.byTag.v4 || 0 },
+                      { label: 'Not sure', value: pollSummary.byTag.v5 || 0 },
+                    ]}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="label" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3b82f6" radius={[6,6,0,0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {authReady && isShopAdmin && (
         <div className="mb-10">
           <h2 className="text-xl font-semibold mb-4">Shop Analytics</h2>
