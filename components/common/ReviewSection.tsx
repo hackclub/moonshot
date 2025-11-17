@@ -651,24 +651,24 @@ export default function ReviewSection({
             )}
             {/* Fraud (Joe) button - copies identifier to clipboard then navigates */}
             {(() => {
-              const identifierToCopy = userHackatimeId || userSlack || null;
-              if (!identifierToCopy) return null;
-              
+              const hackatimeIdentifier = userHackatimeId || userSlack || null;
+              if (!hackatimeIdentifier) return null;
+
               return (
                 <button
                   onClick={async () => {
                     try {
-                      await navigator.clipboard.writeText(identifierToCopy);
+                      await navigator.clipboard.writeText(hackatimeIdentifier);
                       toast.success('Copied to clipboard!');
                       // Small delay to ensure clipboard write completes before navigation
                       setTimeout(() => {
-                        window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
+                        window.open('https://dash.fraud.land/' + hackatimeIdentifier, '_blank', 'noopener,noreferrer');
                       }, 100);
                     } catch (err) {
                       console.error('Failed to copy:', err);
                       toast.error('Failed to copy to clipboard');
                       // Still navigate even if copy fails
-                      window.open('https://dash.fraud.land', '_blank', 'noopener,noreferrer');
+                      window.open('https://dash.fraud.land/' + hackatimeIdentifier, '_blank', 'noopener,noreferrer');
                     }
                   }}
                   className="flex items-center gap-1.5 px-2 py-1.5 bg-black/40 hover:bg-black/60 border border-white/20 rounded text-red-300 hover:text-red-200 transition-colors text-xs"

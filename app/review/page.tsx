@@ -738,6 +738,7 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
                   <button
                     onClick={async () => {
                       try {
+                        await navigator.clipboard.writeText(hackatimeIdentifier);
                         toast.success('Copied to clipboard!');
                         // Small delay to ensure clipboard write completes before navigation
                         setTimeout(() => {
