@@ -31,18 +31,14 @@ export default function PollPopup() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch('/api/users/me/tags', { cache: 'no-store' });
+        const res = await fetch('/api/poll/status', { cache: 'no-store' });
         if (res.status === 401) {
           // Not logged in; do not show the poll
           if (!cancelled) setIsOpen(false);
           return;
         }
         const data = await res.json();
-        const tags: Array<{ name: string }> = (data?.tags || []).map((t: any) => ({
-          name: String(t?.name || '').toLowerCase(),
-        }));
-        const hasVoted = tags.some((t) => t.name === 'voted');
-        if (!cancelled) setIsOpen(!hasVoted);
+        if (!cancelled) setIsOpen(Boolean(data?.needsVote));
       } catch (e) {
         // Fail-safe: do not show if tags cannot be checked
         if (!cancelled) setIsOpen(false);
