@@ -731,24 +731,24 @@ function ProjectDetail({ project, onClose, onReviewSubmitted }: {
               )}
               {/* Fraud (Joe) button - copies identifier to clipboard then navigates */}
               {(() => {
-                const hackatimeIdentifier = project.userHackatimeId || project.userSlack || project.user?.name || null;
-                if (!hackatimeIdentifier) return null;
+                const identifierToCopy = project.userHackatimeId || project.userSlack || project.user?.name || null;
+                if (!identifierToCopy) return null;
                 
                 return (
                   <button
                     onClick={async () => {
                       try {
-                        await navigator.clipboard.writeText(hackatimeIdentifier);
+                        await navigator.clipboard.writeText(identifierToCopy);
                         toast.success('Copied to clipboard!');
                         // Small delay to ensure clipboard write completes before navigation
                         setTimeout(() => {
-                          window.open('https://dash.fraud.land/' + hackatimeIdentifier, '_blank', 'noopener,noreferrer');
+                          window.open('https://dash.fraud.land/' + identifierToCopy, '_blank', 'noopener,noreferrer');
                         }, 100);
                       } catch (err) {
                         console.error('Failed to copy:', err);
                         toast.error('Failed to copy to clipboard');
                         // Still navigate even if copy fails
-                        window.open('https://dash.fraud.land/' + hackatimeIdentifier, '_blank', 'noopener,noreferrer');
+                        window.open('https://dash.fraud.land/' + identifierToCopy, '_blank', 'noopener,noreferrer');
                       }
                     }}
                     className="text-red-400 hover:underline flex items-center gap-2 text-left"
