@@ -816,7 +816,7 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
                                 `**Justification:** ${justification.trim()}`
                               
                               try {
-                                await apiFetch('/api/reviews', {
+                                const reviewRes = await apiFetch('/api/reviews', {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({ 
@@ -827,7 +827,13 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
                                     result: newVal === 0 ? 'reject' : 'approve'
                                   })
                                 })
-                              } catch {}
+                                if (!reviewRes.ok) {
+                                  console.warn('[Journal Review] Failed to create review comment:', await reviewRes.text().catch(() => 'Unknown error'));
+                                }
+                              } catch (e) {
+                                console.error('[Journal Review] Error creating review comment:', e);
+                                // Don't fail the whole operation if review comment creation fails
+                              }
                             }
                           } catch {
                             alert('Failed to update approved hours')
