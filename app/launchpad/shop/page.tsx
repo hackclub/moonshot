@@ -265,7 +265,14 @@ export default function ShopPage() {
 
             {/* Item Content */}
             <div>
-              <h3 className={styles.stardustItemTitle}>{featuredItem.name}</h3>
+              <h3 className={styles.stardustItemTitle}>
+                {featuredItem.name.replace(/\s*\(request\)\s*/i, '')}
+                {/request/i.test(featuredItem.name) && !/^\s*request\s*item\s*$/i.test(featuredItem.name) && (
+                  <span className="ml-2 inline-flex align-middle whitespace-nowrap bg-purple-600/20 text-purple-200 px-2 py-0.5 rounded-full text-xs uppercase border border-purple-400/30">
+                    User&nbsp;request
+                  </span>
+                )}
+              </h3>
               <p className={styles.stardustItemDescription}>{featuredItem.description}</p>
               
               {/* Price and Availability */}
@@ -353,7 +360,14 @@ export default function ShopPage() {
 
             {/* Item Content */}
             <div>
-              <h3 className={styles.stardustItemTitle}>{item.name}</h3>
+              <h3 className={styles.stardustItemTitle}>
+                {item.name.replace(/\s*\(request\)\s*/i, '')}
+                {/request/i.test(item.name) && !/^\s*request\s*item\s*$/i.test(item.name) && (
+                  <span className="ml-2 inline-flex align-middle whitespace-nowrap bg-purple-600/20 text-purple-200 px-2 py-0.5 rounded-full text-xs uppercase border border-purple-400/30">
+                    User&nbsp;request
+                  </span>
+                )}
+              </h3>
               <p className={styles.stardustItemDescription}>{item.description}</p>
               
               {/* Price and Availability */}
