@@ -339,8 +339,14 @@ export default function ShopItemsPage() {
         finalPrice = calculateCurrencyPrice(usdCost, dollarsPerHour);
       }
 
+      // Persist request state without schema changes by tagging name.
+      // The public shop UI strips this tag from display but uses it to show the chip.
+      const requestTagRegex = /\s*\(request\)\s*$/i;
+      const baseName = formData.name.replace(requestTagRegex, '');
+      const finalName = formData.isRequestedItem ? `${baseName} (request)` : baseName;
+
       const payload = {
-        name: formData.name,
+        name: finalName,
         description: formData.description,
         image: formData.image || null,
         price: finalPrice,
