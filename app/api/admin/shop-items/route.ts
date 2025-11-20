@@ -47,7 +47,8 @@ export async function GET() {
     return NextResponse.json({ items: itemsWithInventory });
   } catch (error) {
     console.error('Error fetching shop items:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -108,22 +109,29 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Log audit event
-    await createAuditLog({
-      eventType: AuditLogEventType.OtherEvent,
-      description: `Admin created shop item: ${name}`,
-      targetUserId: user.id,
-      actorUserId: user.id,
-      metadata: {
-        itemId: item.id,
-        itemName: item.name,
-        price: item.price,
-      },
-    });
+    // Log audit event (do not fail the request if logging fails)
+    try {
+      if (user?.id) {
+        await createAuditLog({
+          eventType: AuditLogEventType.OtherEvent,
+          description: `Admin created shop item: ${name}`,
+          targetUserId: user.id,
+          actorUserId: user.id,
+          metadata: {
+            itemId: item.id,
+            itemName: item.name,
+            price: item.price,
+          },
+        });
+      }
+    } catch (auditErr) {
+      console.error('Audit log failed for shop item create:', auditErr);
+    }
 
     return NextResponse.json({ item });
   } catch (error) {
     console.error('Error creating shop item:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 } 
