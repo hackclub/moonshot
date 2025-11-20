@@ -286,8 +286,11 @@ export async function PATCH(
     const isAdmin = role === 'Admin' || session.user.isAdmin === true;
     const isReviewer = role === 'Reviewer';
     if (!isAdmin && !isReviewer) {
+      console.warn(`[Journal Review] Unauthorized attempt by user ${session.user.id} (role: ${role})`);
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+    
+    console.log(`[Journal Review] User ${session.user.id} (${isAdmin ? 'Admin' : 'Reviewer'}) updating approved hours for project ${projectId}`);
 
     const body = await request.json();
     const { messageId, approvedHours } = body || {};
@@ -321,6 +324,8 @@ export async function PATCH(
       data: { approvedHours: nextApproved }
     });
 
+    console.log(`[Journal Review] Successfully updated approvedHours for message ${messageId} to ${nextApproved ?? 'null'}`);
+
     // Write audit event (target user is the project owner)
     try {
       const projectOwner = await prisma.project.findUnique({
@@ -343,15 +348,21 @@ export async function PATCH(
             journalEntryUrl
           }
         });
+        console.log(`[Journal Review] Audit log created for journal entry approval`);
       }
     } catch (e) {
-      console.error('Failed to write audit log for approved hours update:', e);
+      console.error('[Journal Review] Failed to write audit log for approved hours update:', e);
+      // Don't fail the request if audit log fails, but log it
     }
 
     return NextResponse.json({ id: updated.id, approvedHours: updated.approvedHours });
   } catch (error) {
-    console.error('Error updating approved hours:', error);
-    return NextResponse.json({ error: 'Failed to update approved hours' }, { status: 500 });
+    console.error('[Journal Review] Error updating approved hours:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ 
+      error: 'Failed to update approved hours',
+      details: errorMessage 
+    }, { status: 500 });
   }
 }
 

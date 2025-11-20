@@ -70,20 +70,19 @@ async function getAuditLogTimeSeries() {
 export async function GET(request: NextRequest) {
   // Copious logging for diagnosing intermittent 401s
   try {
-    const cookieHeader = request.headers.get('cookie') || '';
-    const ua = request.headers.get('user-agent') || '';
-    const referer = request.headers.get('referer') || '';
-    const cookieNames = request.cookies.getAll().map((c) => c.name);
-    console.log('[ADMIN DASHBOARD] Incoming request', {
-      method: request.method,
-      url: request.nextUrl?.pathname || 'unknown',
-      cookiePresent: cookieHeader.length > 0,
-      cookieNames,
-      ua,
-      referer,
-    });
+    const debugLoggingEnabled =
+      process.env.NODE_ENV !== 'production' && process.env.ADMIN_DASHBOARD_DEBUG === '1';
+    if (debugLoggingEnabled) {
+      const cookieHeader = request.headers.get('cookie') || '';
+      console.log('[ADMIN DASHBOARD] Incoming request', {
+        method: request.method,
+        url: request.nextUrl?.pathname || 'unknown',
+        cookiePresent: cookieHeader.length > 0,
+      });
+    }
   } catch (e) {
-    console.log('[ADMIN DASHBOARD] Failed to log request headers:', e instanceof Error ? e.message : e);
+    // Swallow logging errors silently in production-safe way
+    console.log('[ADMIN DASHBOARD] Failed to log request headers');
   }
 
   // Check authentication
@@ -93,12 +92,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log('[ADMIN DASHBOARD] Session resolved', {
-    userId: session.user.id,
-    email: session.user.email,
-    role: session.user.role,
-    isAdminFlag: session.user.isAdmin === true,
-  });
+  try {
+    const debugLoggingEnabled =
+      process.env.NODE_ENV !== 'production' && process.env.ADMIN_DASHBOARD_DEBUG === '1';
+    if (debugLoggingEnabled) {
+      console.log('[ADMIN DASHBOARD] Session resolved', {
+        role: session.user.role,
+        isAdminFlag: session.user.isAdmin === true,
+      });
+    }
+  } catch {}
 
   // Check for admin role or isAdmin flag
   const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
@@ -349,7 +352,277 @@ export async function GET(request: NextRequest) {
           { name: 'With Identity Token', value: usersWithIdentityToken },
           { name: 'Without Identity Token', value: usersWithoutIdentityToken }
         ]
-      }
+      },
+      // v1/v2 per-user hours for admin-only consumption
+      // Each chartData entry: { label: user display name, v1: number, v2: number }
+      ...(await (async () => {
+        try {
+          // Helper functions for distributions
+          function calculatePercentile(sortedArray: number[], percentile: number): number {
+            if (sortedArray.length === 0) return 0;
+            const index = (percentile / 100) * (sortedArray.length - 1);
+            const lower = Math.floor(index);
+            const upper = Math.ceil(index);
+            if (lower === upper) return sortedArray[lower];
+            const weight = index - lower;
+            return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
+          }
+          function generateSingleHistogramBins(values: number[]) {
+            const all = values.filter(v => isFinite(v) && v >= 0);
+            if (all.length === 0) return [] as Array<{ min: number; max: number; count: number }>;
+            all.sort((a, b) => a - b);
+            const q1 = calculatePercentile(all, 25);
+            const q3 = calculatePercentile(all, 75);
+            const iqr = Math.max(0, q3 - q1);
+            const binWidth = Math.max(1, (2 * iqr) / Math.pow(all.length, 1/3));
+            const actualMin = Math.min(...all);
+            const minVal = Math.min(0, actualMin); // ensure starting at 0.0h
+            const maxVal = Math.max(...all);
+            const range = Math.max(1, maxVal - minVal);
+            const numBins = Math.max(5, Math.ceil(range / binWidth));
+            const actualWidth = range / numBins;
+            const bins: Array<{ min: number; max: number; count: number }> = [];
+            for (let i = 0; i < numBins; i++) {
+              const binMin = minVal + (i * actualWidth);
+              const binMax = i === numBins - 1 ? maxVal : minVal + ((i + 1) * actualWidth);
+              bins.push({ min: binMin, max: binMax, count: 0 });
+            }
+            const put = (value: number) => {
+              if (!isFinite(value) || value < minVal) return;
+              let idx = Math.floor((value - minVal) / actualWidth);
+              if (idx >= bins.length) idx = bins.length - 1;
+              if (idx < 0) idx = 0;
+              bins[idx].count += 1;
+            };
+            all.forEach(v => put(v));
+            return bins;
+          }
+
+          // Find all users that have either v1 or v2 tag
+          const usersWithVTags = await prisma.user.findMany({
+            where: {
+              userTags: {
+                some: {
+                  tag: {
+                    name: { in: ['v1', 'v2'] }
+                  }
+                }
+              }
+            },
+            select: {
+              id: true,
+              name: true,
+              userTags: {
+                select: { tag: { select: { name: true } } }
+              }
+            }
+          });
+          
+          if (!usersWithVTags || usersWithVTags.length === 0) {
+            return {
+              vTagHours: {
+                rawChartData: [] as Array<{ label: string; v1: number; v2: number }>,
+                approvedChartData: [] as Array<{ label: string; v1: number; v2: number }>
+              }
+            };
+          }
+          
+          // Map userId -> vTag ('v1' | 'v2')
+          const userIdToVTag = new Map<string, 'v1' | 'v2'>();
+          const userIdToName = new Map<string, string>();
+          for (const u of usersWithVTags) {
+            const tags = (u.userTags || []).map(t => t.tag?.name?.toLowerCase());
+            if (tags.includes('v1')) {
+              userIdToVTag.set(u.id, 'v1');
+            } else if (tags.includes('v2')) {
+              userIdToVTag.set(u.id, 'v2');
+            }
+            userIdToName.set(u.id, u.name || '');
+          }
+          
+          const targetUserIds = Array.from(userIdToVTag.keys());
+          if (targetUserIds.length === 0) {
+            return {
+              vTagHours: {
+                rawChartData: [] as Array<{ label: string; v1: number; v2: number }>,
+                approvedChartData: [] as Array<{ label: string; v1: number; v2: number }>
+              }
+            };
+          }
+          
+          // Fetch all projects owned by those users with hours sources
+          const projectsForUsers = await prisma.project.findMany({
+            where: { userId: { in: targetUserIds } },
+            select: {
+              userId: true,
+              shipped: true,
+              hackatimeLinks: {
+                select: { rawHours: true, hoursOverride: true }
+              },
+              chatRooms: {
+                select: {
+                  messages: {
+                    select: { hours: true, approvedHours: true }
+                  }
+                }
+              }
+            }
+          });
+          
+          // Aggregate per-user raw and approved hours
+          const perUserAgg: Record<string, { rawHours: number; shippedApprovedHours: number }> = {};
+          for (const userId of targetUserIds) {
+            perUserAgg[userId] = { rawHours: 0, shippedApprovedHours: 0 };
+          }
+          
+          for (const p of projectsForUsers) {
+            let hackatimeRaw = 0;
+            let hackatimeEffective = 0;
+            for (const link of p.hackatimeLinks) {
+              const raw = typeof link.rawHours === 'number' ? link.rawHours : 0;
+              const effective = (link.hoursOverride !== undefined && link.hoursOverride !== null)
+                ? link.hoursOverride
+                : raw;
+              hackatimeRaw += raw;
+              hackatimeEffective += effective;
+            }
+            
+            let journalRaw = 0;
+            let journalApproved = 0;
+            for (const room of p.chatRooms) {
+              for (const msg of room.messages) {
+                const raw = typeof msg.hours === 'number' ? msg.hours : 0;
+                const approved = (msg.approvedHours !== undefined && msg.approvedHours !== null)
+                  ? msg.approvedHours
+                  : raw;
+                journalRaw += raw;
+                journalApproved += approved;
+              }
+            }
+            
+            const rawHours = hackatimeRaw + journalRaw;
+            const approvedHours = hackatimeEffective + journalApproved;
+            
+            if (perUserAgg[p.userId]) {
+              perUserAgg[p.userId].rawHours += rawHours;
+              // Only count approved hours for shipped projects (in hours, not stardust)
+              if (p.shipped) {
+                perUserAgg[p.userId].shippedApprovedHours += approvedHours;
+              }
+            }
+          }
+          
+          // Prepare chart data entries: one per user, with v1/v2 series
+          const rawChartData: Array<{ label: string; v1: number; v2: number }> = [];
+          const approvedChartData: Array<{ label: string; v1: number; v2: number }> = [];
+          const rawValues: number[] = [];
+          const approvedValues: number[] = [];
+          
+          for (const userId of targetUserIds) {
+            const vTag = userIdToVTag.get(userId);
+            if (!vTag) continue;
+            const name = (userIdToName.get(userId) || '').trim() || `User ${userId.slice(0, 6)}`;
+            const raw = Math.round(perUserAgg[userId]?.rawHours || 0);
+            const shippedApprovedHours = Math.round(perUserAgg[userId]?.shippedApprovedHours || 0);
+            rawValues.push(raw);
+            approvedValues.push(shippedApprovedHours);
+            
+            rawChartData.push({
+              label: name,
+              v1: vTag === 'v1' ? raw : 0,
+              v2: vTag === 'v2' ? raw : 0
+            });
+            approvedChartData.push({
+              label: name,
+              v1: vTag === 'v1' ? shippedApprovedHours : 0,
+              v2: vTag === 'v2' ? shippedApprovedHours : 0
+            });
+          }
+          
+          // Sort by total descending for readability
+          const byTotalDesc = (a: { v1: number; v2: number }, b: { v1: number; v2: number }) =>
+            (b.v1 + b.v2) - (a.v1 + a.v2);
+          rawChartData.sort(byTotalDesc);
+          approvedChartData.sort(byTotalDesc);
+
+          // Generate distributions (single series)
+          const rawDistribution = generateSingleHistogramBins(rawValues);
+          const approvedDistribution = generateSingleHistogramBins(approvedValues);
+
+          // Helper to compute analysis summary similar to project histogram
+          function computeAnalysis(values: number[], bins: Array<{ min: number; max: number; count: number }>) {
+            const sorted = values.slice().sort((a, b) => a - b);
+            const mean = sorted.length > 0 ? sorted.reduce((s, v) => s + v, 0) / sorted.length : 0;
+            const median = calculatePercentile(sorted, 50);
+            const p25 = calculatePercentile(sorted, 25);
+            const p75 = calculatePercentile(sorted, 75);
+            const p90 = calculatePercentile(sorted, 90);
+            const analysis = {
+              bins,
+              mean,
+              median,
+              percentiles: { p25, p50: median, p75, p90 },
+              classifications: {
+                veryLow: p25,
+                low: median,
+                normal: p75,
+                high: p90,
+                veryHigh: Infinity
+              },
+              lastUpdated: new Date()
+            };
+            return analysis;
+          }
+
+          const rawAnalysis = computeAnalysis(rawValues, rawDistribution);
+          const approvedAnalysis = computeAnalysis(approvedValues, approvedDistribution);
+          
+          return {
+            vTagHours: {
+              rawChartData,
+              approvedChartData
+            },
+            vTagDistributions: {
+              raw: rawDistribution,
+              approved: approvedDistribution
+            },
+            vTagDistributionAnalysis: {
+              raw: rawAnalysis,
+              approved: approvedAnalysis
+            }
+          };
+        } catch (e) {
+          console.error('Failed to compute v1/v2 per-user hours for admin dashboard:', e);
+          return {
+            vTagHours: {
+              rawChartData: [] as Array<{ label: string; v1: number; v2: number }>,
+              approvedChartData: [] as Array<{ label: string; v1: number; v2: number }>
+            },
+            vTagDistributions: {
+              raw: [] as Array<{ min: number; max: number; count: number }>,
+              approved: [] as Array<{ min: number; max: number; count: number }>
+            },
+            vTagDistributionAnalysis: {
+              raw: {
+                bins: [] as Array<{ min: number; max: number; count: number }>,
+                mean: 0,
+                median: 0,
+                percentiles: { p25: 0, p50: 0, p75: 0, p90: 0 },
+                classifications: { veryLow: 0, low: 0, normal: 0, high: 0, veryHigh: Infinity },
+                lastUpdated: new Date()
+              },
+              approved: {
+                bins: [] as Array<{ min: number; max: number; count: number }>,
+                mean: 0,
+                median: 0,
+                percentiles: { p25: 0, p50: 0, p75: 0, p90: 0 },
+                classifications: { veryLow: 0, low: 0, normal: 0, high: 0, veryHigh: Infinity },
+                lastUpdated: new Date()
+              }
+            }
+          };
+        }
+      })())
     });
   } catch (error) {
     console.error('Error fetching admin dashboard stats:', error);

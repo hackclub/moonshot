@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { opts } from '@/app/api/auth/[...nextauth]/route';
-import { calculateProgressMetrics } from '@/lib/project-client';
+import { getUserProjectsWithMetrics } from '@/lib/project-client';
 
 export async function GET() {
   // Check authentication
@@ -22,7 +22,6 @@ export async function GET() {
       where: { id: userId },
       select: { 
         totalCurrencySpent: true, 
-        purchasedProgressHours: true,
         adminCurrencyAdjustment: true
       }
     });
@@ -31,15 +30,9 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get projects with their Hackatime links for the current user
-    const projects = await prisma.project.findMany({
-      where: { userId },
-      include: { hackatimeLinks: true }
-    });
-
-    // Calculate comprehensive currency balance using the enhanced function
-    const metrics = calculateProgressMetrics(
-      projects,
+    // Get projects, enhance with journal hours, and calculate metrics
+    const { metrics } = await getUserProjectsWithMetrics(
+      userId,
       user.totalCurrencySpent,
       user.adminCurrencyAdjustment
     );
@@ -49,24 +42,7 @@ export async function GET() {
       earnedcurrency: metrics.availablecurrency,
       totalSpent: user.totalCurrencySpent,
       adminCurrencyAdjustment: user.adminCurrencyAdjustment,
-      availablecurrency: metrics.availablecurrency,
-      progress: {
-        earned: {
-          totalHours: metrics.totalHours,
-          totalPercentage: metrics.totalPercentage,
-          shippedHours: metrics.shippedHours,
-          viralHours: metrics.viralHours,
-          otherHours: metrics.otherHours
-        },
-        purchased: {
-          hours: metrics.purchasedProgressHours,
-          percentage: metrics.purchasedProgressHours
-        },
-        total: {
-          hours: metrics.totalProgressWithPurchased,
-          percentage: metrics.totalPercentageWithPurchased
-        }
-      }
+      availablecurrency: metrics.availablecurrency
     });
   } catch (error) {
     console.error('Error fetching user currency:', error);

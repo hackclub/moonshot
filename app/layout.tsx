@@ -4,6 +4,7 @@ import { Kavoon } from "next/font/google";
 import "./globals.css";
 import "@/app/api/stats/init";
 import Script from "next/script";
+import PollPopup from "@/app/components/poll/PollPopup";
 
 const kavoon = Kavoon({
   variable: "--font-kavoon",
@@ -53,6 +54,7 @@ export default function RootLayout({
       <head></head>
       <body className={`${kavoon.variable}`}>
         <ChunkReloadGuard />
+        <PollPopup />
         {children}
         <div id="root-portal"></div>
         {process.env.NODE_ENV === "production" && (

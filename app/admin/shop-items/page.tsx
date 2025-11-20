@@ -87,6 +87,7 @@ export default function ShopItemsPage() {
     useRandomizedPricing: boolean;
     maxInventory: string;
     maxPurchasesPerUser: string;
+    isRequestedItem: boolean;
   }>({
     name: '',
     description: '',
@@ -98,6 +99,7 @@ export default function ShopItemsPage() {
     useRandomizedPricing: true,
     maxInventory: '',
     maxPurchasesPerUser: '',
+    isRequestedItem: false,
   });
   const [orders, setOrders] = useState<ShopOrder[]>([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
@@ -344,8 +346,14 @@ export default function ShopItemsPage() {
         finalPrice = calculateCurrencyPrice(usdCost, dollarsPerHour);
       }
 
+      // Persist request state without schema changes by tagging name.
+      // The public shop UI strips this tag from display but uses it to show the chip.
+      const requestTagRegex = /\s*\(request\)\s*$/i;
+      const baseName = formData.name.replace(requestTagRegex, '');
+      const finalName = formData.isRequestedItem ? `${baseName} (request)` : baseName;
+
       const payload = {
-        name: formData.name,
+        name: finalName,
         description: formData.description,
         image: formData.image || null,
         price: finalPrice,
@@ -375,7 +383,7 @@ export default function ShopItemsPage() {
       }
 
       // Reset form and close modal
-      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '' });
+      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '', isRequestedItem: false });
       setEditingItem(null);
       setShowAddModal(false);
       
@@ -399,6 +407,7 @@ export default function ShopItemsPage() {
       useRandomizedPricing: item.useRandomizedPricing ?? true,
       maxInventory: (item.maxInventory !== null && item.maxInventory !== undefined) ? item.maxInventory.toString() : '',
       maxPurchasesPerUser: (item.maxPurchasesPerUser !== null && item.maxPurchasesPerUser !== undefined) ? item.maxPurchasesPerUser.toString() : '',
+      isRequestedItem: /request/i.test(item.name),
     });
     setShowAddModal(true);
   };
@@ -584,7 +593,7 @@ export default function ShopItemsPage() {
         <button
           onClick={() => {
             setEditingItem(null);
-            setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '' });
+            setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '', isRequestedItem: false });
             setShowAddModal(true);
           }}
           className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
@@ -842,6 +851,21 @@ export default function ShopItemsPage() {
                     className="mt-1 block w-full border border-white/20 rounded-md px-3 py-2 focus:outline-none focus:ring-orange-500 focus:border-orange-500 bg-white text-black"
                   />
                 </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isRequestedItem"
+                    checked={formData.isRequestedItem}
+                    onChange={(e) => setFormData({ ...formData, isRequestedItem: e.target.checked })}
+                    className="mr-2 h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isRequestedItem" className="text-sm font-medium text-white">
+                    Requested Item
+                  </label>
+                  <span className="ml-2 text-xs text-white/70">
+                    Shows a "User request" label in the shop
+                  </span>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-white">Description</label>
                   <textarea
@@ -991,7 +1015,7 @@ export default function ShopItemsPage() {
                     onClick={() => {
                       setShowAddModal(false);
                       setEditingItem(null);
-                      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '' });
+                      setFormData({ name: '', description: '', image: '', price: '', usdCost: '', costType: 'fixed', config: '', useRandomizedPricing: true, maxInventory: '', maxPurchasesPerUser: '', isRequestedItem: false });
                     }}
                     className="px-4 py-2 border border-white/20 rounded-md text-white hover:bg-white/10"
                   >

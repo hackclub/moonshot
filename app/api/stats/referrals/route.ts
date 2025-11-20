@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { opts } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET() {
   try {
+    // Check authentication - stats should only be available to authenticated users
+    const session = await getServerSession(opts);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // TODO: Replace with actual database query
     const mockData = {
       totalReferrals: 150,

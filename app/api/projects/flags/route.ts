@@ -31,24 +31,11 @@ export async function PATCH(request: NextRequest) {
     // Check which flags are being updated
     const updateData: any = {};
     
-    // Admin users can update all flags
-    if (isAdmin) {
+    // Admin users and reviewers can update all flags
+    if (isAdmin || isReviewer) {
       if (typeof body.shipped === 'boolean') updateData.shipped = body.shipped;
       if (typeof body.viral === 'boolean') updateData.viral = body.viral;
       if (typeof body.in_review === 'boolean') updateData.in_review = body.in_review;
-    } 
-    // Reviewers can only update in_review status
-    else if (isReviewer) {
-      if (typeof body.in_review === 'boolean') updateData.in_review = body.in_review;
-      
-      // Log if reviewer attempts to update other flags
-      const attemptedFields = [];
-      if (typeof body.shipped === 'boolean') attemptedFields.push('shipped');
-      if (typeof body.viral === 'boolean') attemptedFields.push('viral');
-      
-      if (attemptedFields.length > 0) {
-        console.warn(`Reviewer ${session.user.id} attempted to update restricted fields: ${attemptedFields.join(', ')}`);
-      }
     }
 
     // Check for hackatime link overrides
@@ -94,7 +81,8 @@ export async function PATCH(request: NextRequest) {
       });
       
       // 2. Process Hackatime link overrides if provided (even if empty)
-      if (isAdmin && hasLinkOverrides) {
+      // Allow both admins and reviewers to update hour overrides
+      if ((isAdmin || isReviewer) && hasLinkOverrides) {
         console.log(`Processing Hackatime link overrides`);
         
         // Get all link IDs from the current project
@@ -184,7 +172,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     // Log Hackatime hour overrides
-    if (hasLinkOverrides && isAdmin) {
+    if (hasLinkOverrides && (isAdmin || isReviewer)) {
       const linkChanges = Object.entries(hackatimeLinkOverrides).map(([linkId, hours]) => {
         const link = currentProject.hackatimeLinks.find(l => l.id === linkId);
         if (!link) return null;

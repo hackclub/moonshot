@@ -12,12 +12,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check if requester is admin or reviewer
+    const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
+    const isReviewer = session.user.role === 'Reviewer';
+    const canViewEmail = isAdmin || isReviewer;
+
     // Get project ID from URL params
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get('projectId');
 
     if (!projectId) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
+    }
+
+    // Check if user owns the project or is admin/reviewer
+    const project = await prisma.project.findUnique({
+      where: { projectID: projectId },
+      select: { userId: true },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    const isProjectOwner = project.userId === session.user.id;
+    const canAccessReviews = isAdmin || isReviewer || isProjectOwner;
+
+    if (!canAccessReviews) {
+      return NextResponse.json({ error: 'Forbidden: You can only view reviews for your own projects' }, { status: 403 });
     }
 
     const reviews = await prisma.review.findMany({
@@ -29,7 +51,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            email: true,
+            email: true, // Always fetch email, but remove from response if not authorized
             image: true,
           },
         },
@@ -39,7 +61,19 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(reviews);
+    // Remove email from reviewer data if user doesn't have permission
+    const sanitizedReviews = reviews.map(review => {
+      if (!canViewEmail && review.reviewer) {
+        const { email, ...reviewerWithoutEmail } = review.reviewer;
+        return {
+          ...review,
+          reviewer: reviewerWithoutEmail,
+        };
+      }
+      return review;
+    });
+
+    return NextResponse.json(sanitizedReviews);
   } catch (error) {
     console.error('Error fetching reviews:', error);
     return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 });
@@ -52,6 +86,14 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(opts);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check if requester is admin or reviewer - only they can create reviews
+    const isAdmin = session.user.role === 'Admin' || session.user.isAdmin === true;
+    const isReviewer = session.user.role === 'Reviewer';
+    
+    if (!isAdmin && !isReviewer) {
+      return NextResponse.json({ error: 'Forbidden: Only admins and reviewers can submit reviews' }, { status: 403 });
     }
 
     const reviewerId = session.user.id;
@@ -78,6 +120,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
+    // Email visibility - admins/reviewers can see emails (already checked above)
+    const canViewEmail = isAdmin || isReviewer;
+
     // Create the review
     const review = await prisma.review.create({
       data: {
@@ -92,12 +137,24 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            email: true,
+            email: true, // Always fetch email, but remove from response if not authorized
             image: true,
           },
         },
       },
     });
+
+    // Remove email from reviewer data if user doesn't have permission
+    let sanitizedReview: typeof review;
+    if (!canViewEmail && review.reviewer) {
+      const { email: _, ...reviewerWithoutEmail } = review.reviewer;
+      sanitizedReview = {
+        ...review,
+        reviewer: reviewerWithoutEmail as typeof review.reviewer,
+      };
+    } else {
+      sanitizedReview = review;
+    }
 
     // Send email notification to project owner
     if (project.user.email) {
@@ -127,7 +184,7 @@ export async function POST(request: NextRequest) {
       console.log(`⚠️ Skipping email notification - project owner has no email address`);
     }
 
-    return NextResponse.json(review, { status: 201 });
+    return NextResponse.json(sanitizedReview, { status: 201 });
   } catch (error) {
     console.error('Error creating review:', error);
     return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });

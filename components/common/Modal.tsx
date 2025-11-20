@@ -13,6 +13,7 @@ interface ModalProps {
   hideFooter?: boolean;
   hideCloseButton?: boolean;
   dark?: boolean;
+  frameless?: boolean;
 }
 
 export default function Modal({ 
@@ -23,7 +24,8 @@ export default function Modal({
   okText = 'OK',
   hideFooter = false,
   hideCloseButton = false,
-  dark = false
+  dark = false,
+  frameless = false
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -68,6 +70,9 @@ export default function Modal({
 
   if (!isOpen) return null;
 
+  const modalClassName = `${styles.modal} ${frameless ? styles.frameless : ''}`;
+  const contentClassName = `${styles.content} ${frameless ? styles.contentFrameless : ''}`;
+
   return (
     <div 
       className={styles.backdrop}
@@ -76,29 +81,31 @@ export default function Modal({
     >
       <div 
         ref={modalRef}
-        className={styles.modal}
+        className={modalClassName}
         role="dialog"
         aria-labelledby="modal-title"
         aria-modal="true"
       >
-        <div className={`${styles.header} sticky top-0 z-10`}>
-          <span className='flex flex-row items-center'>
-          {/* decorative image removed */}
-          <h2 id="modal-title" className={`${styles.title}`}>{title}</h2>
-          </span>
-         <button 
-            onClick={handleClose}
-            hidden={hideCloseButton}
-            className={`${styles.closeButton} text-3xl font-bold leading-none text-white hover:text-gray-300`}
-            aria-label="Close modal"
-          >
-            ✕
-          </button>
-        </div>
-        <div className={`${styles.content} overflow-x-auto`} ref={contentRef}>
+        {!frameless && (
+          <div className={`${styles.header} sticky top-0 z-10`}>
+            <span className='flex flex-row items-center'>
+            {/* decorative image removed */}
+            <h2 id="modal-title" className={`${styles.title}`}>{title}</h2>
+            </span>
+           <button 
+              onClick={handleClose}
+              hidden={hideCloseButton}
+              className={`${styles.closeButton} text-3xl font-bold leading-none text-white hover:text-gray-300`}
+              aria-label="Close modal"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+        <div className={`${contentClassName} overflow-x-auto`} ref={contentRef}>
           {children}
         </div>
-        {!hideFooter && (
+        {!hideFooter && !frameless && (
           <div className={`${styles.footer} sticky bottom-0 z-10`}>
             <button 
               onClick={handleClose}

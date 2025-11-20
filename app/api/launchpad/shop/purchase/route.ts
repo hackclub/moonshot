@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { opts } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { createAuditLog, AuditLogEventType } from '@/lib/auditLogger';
-import { calculateProgressMetrics } from '@/lib/project-client';
+import { getUserProjectsWithMetrics } from '@/lib/project-client';
 import { calculateRandomizedPrice, calculateCurrencyPrice } from '@/lib/shop-utils';
 
 async function getUserShellBalance(userId: string): Promise<number> {
@@ -21,15 +21,9 @@ async function getUserShellBalance(userId: string): Promise<number> {
     throw new Error('User not found');
   }
 
-  // Get projects with their Hackatime links for the current user
-  const projects = await prisma.project.findMany({
-    where: { userId },
-    include: { hackatimeLinks: true }
-  });
-
-  // Calculate shell balance using updated function that includes admin adjustment
-  const metrics = calculateProgressMetrics(
-    projects,
+  // Get projects, enhance with journal hours, and calculate metrics
+  const { metrics } = await getUserProjectsWithMetrics(
+    userId,
     user.totalCurrencySpent,
     user.adminCurrencyAdjustment
   );
