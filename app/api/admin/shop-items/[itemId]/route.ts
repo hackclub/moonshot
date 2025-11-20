@@ -14,9 +14,6 @@ export async function PUT(
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
     
-    if (!authResult.user) {
-      return NextResponse.json({ error: 'User data not available' }, { status: 500 });
-    }
     const user = authResult.user;
 
     const { itemId } = params;
@@ -110,32 +107,24 @@ export async function PUT(
       }
     }
 
-    // Log audit event (do not fail the request if logging fails)
-    try {
-      if (user?.id) {
-        await createAuditLog({
-          eventType: AuditLogEventType.OtherEvent,
-          description: `Admin updated shop item: ${name}. Old price: ${previousItem?.price}, new price: ${item.price}`,
-          targetUserId: user.id,
-          actorUserId: user.id,
-          metadata: {
-            itemId: item.id,
-            itemName: item.name,
-            changedFields,
-            previous: previousItem,
-            updated: item,
-          },
-        });
-      }
-    } catch (auditErr) {
-      console.error('Audit log failed for shop item update:', auditErr);
-    }
+    await createAuditLog({
+      eventType: AuditLogEventType.OtherEvent,
+      description: `Admin updated shop item: ${name}. Old price: ${previousItem?.price}, new price: ${item.price}`,
+      targetUserId: user.id,
+      actorUserId: user.id,
+      metadata: {
+        itemId: item.id,
+        itemName: item.name,
+        changedFields,
+        previous: previousItem,
+        updated: item,
+      },
+    });
 
     return NextResponse.json({ item });
   } catch (error) {
     console.error('Error updating shop item:', error);
-    const message = error instanceof Error ? error.message : 'Internal server error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -150,9 +139,6 @@ export async function DELETE(
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
     
-    if (!authResult.user) {
-      return NextResponse.json({ error: 'User data not available' }, { status: 500 });
-    }
     const user = authResult.user;
 
     const { itemId } = params;
@@ -170,29 +156,22 @@ export async function DELETE(
       where: { id: itemId },
     });
 
-    // Log audit event (do not fail the request if logging fails)
-    try {
-      if (user?.id) {
-        await createAuditLog({
-          eventType: AuditLogEventType.OtherEvent,
-          description: `Admin deleted shop item: ${item.name}`,
-          targetUserId: user.id,
-          actorUserId: user.id,
-          metadata: {
-            itemId: item.id,
-            itemName: item.name,
-            price: item.price,
-          },
-        });
-      }
-    } catch (auditErr) {
-      console.error('Audit log failed for shop item delete:', auditErr);
-    }
+    // Log audit event
+    await createAuditLog({
+      eventType: AuditLogEventType.OtherEvent,
+      description: `Admin deleted shop item: ${item.name}`,
+      targetUserId: user.id,
+      actorUserId: user.id,
+      metadata: {
+        itemId: item.id,
+        itemName: item.name,
+        price: item.price,
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting shop item:', error);
-    const message = error instanceof Error ? error.message : 'Internal server error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

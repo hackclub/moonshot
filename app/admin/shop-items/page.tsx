@@ -213,12 +213,6 @@ export default function ShopItemsPage() {
       if (itemsResponse.ok) {
         const itemsData = await itemsResponse.json();
         setItems(itemsData.items);
-      } else {
-        let itemsError: any = null;
-        try {
-          itemsError = await itemsResponse.json();
-        } catch {}
-        setError((itemsError && (itemsError.error || itemsError.message)) || `Failed to fetch shop items (${itemsResponse.status})`);
       }
 
       // Fetch global config
@@ -235,12 +229,6 @@ export default function ShopItemsPage() {
         
         // Initialize dollars per hour state
         setDollarsPerHour(configData.config.dollars_per_hour || '');
-      } else {
-        let cfgError: any = null;
-        try {
-          cfgError = await configResponse.json();
-        } catch {}
-        setError((cfgError && (cfgError.error || cfgError.message)) || `Failed to fetch global config (${configResponse.status})`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
@@ -390,13 +378,8 @@ export default function ShopItemsPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const msg =
-          errorData.error ||
-          errorData.message ||
-          (typeof errorData === 'string' ? errorData : '') ||
-          'Failed to save item';
-        throw new Error(msg);
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save item');
       }
 
       // Reset form and close modal
