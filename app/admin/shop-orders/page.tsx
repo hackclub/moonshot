@@ -16,6 +16,7 @@ interface ShopOrder {
     dollars_per_hour?: number;
     percent?: number;
     hours?: number;
+    discountPercentApplied?: number;
   };
   user: {
     id: string;
@@ -403,6 +404,11 @@ export default function ShopOrdersPage() {
                             {(order.itemId === 'progress_to_island' || order.itemId === 'travel_stipend') && (
                               <span className="bg-orange-600/20 text-orange-300 px-2 py-1 rounded-full text-xs font-medium">
                                 Priority
+                              </span>
+                            )}
+                            {typeof order.config?.discountPercentApplied === 'number' && order.config?.discountPercentApplied > 0 && (
+                              <span className="bg-green-600/20 text-green-300 px-2 py-1 rounded-full text-xs font-medium">
+                                {order.config.discountPercentApplied}% off
                               </span>
                             )}
                           </div>

@@ -17,7 +17,21 @@ export async function PUT(
     const user = authResult.user;
 
     const { itemId } = params;
-    const { name, description, image, price, usdCost, costType, config, active, useRandomizedPricing, maxInventory, maxPurchasesPerUser } = await request.json();
+    const {
+      name,
+      description,
+      image,
+      price,
+      usdCost,
+      costType,
+      config,
+      active,
+      useRandomizedPricing,
+      maxInventory,
+      maxPurchasesPerUser,
+      discountPercent,
+      discountEndsAt,
+    } = await request.json();
 
     // Validate required fields
     if (!name || !description || price === undefined || price === null) {
@@ -62,6 +76,12 @@ export async function PUT(
         useRandomizedPricing: useRandomizedPricing !== undefined ? useRandomizedPricing : true,
         maxInventory: maxInventory !== undefined ? maxInventory : undefined,
         maxPurchasesPerUser: maxPurchasesPerUser !== undefined ? maxPurchasesPerUser : undefined,
+        discountPercent: (discountPercent === null || discountPercent === undefined)
+          ? null
+          : Number(discountPercent),
+        discountEndsAt: (discountEndsAt === null || discountEndsAt === undefined || discountEndsAt === '')
+          ? null
+          : new Date(discountEndsAt),
       },
     });
 
@@ -77,6 +97,14 @@ export async function PUT(
       if (previousItem.active !== active) changedFields.active = { old: previousItem.active, new: active };
       if (previousItem.maxInventory !== maxInventory) changedFields.maxInventory = { old: previousItem.maxInventory, new: maxInventory };
       if (previousItem.maxPurchasesPerUser !== maxPurchasesPerUser) changedFields.maxPurchasesPerUser = { old: previousItem.maxPurchasesPerUser, new: maxPurchasesPerUser };
+      if (previousItem.discountPercent !== (discountPercent === undefined ? previousItem.discountPercent : discountPercent)) {
+        changedFields.discountPercent = { old: previousItem.discountPercent, new: discountPercent };
+      }
+      const prevEnds = previousItem.discountEndsAt ? previousItem.discountEndsAt.toISOString() : null;
+      const nextEnds = discountEndsAt ? new Date(discountEndsAt).toISOString() : null;
+      if (prevEnds !== nextEnds) {
+        changedFields.discountEndsAt = { old: previousItem.discountEndsAt, new: discountEndsAt ? new Date(discountEndsAt) : null };
+      }
     }
 
     await createAuditLog({

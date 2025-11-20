@@ -456,6 +456,8 @@ model ShopItem {
   config      Json?
   maxInventory Int?    // Optional maximum inventory count (global across all users, null means unlimited)
   maxPurchasesPerUser Int? // Optional maximum purchases per user (null means unlimited)
+  discountPercent Int?
+  discountEndsAt  DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

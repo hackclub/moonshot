@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate price
     let unitPrice: number;
+    let appliedDiscountPercent: number | null = null;
     if (
       item.name.toLowerCase().includes('travel stipend') &&
       item.costType === 'config' &&
@@ -140,6 +141,17 @@ export async function POST(request: NextRequest) {
     } else {
       unitPrice = item.price;
     }
+
+    // Apply active discount if present
+    const now = new Date();
+    const hasPercent = typeof (item as any).discountPercent === 'number' && (item as any).discountPercent! > 0;
+    const notExpired = !(item as any).discountEndsAt || new Date((item as any).discountEndsAt as any) > now;
+    if (hasPercent && notExpired) {
+      const percent = Number((item as any).discountPercent);
+      unitPrice = Math.max(0, Math.floor(unitPrice * (100 - percent) / 100));
+      appliedDiscountPercent = percent;
+    }
+
     const totalPrice = unitPrice * quantity;
 
     // Check if user has enough currency
@@ -227,6 +239,9 @@ export async function POST(request: NextRequest) {
         orderConfig = { ...safeConfigObject(item.config as unknown), hours: quantity };
       }
       // Add more dynamic item types as needed
+    }
+    if (appliedDiscountPercent !== null) {
+      orderConfig = { ...safeConfigObject(orderConfig as unknown), discountPercentApplied: appliedDiscountPercent };
     }
 
     // Use transaction to atomically create order, update user currency, and decrement inventory

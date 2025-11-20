@@ -630,6 +630,53 @@
   box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
 }
 
+/* Discounted item glow */
+.discountedGlow {
+  border-color: rgba(34, 197, 94, 0.85);
+  box-shadow:
+    0 0 28px rgba(34, 197, 94, 0.55),
+    0 0 60px rgba(16, 185, 129, 0.35),
+    inset 0 0 22px rgba(34, 197, 94, 0.35);
+  animation: discountPulse 1.8s ease-in-out infinite;
+}
+
+.discountedGlow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 22px;
+  background:
+    radial-gradient(closest-side, rgba(34, 197, 94, 0.25), transparent 70%),
+    conic-gradient(from 0deg, rgba(34, 197, 94, 0.25), rgba(52, 211, 153, 0.2), rgba(34, 197, 94, 0.25));
+  filter: blur(10px);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: discountRing 6s linear infinite;
+}
+
+@keyframes discountPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(34, 197, 94, 0.4),
+      0 0 40px rgba(16, 185, 129, 0.25),
+      inset 0 0 16px rgba(34, 197, 94, 0.3);
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 36px rgba(52, 211, 153, 0.6),
+      0 0 80px rgba(16, 185, 129, 0.4),
+      inset 0 0 24px rgba(52, 211, 153, 0.4);
+    transform: translateY(-2px) scale(1.01);
+  }
+}
+
+@keyframes discountRing {
+  0% { transform: rotate(0deg); opacity: 0.75; }
+  50% { opacity: 1; }
+  100% { transform: rotate(360deg); opacity: 0.75; }
+}
+
 /* Item image container */
 .stardustImageContainer {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
@@ -637,6 +684,37 @@
   padding: 1rem;
   margin-bottom: 1rem;
   border: 1px solid rgba(139, 92, 246, 0.2);
+  position: relative;
+}
+
+/* Countdown badge overlay */
+.countdownBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  border: 2px solid rgba(234, 179, 8, 0.85);
+  background: transparent !important; /* ensure no fill */
+  color: #fde68a;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: none; /* avoid any inner box glow */
+  filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.45)); /* pure outer glow */
+  backdrop-filter: none; /* avoid inner square artifacts */
+  animation: countdownPulse 1.2s ease-in-out infinite;
+}
+
+.countdownBadge::before { content: none; }
+
+@keyframes countdownPulse {
+  0%, 100% { transform: translateZ(0) scale(1); opacity: 0.95; }
+  50% { transform: translateZ(0) scale(1.06); opacity: 1; }
 }
 
 /* Item title with magical glow */
