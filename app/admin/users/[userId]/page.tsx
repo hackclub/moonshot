@@ -61,6 +61,7 @@ interface User {
   createdAt: Date;
   hackatimeId: string | null;
   slack: string | null;
+  identityToken: string | null;
   projects?: AdminProjectType[];
   userTags?: UserTag[];
   totalCurrencySpent?: number;
@@ -78,6 +79,7 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUnverifying, setIsUnverifying] = useState(false);
   const [userRole, setUserRole] = useState<string>('User');
   const [userStatus, setUserStatus] = useState<UserStatus>(UserStatus.Unknown);
 
@@ -156,9 +158,45 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
       if (userResponse.ok) {
         const userData = await userResponse.json();
         setUser(userData);
+        setUserRole(userData.role || UserRole.User);
+        setUserStatus(userData.status);
       }
     } catch (error) {
       console.error('Error refreshing user data:', error);
+    }
+  };
+
+  const unverifyUser = async () => {
+    if (!user) return;
+
+    if (!confirm(`Are you sure you want to unverify ${user.name || user.email}? This will clear their identity token and they will need to verify again.`)) {
+      return;
+    }
+
+    try {
+      setIsUnverifying(true);
+      
+      const response = await apiFetch(`/api/admin/users/${user.id}/unverify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to unverify user');
+      }
+
+      toast.success('User unverified successfully');
+      
+      // Refresh user data
+      await refreshUserData();
+    } catch (error) {
+      console.error('Error unverifying user:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to unverify user');
+    } finally {
+      setIsUnverifying(false);
     }
   };
 
@@ -470,14 +508,33 @@ export default function UserDetail({ params }: { params: Promise<{ userId: strin
             <br />• <strong>Admin:</strong> Full access to all features, including user management
           </p>
           
-          <button
-            type="button"
-            onClick={updateUser}
-            disabled={isUpdating}
-            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors focus:outline-none disabled:bg-orange-300"
-          >
-            {isUpdating ? 'Updating...' : 'Save Changes'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={updateUser}
+              disabled={isUpdating}
+              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded transition-colors focus:outline-none disabled:bg-orange-300"
+            >
+              {isUpdating ? 'Updating...' : 'Save Changes'}
+            </button>
+            
+            {user.identityToken && (
+              <button
+                type="button"
+                onClick={unverifyUser}
+                disabled={isUnverifying}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors focus:outline-none disabled:bg-red-300"
+              >
+                {isUnverifying ? 'Unverifying...' : 'Unverify User'}
+              </button>
+            )}
+          </div>
+          
+          {user.identityToken && (
+            <p className="mt-2 text-sm text-white/60">
+              This user has an identity token. Click "Unverify User" to clear it and require them to verify again.
+            </p>
+          )}
         </div>
       </div>
 
