@@ -41,6 +41,7 @@ export async function GET(
         createdAt: true,
         hackatimeId: true,
         slack: true,
+        identityToken: true,
         purchasedProgressHours: true,
         totalCurrencySpent: true,
         adminCurrencyAdjustment: true,
