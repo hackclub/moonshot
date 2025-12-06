@@ -41,7 +41,7 @@
     "lenis": "^1.2.3",
     "motion": "^12.6.3",
     "next": "^15.3.5",
-    "next-auth": "^4.24.11",
+    "next-auth": "^4.24.7",
     "nodemailer": "^7.0.3",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
