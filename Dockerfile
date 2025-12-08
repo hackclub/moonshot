@@ -6,6 +6,7 @@ RUN yarn install --frozen-lockfile
 ENV AIRTABLE_API_KEY=testing
 ENV HACKATIME_API_TOKEN=testing
 ENV GRAPHITE_HOST=localhost
+ENV LOOPS_API_KEY=mock
 # Clear any previous build artifacts
 RUN rm -rf .next
 RUN yarn build
