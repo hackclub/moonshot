@@ -5,21 +5,30 @@ const LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID = process.env.LOOPS_TRANSACTIONA
 const LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID = process.env.LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID;
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_BUILD_PHASE = process.env.NEXT_PHASE === 'phase-production-build';
 const LOOPS_MOCK_KEY = (LOOPS_API_KEY || '').toLowerCase() === 'mock';
 const LOOPS_USE_MOCK = LOOPS_MOCK_KEY && !IS_PRODUCTION;
 
 // In-memory store for the most recent mocked sign-in URL (dev/testing only)
 let LAST_MOCK_SIGNIN_URL: string | null = null;
 
-if (IS_PRODUCTION && LOOPS_MOCK_KEY) {
-    //throw new Error("LOOPS_API_KEY cannot be set to 'mock' in production");
-}
+// Validation function - only runs at runtime, not during build
+function validateLoopsConfig() {
+    // Skip validation during Next.js build phase
+    if (IS_BUILD_PHASE) {
+        return;
+    }
 
-if (!LOOPS_USE_MOCK) {
-    if (!LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID");
-    if (!LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID");
-    if (!LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID");
-    if (!LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID");
+    if (IS_PRODUCTION && LOOPS_MOCK_KEY) {
+        throw new Error("LOOPS_API_KEY cannot be set to 'mock' in production");
+    }
+
+    if (!LOOPS_USE_MOCK) {
+        if (!LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_SIGNIN_EMAIL_ID");
+        if (!LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_NOTIFICATION_EMAIL_ID");
+        if (!LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID");
+        if (!LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID) throw new Error("Please set LOOPS_TRANSACTIONAL_RSVP_EMAIL_ID");
+    }
 }
 
 async function sendEmailWithLoops(
@@ -27,6 +36,9 @@ async function sendEmailWithLoops(
     targetEmail: string,
     emailParams: Record<string, string>,
 ) {
+    // Validate configuration at runtime (not during build)
+    validateLoopsConfig();
+    
     if (LOOPS_USE_MOCK) {
         console.log('[MOCK LOOPS] Transactional email', {
             transactionalId: transactionEmailId,
