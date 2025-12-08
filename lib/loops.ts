@@ -12,7 +12,7 @@ const LOOPS_USE_MOCK = LOOPS_MOCK_KEY && !IS_PRODUCTION;
 let LAST_MOCK_SIGNIN_URL: string | null = null;
 
 if (IS_PRODUCTION && LOOPS_MOCK_KEY) {
-    throw new Error("LOOPS_API_KEY cannot be set to 'mock' in production");
+    //throw new Error("LOOPS_API_KEY cannot be set to 'mock' in production");
 }
 
 if (!LOOPS_USE_MOCK) {
