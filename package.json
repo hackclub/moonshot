@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.2",
-    "@dicebear/core": "^9.2.2",
+    "@dicebear/core": "^9.4.1",
     "@hackclub/icons": "^0.0.15",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
