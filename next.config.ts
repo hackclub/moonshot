@@ -4,7 +4,6 @@ import createMDX from '@next/mdx'
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
-  output: 'standalone',
   generateBuildId: async () => {
     // Use timestamp to ensure unique build IDs and prevent chunk collisions
     return `build-${Date.now()}`;
