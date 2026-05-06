@@ -7,7 +7,7 @@
       "dependencies": {
         "@dicebear/collection": "^9.4.2",
         "@dicebear/core": "^9.4.2",
-        "@hackclub/icons": "^0.0.15",
+        "@hackclub/icons": "^0.2.2",
         "@mdx-js/loader": "^3.1.1",
         "@mdx-js/react": "^3.1.1",
         "@next-auth/prisma-adapter": "^1.0.7",
@@ -206,7 +206,7 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.7.1", "", { "dependencies": { "@eslint/core": "^1.2.1", "levn": "^0.4.1" } }, "sha512-rZAP3aVgB9ds9KOeUSL+zZ21hPmo8dh6fnIFwRQj5EAZl9gzR7wxYbYXYysAM8CTqGmUGyp2S4kUdV17MnGuWQ=="],
 
-    "@hackclub/icons": ["@hackclub/icons@0.0.15", "", { "peerDependencies": { "react": "^18.2.0" } }, "sha512-IKJ5JQhRhlkYINv9pxzT//fn3aYwsGBeyNNBcw7eU+J0lfs0wGrq9lh7CGcXUUGXaKFxDPRlWhTxaAVaRdZVRA=="],
+    "@hackclub/icons": ["@hackclub/icons@0.2.2", "", { "peerDependencies": { "react": "^18.2.0 || ^19.0.0" } }, "sha512-dfcTgjrkep22tbCRpNHlbqIpKAxyXIHLlHJEXwP5e95/t1NUTsyKW8fXzAbIDrgrtUhyLiL7seYKzXz30mgYRg=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
