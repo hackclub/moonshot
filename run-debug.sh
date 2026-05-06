@@ -83,7 +83,7 @@ npx prisma migrate deploy || { echo "Prisma migrations failed"; exit 1; }
 echo "Prisma setup complete! Starting Next.js development server..."
 
 # Upload schema changes to the database first
-yarn prisma db push || { echo "Prisma db push failed"; exit 1; }
+bun prisma db push || { echo "Prisma db push failed"; exit 1; }
 
 # Run the Next.js development server
-yarn dev 
+bun dev

@@ -1,13 +1,12 @@
-# .github/workflows/build-on-pr.yml
+# .github/workflows/build.yaml
 name: Build on Pull Request
 
 on:
   pull_request:
     branches:
-      - main 
+      - main
 
 jobs:
-  # Debug job to output information about the PR and permissions
   debug_info:
     runs-on: ubuntu-latest
     steps:
@@ -19,49 +18,40 @@ jobs:
           echo "PR Head Repo: ${{ github.event.pull_request.head.repo.full_name }}"
           echo "Actor: ${{ github.actor }}"
 
-  # Basic build job that runs for ALL pull requests (including forks)
   basic_build:
     runs-on: ubuntu-latest
     needs: debug_info
-    # Always run this job - no conditions
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'  
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: yarn install
+        run: bun install
 
       - name: Public build (no secrets)
         run: echo "Basic build verification passed"
 
-  # Enhanced build job that includes secrets (only for trusted contributors)
   full_build:
     runs-on: ubuntu-latest
     needs: basic_build
-    # Use a more permissive condition to ensure it runs for contributors
-    # The previous condition might have been too restrictive
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'), github.event.pull_request.author_association)
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'  
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: yarn install
+        run: bun install
 
       - name: Run unit tests
-        run: yarn test
+        run: bun run test
 
       - name: Full build with secrets
         env:
@@ -73,10 +63,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_URL: http://localhost:3000
           REDIS_URL: redis://localhost:6379
-          GRAPHITE_HOST: ${{ secrets.GRAPHITE_HOST }}
           LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID: ${{ secrets.LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID }}
           MOCK_API: "true"
-        run: yarn build
+        run: bun run build
 
       - name: Run the app
         env:
@@ -88,16 +77,14 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_URL: http://localhost:3000
           REDIS_URL: redis://localhost:6379
-          GRAPHITE_HOST: ${{ secrets.GRAPHITE_HOST }}
           LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID: ${{ secrets.LOOPS_TRANSACTIONAL_PERSONALIZED_EMAIL_ID }}
           MOCK_API: "true"
         run: |
-          yarn start &
+          bun run start &
           sleep 15
-      
+
       - name: Check if website loads
         run: |
-          # Test key pages
           echo "Testing main page"
           curl -f http://localhost:3000 || exit 1
           echo "Testing bay page"
