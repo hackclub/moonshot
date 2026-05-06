@@ -8,11 +8,6 @@ const nextConfig: NextConfig = {
     // Use timestamp to ensure unique build IDs and prevent chunk collisions
     return `build-${Date.now()}`;
   },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
   images: {
     unoptimized: true, // For static export
   },

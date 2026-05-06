@@ -81,7 +81,7 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
   */
 }
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   // Allow unauthenticated, unredirected access for temporary upload URLs so the CDN can fetch them
   // This bypass prevents canonical redirects and basic auth challenges for /api/uploads resources
   const path = request.nextUrl.pathname || '/';
