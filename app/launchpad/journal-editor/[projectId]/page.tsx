@@ -40,11 +40,6 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
   const isReviewOnly = modeParam === 'review' && canAccessReviewMode
   const [projects, setProjects] = useState<Array<{ projectID: string; name: string; in_review?: boolean; chat_enabled?: boolean }>>([])
   const [isLoadingProjects, setIsLoadingProjects] = useState<boolean>(true)
-  const [isDragging, setIsDragging] = useState<boolean>(false)
-  const [isUploading, setIsUploading] = useState<boolean>(false)
-  const [showUploadModal, setShowUploadModal] = useState<boolean>(false)
-  const [uploadTotalFiles, setUploadTotalFiles] = useState<number>(0)
-  const [uploadCompletedFiles, setUploadCompletedFiles] = useState<number>(0)
   const [isPublishing, setIsPublishing] = useState<boolean>(false)
   const [publishTick, setPublishTick] = useState<number>(0)
   const [hoursWorked, setHoursWorked] = useState<string>('')
@@ -284,107 +279,10 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
         {!(isReviewOnly || (projects.find(p => p.projectID === projectId)?.in_review)) && (
         <div
           ref={containerRef}
-          className={`journal-editor-container relative ${isDragging ? 'ring-2 ring-blue-500' : ''}`}
+          className="journal-editor-container relative"
           data-color-mode="dark"
           onMouseDown={handleEditorMouseDown}
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={async (e) => {
-            e.preventDefault();
-            setIsDragging(false);
-            const files = Array.from(e.dataTransfer.files || [])
-            if (files.length === 0) return;
-            setUploadTotalFiles(files.length)
-            setUploadCompletedFiles(0)
-            setShowUploadModal(true)
-            setIsUploading(true)
-
-            for (const file of files) {
-              try {
-                // 1) Upload to temp storage
-                const form = new FormData()
-                form.append('file', file)
-                const presignRes = await apiFetch('/api/uploads', { method: 'POST', body: form })
-                if (!presignRes.ok) {
-                  setUploadCompletedFiles((n) => n + 1)
-                  continue
-                }
-                const { tempUrl } = await presignRes.json()
-
-                // 2) Ask CDN to ingest
-                const cdnRes = await apiFetch('/api/cdn/ingest', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ tempPath: tempUrl })
-                })
-                if (!cdnRes.ok) {
-                  let errMsg = 'Failed to upload to CDN'
-                  try {
-                    const body = await cdnRes.json()
-                    if (body?.error) errMsg += `: ${body.error}`
-                    if (body?.details) errMsg += ` — ${body.details}`
-                  } catch {}
-                  alert(errMsg)
-                  setUploadCompletedFiles((n) => n + 1)
-                  continue
-                }
-                const cdn = await cdnRes.json()
-                const deployedUrl = cdn?.deployedUrl || `${location.origin}${tempUrl}`
-
-                // 3) Insert media at caret (or append)
-                let markdown = ''
-                if (file.type.startsWith('image')) {
-                  markdown = `![](${deployedUrl})`
-                } else if (file.type.startsWith('video')) {
-                  // Try to discover natural aspect ratio
-                  let aspect = '16/9'
-                  try {
-                    const probe = document.createElement('video')
-                    probe.preload = 'metadata'
-                    probe.src = deployedUrl
-                    await new Promise<void>((resolve, reject) => {
-                      probe.onloadedmetadata = () => {
-                        const w = probe.videoWidth || 16
-                        const h = probe.videoHeight || 9
-                        if (w > 0 && h > 0) aspect = `${w}/${h}`
-                        resolve()
-                      }
-                      probe.onerror = () => resolve()
-                    })
-                  } catch {}
-                  markdown = `<video class="journal-video" controls playsinline style="aspect-ratio: ${aspect};" src="${deployedUrl}"></video>`
-                } else {
-                  markdown = `[${file.name}](${deployedUrl})`
-                }
-                const el = textareaRef.current
-                if (el) {
-                  const start = el.selectionStart ?? content.length
-                  const end = el.selectionEnd ?? content.length
-                  const before = content.slice(0, start)
-                  const after = content.slice(end)
-                  const next = `${before}${markdown}${after}`
-                  setContent(next)
-                  setTimeout(() => {
-                    try { el.focus(); const pos = (before + markdown).length; el.setSelectionRange(pos, pos) } catch {}
-                  })
-                } else {
-                  setContent((prev) => `${prev}\n\n${markdown}`)
-                }
-              } catch (_) {
-                // ignore per-file errors
-              } finally {
-                setUploadCompletedFiles((n) => n + 1)
-              }
-            }
-            setShowUploadModal(false)
-            setIsUploading(false)
-          }}
         >
-          {isDragging && (
-            <div className="pointer-events-none absolute inset-0 bg-blue-500/10 border-2 border-dashed border-blue-400 rounded-lg flex items-center justify-center text-blue-200 text-sm">
-              Drop files to upload
-            </div>
-          )}
           <MDEditor
             value={content}
             onChange={(v) => setContent(v || '')}
@@ -416,7 +314,6 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
               className="journal-publish-button"
               disabled={
                 isPublishing ||
-                isUploading ||
                 !projectId ||
                 content.trim().length === 0 ||
                 content.trim().length > 10000 ||
@@ -479,24 +376,6 @@ function JournalEditorPage({ params }: { params: Promise<{ projectId: string }> 
           <ProjectChatInline projectId={projectId} projectName={selectedProject?.name || ''} refreshTrigger={publishTick} isReviewOnly={isReviewOnly} />
         </div>
       </div>
-      {/* Blocking upload modal */}
-      {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-          <div className="w-full max-w-sm bg-black border border-white/10 rounded-lg p-5 text-white">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
-              <div className="text-sm">Uploading media to CDN…</div>
-            </div>
-            <div className="text-xs text-white/60 mb-2">{uploadCompletedFiles} / {uploadTotalFiles} completed</div>
-            <div className="w-full h-2 bg-white/10 rounded">
-              <div
-                className="h-2 bg-blue-500 rounded transition-all"
-                style={{ width: `${uploadTotalFiles > 0 ? Math.min(100, Math.round((uploadCompletedFiles / uploadTotalFiles) * 100)) : 0}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
       {/* Graphics-only styling for the journaling UI */}
       <style jsx global>{`
         /* Cosmic Background - Darker */
@@ -893,5 +772,4 @@ function ProjectChatInline({ projectId, projectName, refreshTrigger = 0, isRevie
     </div>
   )
 }
-
 

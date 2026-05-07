@@ -36,7 +36,6 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -281,73 +280,6 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
     return elements;
   };
 
-  const handlePickAndUploadImage = async () => {
-    try {
-      // File picker limited to PNG/JPEG
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/png,image/jpeg';
-      input.multiple = false;
-      input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return;
-        const type = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
-        setIsUploading(true);
-        try {
-          // Stream upload to temporary endpoint which returns a temporary URL
-          const form = new FormData();
-          form.append('file', file);
-          const presignRes = await apiFetch('/api/uploads', { method: 'POST', body: form });
-          if (!presignRes.ok) {
-            const err = await presignRes.json().catch(() => ({}));
-            showToast && showToast(err.error || 'Upload failed', 'error');
-            return;
-          }
-          const { tempUrl } = await presignRes.json();
-
-          // Ask server to instruct CDN to fetch and host the file
-          const cdnRes = await apiFetch('/api/cdn/ingest', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tempPath: tempUrl }),
-          });
-          if (!cdnRes.ok) {
-            showToast && showToast('CDN ingest failed', 'error');
-            return;
-          }
-          const cdn = await cdnRes.json();
-          const deployedUrl = cdn?.deployedUrl || `${location.origin}${tempUrl}`;
-
-          const caption = newMessage.trim();
-          const content = caption ? `${caption}\n${deployedUrl}` : deployedUrl;
-
-          setNewMessage('');
-          const response = await apiFetch(`/api/projects/${project.projectID}/chat/messages`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content }),
-          });
-          if (response.ok) {
-            const savedMessage = await response.json();
-            setMessages(prev => [...prev, savedMessage]);
-            lastMessageTimestampRef.current = savedMessage.createdAt;
-            setTimeout(() => pollMessages(false), 100);
-          } else {
-            const err = await response.json().catch(() => ({}));
-            showToast && showToast(err.error || 'Failed to post image', 'error');
-          }
-        } finally {
-          setIsUploading(false);
-        }
-      };
-      input.click();
-    } catch (e) {
-      console.error(e);
-      showToast && showToast('Could not upload image', 'error');
-      setIsUploading(false);
-    }
-  };
-
   // Generate obfuscated username based on userid
   const obfuscateUsername = (userId: string) => {
     // Create a simple hash to generate consistent animal names
@@ -493,19 +425,10 @@ export default function ProjectChatModal({ isOpen, onClose, project, showToast, 
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type your message..."
                 className="w-0 flex-1 min-w-0 px-3 py-2 bg-black/60 text-white placeholder:text-white/60 border border-white/20 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                disabled={isSending || isUploading}
+                disabled={isSending}
                 ref={messageInputRef}
                 maxLength={1000}
               />
-              <button
-                type="button"
-                onClick={handlePickAndUploadImage}
-                disabled={isSending || isUploading}
-                className="px-3 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-                title="Upload image"
-              >
-                {isUploading ? '…' : '🖼️'}
-              </button>
               <button
                 type="submit"
                 disabled={!newMessage.trim() || isSending || newMessage.length > 1000}

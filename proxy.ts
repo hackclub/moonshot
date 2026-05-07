@@ -81,19 +81,37 @@ function enforceBasicAuthIfEnabled(request: NextRequest): Response | null {
   */
 }
 
-export default async function proxy(request: NextRequest) {
-  // Allow unauthenticated, unredirected access for temporary upload URLs so the CDN can fetch them
-  // This bypass prevents canonical redirects and basic auth challenges for /api/uploads resources
-  const path = request.nextUrl.pathname || '/';
-  if (path.startsWith('/api/uploads')) {
-    return NextResponse.next();
+function enforceReadOnlyMode(request: NextRequest): Response | null {
+  const method = request.method.toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+    return null;
   }
+
+  const path = request.nextUrl.pathname || '/';
+  if (path.startsWith('/api/auth/')) {
+    return null;
+  }
+
+  if (path.startsWith('/api/')) {
+    return NextResponse.json(
+      { error: 'Moonshot is in read-only mode.' },
+      { status: 503 }
+    );
+  }
+
+  return new Response('Moonshot is in read-only mode.', { status: 503 });
+}
+
+export default async function proxy(request: NextRequest) {
   // Handle hack.club → hackclub.com referral redirects FIRST so we can append r=slug
   const moonshotRedirect = handleMoonshotReferralRedirect(request);
   if (moonshotRedirect) return moonshotRedirect;
 
   const canonicalRedirect = redirectToCanonicalHostIfNeeded(request);
   if (canonicalRedirect) return canonicalRedirect;
+
+  const readOnlyResponse = enforceReadOnlyMode(request);
+  if (readOnlyResponse) return readOnlyResponse;
 
   const authResponse = enforceBasicAuthIfEnabled(request);
   if (authResponse) return authResponse;
